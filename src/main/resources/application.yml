@@ -1,0 +1,29 @@
+bot:
+  name: ${TELEGRAM_BOT_NAME}
+  token: ${TELEGRAM_BOT_TOKEN}
+
+owner:
+  userName: Marandyuk_Anatolii
+
+
+#dbUrl : postgres://tnjrmuyyflrdyu:2963140e0a61fe7d247fb6a68741b9672254c7fd579d5c6ca978423a03a347e7@ec2-79-125-127-60.eu-west-1.compute.amazonaws.com:5432/d79dae50b6t34i
+server:
+  port: 8081
+
+spring:
+  datasource:
+    password: ${PROD_POSTGRE_PASSWORD}
+    username: ${PROD_POSTGRE_USERNAME}
+    url: ${PROD_POSTGRE_URL}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL81Dialect
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
