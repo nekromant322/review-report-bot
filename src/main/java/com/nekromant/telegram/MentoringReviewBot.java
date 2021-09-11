@@ -131,4 +131,12 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             e.printStackTrace();
         }
     }
+
+    @SneakyThrows
+    public void sendMessage(String chatId, String text) {
+        SendMessage message = new SendMessage();
+        message.setText(text);
+        message.setChatId(chatId);
+        execute(message);
+    }
 }

@@ -12,4 +12,5 @@ public class MessageContants {
     public static final String NOBODY_CAN_MAKE_REVIEW = "Попробуй выбрать другое время\nНикто не может провести ревью %s\n";
     public static final String SOMEBODY_DENIED_REVIEW = "@%s отменил ревью с @%s";
     public static final String REVIEW_REQUEST_SENT = "Запрос отправлен менторам, ответ скоро придет";
+    public static final String REVIEW_INCOMING = "Скоро ревью у @%s с @%s\n%s\n%s";
 }
