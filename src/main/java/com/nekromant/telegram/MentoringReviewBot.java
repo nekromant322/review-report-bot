@@ -1,35 +1,35 @@
 package com.nekromant.telegram;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nekromant.telegram.commands.ApproveCommand;
-import com.nekromant.telegram.commands.DenyCommand;
+import com.nekromant.telegram.commands.AddMentorsCommand;
 import com.nekromant.telegram.commands.GetMentorsCommand;
 import com.nekromant.telegram.commands.RegisterMentorsChatCommand;
 import com.nekromant.telegram.commands.ReviewCommand;
-import com.nekromant.telegram.commands.AddMentorsCommand;
 import com.nekromant.telegram.commands.StartCommand;
-import com.nekromant.telegram.model.MentorsChat;
+import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
-import com.nekromant.telegram.repository.MentorsChatRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.MentorsChatService;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.security.InvalidParameterException;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.stream.Collectors;
+
+import static com.nekromant.telegram.contants.MessageContants.NOBODY_CAN_MAKE_REVIEW;
+import static com.nekromant.telegram.contants.MessageContants.REVIEW_APPROVED;
+import static com.nekromant.telegram.contants.MessageContants.REVIEW_BOOKED;
+import static com.nekromant.telegram.contants.MessageContants.SOMEBODY_DENIED_REVIEW;
+import static com.nekromant.telegram.contants.MessageContants.UNKNOWN_COMMAND;
+import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
+import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 
 
 @Component
@@ -38,10 +38,6 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     @Autowired
     private MentorsChatService mentorsChatService;
 
-//    Map<String, String> messages = new HashMap<>();
-
-    private ReplyMessageService replyMessageService;
-
     @Value("${bot.name}")
     private String botName;
 
@@ -49,25 +45,17 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private String botToken;
 
     @Autowired
-    private ApproveCommand approveCommand;
-
-    @Autowired
     private ReviewRequestRepository reviewRequestRepository;
 
 
     @Autowired
     public MentoringReviewBot(StartCommand startCommand,
-                              ReplyMessageService replyMessageService,
                               ReviewCommand reviewCommand,
                               AddMentorsCommand addMentorsCommand,
                               GetMentorsCommand getMentorsCommand,
-                              RegisterMentorsChatCommand registerMentorsChatCommand,
-                              ApproveCommand approveCommand,
-                              DenyCommand denyCommand) {
+                              RegisterMentorsChatCommand registerMentorsChatCommand) {
         super();
-        this.replyMessageService = replyMessageService;
-        registerAll(startCommand, reviewCommand, addMentorsCommand, getMentorsCommand, registerMentorsChatCommand, approveCommand,
-                denyCommand);
+        registerAll(startCommand, reviewCommand, addMentorsCommand, getMentorsCommand, registerMentorsChatCommand);
     }
 
     @Override
@@ -79,7 +67,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     @Override
     public void processNonCommandUpdate(Update update) {
         if (update.hasMessage()) {
-            if(!update.getMessage().getChatId().equals(mentorsChatService.getMentorsChatId())) {
+            if (!update.getMessage().getChatId().toString().equals(mentorsChatService.getMentorsChatId())) {
                 sendMessage(update);
             }
         } else if (update.hasCallbackQuery()) {
@@ -89,42 +77,35 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             SendMessage messageForMentors = new SendMessage();
             messageForMentors.setChatId(mentorsChatService.getMentorsChatId());
 
-            if(callBackData.startsWith("/approve")) {
-
-
-
+            if (callBackData.startsWith(CallBack.APPROVE.getAlias())) {
                 Long reviewId = Long.parseLong(callBackData.split(" ")[1]);
-                Integer timeSlot = Integer.parseInt(callBackData.split(" ")[2]);
+                int timeSlot = Integer.parseInt(callBackData.split(" ")[2]);
                 ReviewRequest review = reviewRequestRepository.findById(reviewId).orElseThrow(InvalidParameterException::new);
-                review.setBookedTimeSlot(timeSlot);
+                review.setBookedDateTime(LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0)));
                 review.setMentorUserName(update.getCallbackQuery().getFrom().getUserName());
                 reviewRequestRepository.save(review);
                 message.setChatId(review.getStudentChatId());
-                message.setText("Ревью c " + "@"+review.getMentorUserName() + " назначено на \n"+ review.getDate().format(
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " " + review.getBookedTimeSlot()+":00" + "\n" + review.getTitle());
 
-                message.enableMarkdown(false);
+                message.setText(String.format(REVIEW_BOOKED, review.getMentorUserName(),
+                        review.getBookedDateTime().format(defaultDateTimeFormatter()), review.getTitle()));
 
-                messageForMentors.setText("@" + update.getCallbackQuery().getFrom().getUserName() + " апрувнул ревью с @" + review.getStudentUserName() + " в " + timeSlot + ":00");
-                messageForMentors.enableMarkdown(false);
+                messageForMentors.setText(String.format(REVIEW_APPROVED, update.getCallbackQuery().getFrom().getUserName(),
+                        review.getStudentUserName(), review.getBookedDateTime().format(defaultDateTimeFormatter())));
             }
-            if(callBackData.startsWith("/deny")) {
-
-
+            if (callBackData.startsWith(CallBack.DENY.getAlias())) {
                 Long reviewId = Long.parseLong(callBackData.split(" ")[1]);
 
                 ReviewRequest review = reviewRequestRepository.findById(reviewId).orElseThrow(InvalidParameterException::new);
                 message.setChatId(review.getStudentChatId());
-                message.setText("Никто не может провести ревью "+ review.getDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " "
-                        + review.getTimeSlots().stream()
-                        .map(String::valueOf)
-                        .collect(Collectors.joining(":00, "))+":00" + "\n");
+                message.setText(String.format(NOBODY_CAN_MAKE_REVIEW, review.getDate().format(defaultDateFormatter())) +
+                        review.getTimeSlots().stream()
+                                .map(String::valueOf)
+                                .collect(Collectors.joining(":00, ")) + ":00" + "\n");
 
                 reviewRequestRepository.deleteById(reviewId);
-                message.enableMarkdown(false);
 
-                messageForMentors.setText("@" + update.getCallbackQuery().getFrom().getUserName() + " отменил ревью с @" + review.getStudentUserName());
-                messageForMentors.enableMarkdown(false);
+                messageForMentors.setText(String.format(SOMEBODY_DENIED_REVIEW, update.getCallbackQuery().getFrom().getUserName(),
+                        review.getStudentUserName()));
             }
             try {
                 execute(message);
@@ -140,10 +121,10 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return botToken;
     }
 
-    private void sendMessage(Update update) throws JsonProcessingException {
+    private void sendMessage(Update update) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(update.getMessage().getChatId()));
-        sendMessage.setText("Не понимаю команду");
+        sendMessage.setText(UNKNOWN_COMMAND);
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {

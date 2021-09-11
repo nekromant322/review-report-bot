@@ -11,7 +11,6 @@ import java.util.*;
 @Service
 public class MentorsChatService {
 
-
     private MentorsChatRepository mentorsChatRepository;
 
     private String cachedMentorsChatId = "";

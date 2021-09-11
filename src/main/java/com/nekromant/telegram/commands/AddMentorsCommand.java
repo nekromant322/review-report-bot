@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands;
 
 import com.nekromant.telegram.model.Mentor;
 import com.nekromant.telegram.repository.MentorRepository;
+import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,9 +12,10 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.nekromant.telegram.contants.Command.ADD_MENTORS;
 
 @Component
 public class AddMentorsCommand extends MentoringReviewCommand {
@@ -26,7 +28,7 @@ public class AddMentorsCommand extends MentoringReviewCommand {
 
     @Autowired
     public AddMentorsCommand() {
-        super("add_mentors", "Изменить список менторов");
+        super(ADD_MENTORS.getAlias(), ADD_MENTORS.getDescription());
     }
 
     @Override
@@ -38,7 +40,7 @@ public class AddMentorsCommand extends MentoringReviewCommand {
             message.setText("Ты не владелец бота");
         }
         try {
-            validateArguments(arguments);
+            ValidationUtils.validateArguments(arguments);
             Set<String> mentors = parseMentorsUserNames(arguments);
             mentors.stream().map(Mentor::new).forEach(m -> mentorRepository.save(m));
 
@@ -53,12 +55,6 @@ public class AddMentorsCommand extends MentoringReviewCommand {
 
     private Set<String> parseMentorsUserNames(String[] arguments) {
         return Arrays.stream(arguments).map(x -> x.replaceAll("@", "")).collect(Collectors.toSet());
-    }
-
-    private void validateArguments(String[] strings) {
-        if (strings == null || strings.length == 0) {
-            throw new InvalidParameterException();
-        }
     }
 
 }

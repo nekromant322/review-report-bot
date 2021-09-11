@@ -13,7 +13,7 @@ public class TimeSlotsConverter implements AttributeConverter<Set<Integer>, Stri
     @Override
     public String convertToDatabaseColumn(Set<Integer> integerList) {
         if (integerList == null) {
-            return new String();
+            return "";
         }
         return integerList.stream().map(String::valueOf).collect(Collectors.joining(GROUP_DELIMITER));
     }

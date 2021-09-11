@@ -1,12 +1,11 @@
 package com.nekromant.telegram.commands;
 
 
-import com.nekromant.telegram.model.MentorsChat;
+import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
-import com.nekromant.telegram.repository.MentorRepository;
-import com.nekromant.telegram.repository.MentorsChatRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.MentorsChatService;
+import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -18,9 +17,14 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.nekromant.telegram.contants.Command.REVIEW;
+import static com.nekromant.telegram.contants.MessageContants.ERROR;
+import static com.nekromant.telegram.contants.MessageContants.REVIEW_REQUEST_SENT;
+import static com.nekromant.telegram.contants.MessageContants.START_MESSAGE;
+import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 @Component
 public class ReviewCommand extends MentoringReviewCommand {
@@ -29,14 +33,11 @@ public class ReviewCommand extends MentoringReviewCommand {
     private ReviewRequestRepository reviewRequestRepository;
 
     @Autowired
-    private MentorRepository mentorRepository;
-
-    @Autowired
     private MentorsChatService mentorsChatService;
 
     @Autowired
     public ReviewCommand() {
-        super("review", "Забукать ревью");
+        super(REVIEW.getAlias(), REVIEW.getDescription());
     }
 
     @Override
@@ -47,7 +48,7 @@ public class ReviewCommand extends MentoringReviewCommand {
 
         ReviewRequest reviewRequest = new ReviewRequest();
         try {
-            validateArguments(arguments);
+            ValidationUtils.validateArguments(arguments);
             reviewRequest.setStudentUserName(user.getUserName());
             reviewRequest.setStudentChatId(studentChatId);
             reviewRequest.setDate(parseDate(arguments));
@@ -55,25 +56,23 @@ public class ReviewCommand extends MentoringReviewCommand {
             reviewRequest.setTimeSlots(parseTimeSlots(arguments));
 
         } catch (Exception e) {
-            message.setText("Для того чтобы попросить ревью напишите что-то вроде /review 26.05.2021 15 17 18 Тема: 5 модуль" +
-                    "\n15 17 18 - таймслоты" +
-                    "\nслово \"Тема\" обязательно, потому что разработчик лентяй");
+            message.setText(ERROR + START_MESSAGE);
             execute(absSender, message, user);
             return;
         }
         System.out.println("Сохранение нового реквеста " + reviewRequest.toString());
         reviewRequestRepository.save(reviewRequest);
 
-        writeMentors(absSender, user, chat, mentorsChatService.getMentorsChatId(), reviewRequest);
+        writeMentors(absSender, user, mentorsChatService.getMentorsChatId(), reviewRequest);
 
 
-        message.setText("Запрос отправлен менторам, ответ скоро придет");
+        message.setText(REVIEW_REQUEST_SENT);
         execute(absSender, message, user);
     }
 
     private LocalDate parseDate(String[] strings) {
 
-        return LocalDate.parse(strings[0], DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        return LocalDate.parse(strings[0], defaultDateFormatter());
     }
 
     private Set<Integer> parseTimeSlots(String[] strings) {
@@ -100,23 +99,17 @@ public class ReviewCommand extends MentoringReviewCommand {
         return "";
     }
 
-    private void validateArguments(String[] strings) {
-        if (strings == null || strings.length == 0) {
-            throw new InvalidParameterException();
-        }
-    }
-
-    private void writeMentors(AbsSender absSender, User user, Chat chat, String mentorsChatId, ReviewRequest reviewRequest) {
+    private void writeMentors(AbsSender absSender, User user, String mentorsChatId, ReviewRequest reviewRequest) {
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
 
 
-        reviewRequest.getTimeSlots().forEach( x -> {
+        reviewRequest.getTimeSlots().forEach(x -> {
             List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
             InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
             inlineKeyboardButton.setText(x + ":00");
-            inlineKeyboardButton.setCallbackData("/approve " + reviewRequest.getId() + " " + x);
+            inlineKeyboardButton.setCallbackData(CallBack.APPROVE.getAlias() + " " + reviewRequest.getId() + " " + x);
 
             keyboardButtonRow.add(inlineKeyboardButton);
             rowList.add(keyboardButtonRow);
@@ -125,28 +118,19 @@ public class ReviewCommand extends MentoringReviewCommand {
         List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
         InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
         inlineKeyboardButton.setText("Отменить");
-        inlineKeyboardButton.setCallbackData("/deny " + reviewRequest.getId());
+        inlineKeyboardButton.setCallbackData(CallBack.DENY.getAlias() + " " + reviewRequest.getId());
 
         keyboardButtonRow.add(inlineKeyboardButton);
         rowList.add(keyboardButtonRow);
-
-
-
-
-
 
         inlineKeyboardMarkup.setKeyboard(rowList);
 
         SendMessage message = new SendMessage();
         message.setChatId(mentorsChatId);
 
-//        final StringBuilder commands = new StringBuilder();
-//        reviewRequest.getTimeSlots().forEach(x ->   commands.append("/approve " + reviewRequest.getId() + " " + x + "\n"));
-//
-//        commands.append("/deny " + reviewRequest.getId());
 
-        message.setText("@" + reviewRequest.getStudentUserName() + "\n" + reviewRequest.getTitle() + "\n" + reviewRequest.getDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) +
-                "\n");
+        message.setText("@" + reviewRequest.getStudentUserName() + "\n" + reviewRequest.getTitle() + "\n" +
+                reviewRequest.getDate().format(defaultDateFormatter()) + "\n");
         message.setReplyMarkup(inlineKeyboardMarkup);
 
 

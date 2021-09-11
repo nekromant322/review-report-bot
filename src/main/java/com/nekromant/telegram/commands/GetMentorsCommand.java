@@ -11,9 +11,10 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.nekromant.telegram.contants.Command.GET_MENTORS;
 
 @Component
 public class GetMentorsCommand extends MentoringReviewCommand {
@@ -26,7 +27,7 @@ public class GetMentorsCommand extends MentoringReviewCommand {
 
     @Autowired
     public GetMentorsCommand() {
-        super("get_mentors", "Узнать список менторов");
+        super(GET_MENTORS.getAlias(), GET_MENTORS.getDescription());
     }
 
     @Override
@@ -37,8 +38,6 @@ public class GetMentorsCommand extends MentoringReviewCommand {
         List<Mentor> activeMentors = new ArrayList<>();
         try {
             activeMentors = mentorRepository.findAllByIsActiveIsTrue();
-
-
         } catch (Exception e) {
             message.setText(e.getMessage());
             execute(absSender, message, user);
@@ -48,15 +47,7 @@ public class GetMentorsCommand extends MentoringReviewCommand {
                 activeMentors.stream()
                         .map(Mentor::getUserName)
                         .map(x -> "@" + x)
-                        .collect(Collectors.joining("\n ")));
+                        .collect(Collectors.joining("\n")));
         execute(absSender, message, user);
     }
-
-
-    private void validateArguments(String[] strings) {
-        if (strings == null || strings.length == 0) {
-            throw new InvalidParameterException();
-        }
-    }
-
 }
