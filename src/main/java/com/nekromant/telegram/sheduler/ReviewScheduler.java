@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -29,14 +31,17 @@ public class ReviewScheduler {
 
     @Scheduled(cron = "0 55 * * * *")
     public void processEveryHour() {
+
         cleanUp();
         notifyReview();
     }
 
     private void notifyReview() {
         System.out.println("Отправка уведомлений");
+        LocalDateTime nowInMoscow = ZonedDateTime.now(ZoneId.of("Europe/Moscow")).toLocalDateTime();
+
         List<ReviewRequest> sudenReviews = reviewRequestRepository
-                .findAllByBookedDateTimeBetween(LocalDateTime.now(), LocalDateTime.now().plus(30, ChronoUnit.MINUTES));
+                .findAllByBookedDateTimeBetween(nowInMoscow, nowInMoscow.plus(30, ChronoUnit.MINUTES));
 
         for (ReviewRequest reviewRequest : sudenReviews) {
             String reviewIncomingMessage = String.format(REVIEW_INCOMING,
@@ -49,6 +54,7 @@ public class ReviewScheduler {
 
     private void cleanUp() {
         System.out.println("Удаление старых запросов");
-        reviewRequestRepository.deleteAllByBookedDateTimeIsBefore(LocalDateTime.now().minus(1, ChronoUnit.DAYS));
+        LocalDateTime nowInMoscow = ZonedDateTime.now(ZoneId.of("Europe/Moscow")).toLocalDateTime();
+        reviewRequestRepository.deleteAllByBookedDateTimeIsBefore(nowInMoscow.minus(1, ChronoUnit.DAYS));
     }
 }
