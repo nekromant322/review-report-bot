@@ -4,7 +4,6 @@ package com.nekromant.telegram.commands;
 import com.nekromant.telegram.model.Mentor;
 import com.nekromant.telegram.repository.MentorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -18,9 +17,6 @@ import static com.nekromant.telegram.contants.Command.GET_MENTORS;
 
 @Component
 public class GetMentorsCommand extends MentoringReviewCommand {
-
-    @Value("${owner.userName")
-    private String ownerUserName;
 
     @Autowired
     private MentorRepository mentorRepository;
@@ -42,7 +38,6 @@ public class GetMentorsCommand extends MentoringReviewCommand {
             message.setText(e.getMessage());
             execute(absSender, message, user);
         }
-
         message.setText("Список активных менторов:\n" +
                 activeMentors.stream()
                         .map(Mentor::getUserName)

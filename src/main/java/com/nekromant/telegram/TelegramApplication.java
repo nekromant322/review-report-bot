@@ -10,8 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @PropertySource({
         "classpath:application.yml"
-}
-)
+})
 @EnableJpaRepositories(basePackages = {"com.nekromant.telegram.repository"})
 @EnableScheduling
 public class TelegramApplication {

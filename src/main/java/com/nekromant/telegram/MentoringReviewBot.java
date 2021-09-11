@@ -35,8 +35,6 @@ import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatt
 @Component
 public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
-    @Autowired
-    private MentorsChatService mentorsChatService;
 
     @Value("${bot.name}")
     private String botName;
@@ -45,8 +43,10 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private String botToken;
 
     @Autowired
-    private ReviewRequestRepository reviewRequestRepository;
+    private MentorsChatService mentorsChatService;
 
+    @Autowired
+    private ReviewRequestRepository reviewRequestRepository;
 
     @Autowired
     public MentoringReviewBot(StartCommand startCommand,
