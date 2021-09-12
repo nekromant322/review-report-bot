@@ -1,14 +1,18 @@
 package com.nekromant.telegram;
 
 import com.nekromant.telegram.commands.AddMentorsCommand;
+import com.nekromant.telegram.commands.AllStatCommand;
 import com.nekromant.telegram.commands.GetMentorsCommand;
+import com.nekromant.telegram.commands.MyStatCommand;
 import com.nekromant.telegram.commands.RegisterMentorsChatCommand;
+import com.nekromant.telegram.commands.RegisterReportChatCommand;
+import com.nekromant.telegram.commands.ReportCommand;
 import com.nekromant.telegram.commands.ReviewCommand;
 import com.nekromant.telegram.commands.StartCommand;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
-import com.nekromant.telegram.service.MentorsChatService;
+import com.nekromant.telegram.service.SpecialChatService;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +47,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private String botToken;
 
     @Autowired
-    private MentorsChatService mentorsChatService;
+    private SpecialChatService specialChatService;
 
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
@@ -53,9 +57,14 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                               ReviewCommand reviewCommand,
                               AddMentorsCommand addMentorsCommand,
                               GetMentorsCommand getMentorsCommand,
-                              RegisterMentorsChatCommand registerMentorsChatCommand) {
+                              RegisterMentorsChatCommand registerMentorsChatCommand,
+                              RegisterReportChatCommand registerReportChatCommand,
+                              ReportCommand reportCommand,
+                              MyStatCommand myStatCommand,
+                              AllStatCommand allStatCommand) {
         super();
-        registerAll(startCommand, reviewCommand, addMentorsCommand, getMentorsCommand, registerMentorsChatCommand);
+        registerAll(startCommand, reviewCommand, addMentorsCommand, getMentorsCommand, registerMentorsChatCommand, reportCommand,
+                myStatCommand, allStatCommand, registerReportChatCommand);
     }
 
     @Override
@@ -67,7 +76,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     @Override
     public void processNonCommandUpdate(Update update) {
         if (update.hasMessage()) {
-            if (!update.getMessage().getChatId().toString().equals(mentorsChatService.getMentorsChatId())) {
+            if (!update.getMessage().getChatId().toString().equals(specialChatService.getMentorsChatId())) {
                 sendMessage(update);
             }
         } else if (update.hasCallbackQuery()) {
@@ -75,7 +84,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             String callBackData = update.getCallbackQuery().getData();
             SendMessage message = new SendMessage();
             SendMessage messageForMentors = new SendMessage();
-            messageForMentors.setChatId(mentorsChatService.getMentorsChatId());
+            messageForMentors.setChatId(specialChatService.getMentorsChatId());
 
             if (callBackData.startsWith(CallBack.APPROVE.getAlias())) {
                 Long reviewId = Long.parseLong(callBackData.split(" ")[1]);

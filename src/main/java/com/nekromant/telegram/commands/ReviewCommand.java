@@ -4,7 +4,7 @@ package com.nekromant.telegram.commands;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
-import com.nekromant.telegram.service.MentorsChatService;
+import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REVIEW;
 import static com.nekromant.telegram.contants.MessageContants.ERROR;
+import static com.nekromant.telegram.contants.MessageContants.REVIEW_HELP_MESSAGE;
 import static com.nekromant.telegram.contants.MessageContants.REVIEW_REQUEST_SENT;
-import static com.nekromant.telegram.contants.MessageContants.START_MESSAGE;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 @Component
@@ -33,7 +33,7 @@ public class ReviewCommand extends MentoringReviewCommand {
     private ReviewRequestRepository reviewRequestRepository;
 
     @Autowired
-    private MentorsChatService mentorsChatService;
+    private SpecialChatService specialChatService;
 
     @Autowired
     public ReviewCommand() {
@@ -56,14 +56,15 @@ public class ReviewCommand extends MentoringReviewCommand {
             reviewRequest.setTimeSlots(parseTimeSlots(arguments));
 
         } catch (Exception e) {
-            message.setText(ERROR + START_MESSAGE);
+            e.printStackTrace();
+            message.setText(ERROR + REVIEW_HELP_MESSAGE);
             execute(absSender, message, user);
             return;
         }
         System.out.println("Сохранение нового реквеста " + reviewRequest.toString());
         reviewRequestRepository.save(reviewRequest);
 
-        writeMentors(absSender, user, mentorsChatService.getMentorsChatId(), reviewRequest);
+        writeMentors(absSender, user, specialChatService.getMentorsChatId(), reviewRequest);
 
 
         message.setText(REVIEW_REQUEST_SENT);

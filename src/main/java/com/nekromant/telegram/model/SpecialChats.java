@@ -17,16 +17,19 @@ import javax.persistence.Id;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class MentorsChat {
+public class SpecialChats {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
-    private String chatId;
+    private String mentorsChatId;
 
-    public MentorsChat(String chatId) {
-        this.chatId = chatId;
+    @Column
+    private String reportChatId;
+
+    public SpecialChats(String mentorsChatId) {
+        this.mentorsChatId = mentorsChatId;
     }
 }

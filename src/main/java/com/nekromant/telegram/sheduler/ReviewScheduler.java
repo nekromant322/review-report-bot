@@ -3,7 +3,7 @@ package com.nekromant.telegram.sheduler;
 import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
-import com.nekromant.telegram.service.MentorsChatService;
+import com.nekromant.telegram.service.SpecialChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class ReviewScheduler {
     private MentoringReviewBot mentoringReviewBot;
 
     @Autowired
-    private MentorsChatService mentorsChatService;
+    private SpecialChatService specialChatService;
 
     @Scheduled(cron = "0 55 * * * *")
     public void processEveryHour() {
@@ -48,7 +48,7 @@ public class ReviewScheduler {
                     reviewRequest.getStudentUserName(), reviewRequest.getMentorUserName(),
                     reviewRequest.getBookedDateTime().format(defaultDateTimeFormatter()), reviewRequest.getTitle());
             mentoringReviewBot.sendMessage(reviewRequest.getStudentChatId(), reviewIncomingMessage);
-            mentoringReviewBot.sendMessage(mentorsChatService.getMentorsChatId(), reviewIncomingMessage);
+            mentoringReviewBot.sendMessage(specialChatService.getMentorsChatId(), reviewIncomingMessage);
         }
     }
 

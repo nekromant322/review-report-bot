@@ -9,10 +9,10 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import static com.nekromant.telegram.contants.Command.REGISTER_MENTOR;
+import static com.nekromant.telegram.contants.Command.REGISTER_REPORT;
 
 @Component
-public class RegisterMentorsChatCommand extends MentoringReviewCommand {
+public class RegisterReportChatCommand extends MentoringReviewCommand {
 
     @Value("${owner.userName}")
     private String ownerUserName;
@@ -21,8 +21,8 @@ public class RegisterMentorsChatCommand extends MentoringReviewCommand {
     private SpecialChatService specialChatService;
 
     @Autowired
-    public RegisterMentorsChatCommand() {
-        super(REGISTER_MENTOR.getAlias(), REGISTER_MENTOR.getDescription());
+    public RegisterReportChatCommand() {
+        super(REGISTER_REPORT.getAlias(), REGISTER_REPORT.getDescription());
     }
 
     @Override
@@ -36,13 +36,13 @@ public class RegisterMentorsChatCommand extends MentoringReviewCommand {
             return;
         }
         try {
-            specialChatService.updateMentorsChatId(chatId);
+            specialChatService.updateReportsChatId(chatId);
         } catch (Exception e) {
             message.setText(e.getMessage());
             execute(absSender, message, user);
         }
 
-        message.setText("Этот чат теперь основной чат менторов, сюда будут приходить запросы о ревью");
+        message.setText("Этот чат теперь основной чат для отчетов, сюда будут приходить отчеты, которые пишут боту");
         execute(absSender, message, user);
     }
 }

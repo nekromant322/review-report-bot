@@ -1,11 +1,10 @@
 package com.nekromant.telegram.repository;
 
-import com.nekromant.telegram.model.MentorsChat;
-import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.model.SpecialChats;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.*;
 
-public interface MentorsChatRepository extends CrudRepository<MentorsChat, Long> {
-    List<MentorsChat> findAll();
+public interface MentorsChatRepository extends CrudRepository<SpecialChats, Long> {
+    List<SpecialChats> findAll();
 }
