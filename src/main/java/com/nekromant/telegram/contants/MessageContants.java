@@ -12,6 +12,8 @@ public class MessageContants {
 
     public static final String REPORT_HELP_MESSAGE = "Чтобы отправить отчет /report [сегодня|вчера] <кол-во часов> <чем занимался>\n\n" +
             "Пример:\n /report сегодня 2 Читал статьи про ооп";
+    public static final String REPORT_HISTORY_HELP_MESSAGE = "Чтобы получить историю отчетов\n/" + Command.REPORT_HISTORY.getAlias() + " " +
+            "@username <кол-во отчетов>";
 
     public static final String REVIEW_HELP_MESSAGE = "Для того чтобы попросить " +
             "ревью напишите " +

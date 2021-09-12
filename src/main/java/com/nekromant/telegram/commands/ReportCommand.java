@@ -3,7 +3,6 @@ package com.nekromant.telegram.commands;
 import com.nekromant.telegram.exception.TooManyReportsException;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
-import com.nekromant.telegram.service.ReportService;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +26,6 @@ import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
 
 @Component
 public class ReportCommand extends MentoringReviewCommand {
-
-    @Autowired
-    private ReportService reportService;
 
     @Autowired
     private ReportRepository reportRepository;
@@ -94,6 +90,5 @@ public class ReportCommand extends MentoringReviewCommand {
         }
         throw new InvalidParameterException();
     }
-
 
 }

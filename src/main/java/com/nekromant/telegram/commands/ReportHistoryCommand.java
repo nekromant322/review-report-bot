@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REPORT_HISTORY;
 import static com.nekromant.telegram.contants.MessageContants.ERROR;
+import static com.nekromant.telegram.contants.MessageContants.REPORT_HISTORY_HELP_MESSAGE;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
 
 @Component
@@ -48,14 +49,11 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
             message.setText(messageWithHistory);
 
             execute(absSender, message, user);
-
-
         } catch (Exception e) {
             e.printStackTrace();
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
-            message.setText(ERROR);
-            //todo пример нормального вызова
+            message.setText(ERROR + REPORT_HISTORY_HELP_MESSAGE);
             execute(absSender, message, user);
         }
     }
