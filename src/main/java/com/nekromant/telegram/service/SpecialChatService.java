@@ -24,7 +24,7 @@ public class SpecialChatService {
         List<SpecialChats> specialChats = mentorsChatRepository.findAll();
         if (!specialChats.isEmpty()) {
             this.cachedMentorsChatId = specialChats.get(0).getMentorsChatId();
-            this.cachedMentorsChatId = specialChats.get(0).getReportChatId();
+            this.cachedReportsChatId = specialChats.get(0).getReportChatId();
         }
     }
 
@@ -57,6 +57,6 @@ public class SpecialChatService {
     }
 
     public String getReportsChatId() {
-        return this.cachedMentorsChatId;
+        return this.cachedReportsChatId;
     }
 }

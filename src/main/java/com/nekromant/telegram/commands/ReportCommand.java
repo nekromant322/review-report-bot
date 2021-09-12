@@ -58,8 +58,6 @@ public class ReportCommand extends MentoringReviewCommand {
             }
             reportRepository.save(report);
 
-            System.out.println("СТАТА");
-            System.out.println(reportService.getUserStats(user.getUserName()));
             SendMessage message = new SendMessage();
             message.setChatId(specialChatService.getReportsChatId());
             message.setText(
