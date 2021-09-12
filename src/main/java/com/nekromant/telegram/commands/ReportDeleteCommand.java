@@ -1,0 +1,54 @@
+package com.nekromant.telegram.commands;
+
+import com.nekromant.telegram.repository.ReportRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+
+import static com.nekromant.telegram.contants.Command.REPORT_DELETE;
+import static com.nekromant.telegram.contants.MessageContants.ERROR;
+import static com.nekromant.telegram.contants.MessageContants.REPORTS_DELETED;
+import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
+
+@Component
+public class ReportDeleteCommand extends MentoringReviewCommand {
+
+    @Value("${owner.userName}")
+    private String ownerUserName;
+
+    @Autowired
+    private ReportRepository reportRepository;
+
+    public ReportDeleteCommand() {
+        super(REPORT_DELETE.getAlias(), REPORT_DELETE.getDescription());
+    }
+
+    @Override
+    public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
+        try {
+            validateArguments(strings);
+            SendMessage message = new SendMessage();
+            String chatId = chat.getId().toString();
+            message.setChatId(chatId);
+
+            if (!user.getUserName().equals(ownerUserName)) {
+                message.setText("Ты не владелец бота");
+                execute(absSender, message, user);
+                return;
+            }
+            reportRepository.deleteByStudentUserName(strings[0].replaceAll("@", ""));
+            message.setText(REPORTS_DELETED);
+            execute(absSender, message, user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            SendMessage message = new SendMessage();
+            message.setChatId(chat.getId().toString());
+            message.setText(ERROR);
+            execute(absSender, message, user);
+        }
+    }
+}

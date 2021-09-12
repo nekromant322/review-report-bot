@@ -30,7 +30,7 @@ public class AllStatCommand extends MentoringReviewCommand {
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         try {
 
-            String allStatsMessage = reportService.getAllUsersStats().stream()
+            String allStatsMessage = "\uD83D\uDE80 " + reportService.getAllUsersStats().stream()
                     .sorted(Comparator.comparing(UserStatistic::getAveragePerWeek).reversed())
                     .map(stat -> String.format(USER_STAT_MESSAGE, stat.getUserName(), stat.getTotalDays(), stat.getStudyDays(),
                             stat.getTotalHours(), stat.getAveragePerWeek()))

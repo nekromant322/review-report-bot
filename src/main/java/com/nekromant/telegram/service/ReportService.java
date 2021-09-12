@@ -23,19 +23,19 @@ public class ReportService {
         Integer studyDays = reportRepository.findTotalStudyDays(userName);
         Integer totalHours = reportRepository.findTotalHours(userName);
         Report firstReport =
-                reportRepository.findAll().stream().sorted(Comparator.comparing(Report::getDate)).findFirst()
+                reportRepository.findAll().stream().min(Comparator.comparing(Report::getDate))
                         .orElse(Report.builder()
                                 .date(LocalDate.now())
                                 .build()
                         );
-        long totalDays = DAYS.between(firstReport.getDate(), LocalDate.now(ZoneId.of("Europe/Moscow"))) + 1;
+        long totalDays = DAYS.between(firstReport.getDate(), LocalDate.now(ZoneId.of("Europe/Moscow")));
 
         return UserStatistic.builder()
                 .userName(userName)
                 .totalDays((int) totalDays)
                 .studyDays(studyDays)
                 .totalHours(totalHours)
-                .averagePerWeek((float) totalHours / 7.f)
+                .averagePerWeek((float) totalHours * 7.f / totalDays)
                 .build();
     }
 

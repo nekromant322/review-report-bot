@@ -26,5 +26,7 @@ public class MessageContants {
     public static final String REVIEW_REQUEST_SENT = "Запрос отправлен менторам, ответ скоро придет";
     public static final String REVIEW_INCOMING = "Скоро ревью у @%s с @%s\n%s\n%s";
     public static final String USER_STAT_MESSAGE =
-            "@%s\nВсего дней - %s\nУчился дней - %s дней\nУчился часов - %s\nВ среднем в неделю - %s часов";
+            "@%s\nВсего дней - %s\nУчился дней - %s\nУчился часов - %s\nВ среднем в неделю - %s часов";
+
+    public static final String REPORTS_DELETED = "Отчеты удалены";
 }

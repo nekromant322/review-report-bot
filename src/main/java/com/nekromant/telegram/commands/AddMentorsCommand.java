@@ -20,7 +20,7 @@ import static com.nekromant.telegram.contants.Command.ADD_MENTORS;
 @Component
 public class AddMentorsCommand extends MentoringReviewCommand {
 
-    @Value("${owner.userName")
+    @Value("${owner.userName}")
     private String ownerUserName;
 
     @Autowired
@@ -38,6 +38,8 @@ public class AddMentorsCommand extends MentoringReviewCommand {
         message.setChatId(chatId);
         if(!user.getUserName().equals(ownerUserName)) {
             message.setText("Ты не владелец бота");
+            execute(absSender, message, user);
+            return;
         }
         try {
             ValidationUtils.validateArguments(arguments);
