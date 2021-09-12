@@ -4,6 +4,7 @@ import com.nekromant.telegram.model.Report;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -20,6 +21,7 @@ public interface ReportRepository extends CrudRepository<Report, Long> {
     @Query("SELECT count(r) FROM Report r WHERE (r.studentUserName = ?1 AND r.hours > 0)")
     Integer findTotalStudyDays(String studentUsername);
 
+    @Transactional
     void deleteByStudentUserName(String studentUserName);
 
 }

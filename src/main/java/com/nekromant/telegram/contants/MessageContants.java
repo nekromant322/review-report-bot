@@ -29,4 +29,5 @@ public class MessageContants {
             "@%s\nВсего дней - %s\nУчился дней - %s\nУчился часов - %s\nВ среднем в неделю - %s часов";
 
     public static final String REPORTS_DELETED = "Отчеты удалены";
+    public static final String NOW_OWNER_ERROR = "Ты не владелец бота";
 }

@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import static com.nekromant.telegram.contants.Command.REGISTER_REPORT;
+import static com.nekromant.telegram.contants.MessageContants.NOW_OWNER_ERROR;
 
 @Component
 public class RegisterReportChatCommand extends MentoringReviewCommand {
@@ -31,7 +32,7 @@ public class RegisterReportChatCommand extends MentoringReviewCommand {
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
         if (!user.getUserName().equals(ownerUserName)) {
-            message.setText("Ты не владелец бота");
+            message.setText(NOW_OWNER_ERROR);
             execute(absSender, message, user);
             return;
         }

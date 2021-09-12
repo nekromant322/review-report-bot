@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import static com.nekromant.telegram.contants.Command.START;
@@ -21,9 +22,10 @@ public class StartCommand extends MentoringReviewCommand {
         SendMessage message = new SendMessage();
         message.setChatId(chat.getId().toString());
         message.setText(START_HELP_MESSAGE);
+
+        //если хочется присобачить клавиатуру - это сюда
+        message.setReplyMarkup(new ReplyKeyboardRemove(true));
+
         execute(absSender, message, user);
     }
-
-
-
 }

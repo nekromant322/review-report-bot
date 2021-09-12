@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.ADD_MENTORS;
+import static com.nekromant.telegram.contants.MessageContants.NOW_OWNER_ERROR;
 
 @Component
 public class AddMentorsCommand extends MentoringReviewCommand {
@@ -37,7 +38,7 @@ public class AddMentorsCommand extends MentoringReviewCommand {
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
         if(!user.getUserName().equals(ownerUserName)) {
-            message.setText("Ты не владелец бота");
+            message.setText(NOW_OWNER_ERROR);
             execute(absSender, message, user);
             return;
         }
