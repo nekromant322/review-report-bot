@@ -10,7 +10,8 @@ public enum Command {
     ADD_MENTORS("add_mentors", "Добавить менторов"),
     REPORT("report", "Отправить отчет"),
     MY_STAT("mystat", "Посмотреть свою статистику"),
-    ALL_STAT("allstat", "Посмотреть статистику по всем");
+    ALL_STAT("allstat", "Посмотреть статистику по всем"),
+    REPORT_HISTORY("report_history", "Посмотреть историю отчетов");
 
     private String alias;
     private String description;

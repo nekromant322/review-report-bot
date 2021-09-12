@@ -12,6 +12,7 @@ public interface ReportRepository extends CrudRepository<Report, Long> {
 
     List<Report> findAll(); //todo переписать на норм запрос для получения первого отчета
 
+    List<Report> findAllByStudentUserName(String studentUsername);
 
     @Query("SELECT sum(r.hours) FROM Report r WHERE r.studentUserName = ?1")
     Integer findTotalHours(String studentUsername);

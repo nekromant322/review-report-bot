@@ -7,6 +7,7 @@ import com.nekromant.telegram.commands.MyStatCommand;
 import com.nekromant.telegram.commands.RegisterMentorsChatCommand;
 import com.nekromant.telegram.commands.RegisterReportChatCommand;
 import com.nekromant.telegram.commands.ReportCommand;
+import com.nekromant.telegram.commands.ReportHistoryCommand;
 import com.nekromant.telegram.commands.ReviewCommand;
 import com.nekromant.telegram.commands.StartCommand;
 import com.nekromant.telegram.contants.CallBack;
@@ -61,10 +62,11 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                               RegisterReportChatCommand registerReportChatCommand,
                               ReportCommand reportCommand,
                               MyStatCommand myStatCommand,
-                              AllStatCommand allStatCommand) {
+                              AllStatCommand allStatCommand,
+                              ReportHistoryCommand reportHistoryCommand) {
         super();
         registerAll(startCommand, reviewCommand, addMentorsCommand, getMentorsCommand, registerMentorsChatCommand, reportCommand,
-                myStatCommand, allStatCommand, registerReportChatCommand);
+                myStatCommand, allStatCommand, registerReportChatCommand, reportHistoryCommand);
     }
 
     @Override
