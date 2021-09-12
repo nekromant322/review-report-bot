@@ -17,7 +17,7 @@ public interface ReportRepository extends CrudRepository<Report, Long> {
     @Query("SELECT sum(r.hours) FROM Report r WHERE r.studentUserName = ?1")
     Integer findTotalHours(String studentUsername);
 
-    @Query("SELECT count(r) FROM Report r WHERE r.studentUserName = ?1")
+    @Query("SELECT count(r) FROM Report r WHERE (r.studentUserName = ?1 AND r.hours > 0)")
     Integer findTotalStudyDays(String studentUsername);
 
 }

@@ -44,7 +44,7 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
                     .sorted(Comparator.comparing(Report::getDate))
                     .map(report -> report.getStudentUserName() + "\n" + report.getDate() + "\n" + report.getHours() + "\n" +
                             report.getTitle())
-                    .collect(Collectors.joining("\n"));
+                    .collect(Collectors.joining("\n-----------------\n"));
             message.setText(messageWithHistory);
 
             execute(absSender, message, user);
@@ -55,6 +55,7 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(ERROR);
+            //todo пример нормального вызова
             execute(absSender, message, user);
         }
     }
