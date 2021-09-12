@@ -36,11 +36,11 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
             validateArguments(strings);
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
-
+            int limitCount = strings.length > 1 ? Integer.parseInt(strings[1]) : 10;
             String messageWithHistory = reportRepository.findAllByStudentUserName(parseUserName(strings))
                     .stream()
                     .sorted(Comparator.comparing(Report::getDate).reversed())
-                    .limit(Integer.parseInt(strings[1]))
+                    .limit(limitCount)
                     .sorted(Comparator.comparing(Report::getDate))
                     .map(report -> report.getStudentUserName() + "\n" + report.getDate() + "\n" + report.getHours() + "\n" +
                             report.getTitle())
