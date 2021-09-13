@@ -43,7 +43,7 @@ public class StatRestController {
     public Stat getStatPerDay() {
         LocalDate firstReviewDate = getFirstReviewDate();
         List<LocalDate> labels = Stream.iterate(firstReviewDate, date -> date.plus(1, DAYS))
-                .limit(DAYS.between(firstReviewDate, LocalDate.now())).collect(Collectors.toList());
+                .limit(DAYS.between(firstReviewDate, LocalDate.now()) + 1).collect(Collectors.toList());
 
         List<UserStat> userStats = new ArrayList<>();
 
