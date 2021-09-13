@@ -30,4 +30,5 @@ public class MessageContants {
 
     public static final String REPORTS_DELETED = "Отчеты удалены";
     public static final String NOW_OWNER_ERROR = "Ты не владелец бота";
+    public static final String REPORT_REMINDER = "Не забудь написать отчет \uD83D\uDE4A \n";
 }

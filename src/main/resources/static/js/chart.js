@@ -2,7 +2,7 @@ var ctxPerDay = document.getElementById('myChart').getContext('2d');
 var ctxPerWeek = document.getElementById('myChart2').getContext('2d');
 // console.log(getStat())
 let statPerDay = getStatPerDay()
-let statPerWeek = getStatPerWeek()
+
 
 
 var myChart = new Chart(ctxPerDay, {
@@ -20,7 +20,7 @@ var myChart = new Chart(ctxPerDay, {
     }
 });
 
-
+let statPerWeek = getStatPerWeek()
 var myChartPerWeek = new Chart(ctxPerWeek, {
     type: 'line',
     data: {

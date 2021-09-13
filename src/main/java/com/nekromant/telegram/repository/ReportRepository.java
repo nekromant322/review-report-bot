@@ -21,6 +21,8 @@ public interface ReportRepository extends CrudRepository<Report, Long> {
     @Query("SELECT count(r) FROM Report r WHERE (r.studentUserName = ?1 AND r.hours > 0)")
     Integer findTotalStudyDays(String studentUsername);
 
+    List<Report> findAllByDateIs(LocalDate date);
+
     @Transactional
     void deleteByStudentUserName(String studentUserName);
 

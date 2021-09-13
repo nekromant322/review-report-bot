@@ -142,14 +142,14 @@ public class StatRestController {
 
     @Data
     @Builder
-    static class Stat {
+    private static class Stat {
         private List<LocalDate> labels;
         private List<UserStat> userStats;
     }
 
     @Data
     @Builder
-    static class UserStat {
+    private static class UserStat {
         private String label;
         private List<Integer> data;
         private String borderColor;
