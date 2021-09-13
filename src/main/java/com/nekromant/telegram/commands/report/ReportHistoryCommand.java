@@ -1,5 +1,6 @@
-package com.nekromant.telegram.commands;
+package com.nekromant.telegram.commands.report;
 
+import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.ReportService;

@@ -37,6 +37,10 @@ public class StatRestController {
         colors.add("rgb(0,27,113)");
         colors.add("rgb(255,0,0)");
         colors.add("rgb(0,150,102)");
+        colors.add("rgb(100,150,102)");
+        colors.add("rgb(100,50,150)");
+        colors.add("rgb(100,100,100)");
+        colors.add("rgb(200,200,200)");
     }
 
     @GetMapping("/statPerDay")

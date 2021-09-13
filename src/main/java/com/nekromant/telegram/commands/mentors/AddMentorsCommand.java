@@ -1,6 +1,7 @@
-package com.nekromant.telegram.commands;
+package com.nekromant.telegram.commands.mentors;
 
 
+import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.Mentor;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.utils.ValidationUtils;

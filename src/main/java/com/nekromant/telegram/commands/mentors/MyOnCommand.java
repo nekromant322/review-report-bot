@@ -1,6 +1,7 @@
-package com.nekromant.telegram.commands;
+package com.nekromant.telegram.commands.mentors;
 
 
+import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.Mentor;
 import com.nekromant.telegram.repository.MentorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,20 +11,18 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.nekromant.telegram.contants.Command.GET_MENTORS;
+import static com.nekromant.telegram.contants.Command.MY_OFF;
+import static com.nekromant.telegram.contants.Command.MY_ON;
 
 @Component
-public class GetMentorsCommand extends MentoringReviewCommand {
+public class MyOnCommand extends MentoringReviewCommand {
 
     @Autowired
     private MentorRepository mentorRepository;
 
     @Autowired
-    public GetMentorsCommand() {
-        super(GET_MENTORS.getAlias(), GET_MENTORS.getDescription());
+    public MyOnCommand() {
+        super(MY_ON.getAlias(), MY_ON.getDescription());
     }
 
     @Override
@@ -31,18 +30,23 @@ public class GetMentorsCommand extends MentoringReviewCommand {
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
-        List<Mentor> activeMentors = new ArrayList<>();
+
         try {
-            activeMentors = mentorRepository.findAllByIsActiveIsTrue();
+            Mentor mentor = mentorRepository.findMentorByUserName(user.getUserName());
+            if (mentor == null) {
+                message.setText("Ты не ментор");
+                execute(absSender, message, user);
+                return;
+            }
+            mentor.setIsActive(true);
+            mentorRepository.save(mentor);
+            message.setText("Теперь ты активный ментор, если сильно занят жми /" + MY_OFF.getAlias());
+            execute(absSender, message, user);
+
         } catch (Exception e) {
             message.setText(e.getMessage());
             execute(absSender, message, user);
         }
-        message.setText("Список активных менторов:\n" +
-                activeMentors.stream()
-                        .map(Mentor::getUserName)
-                        .map(x -> "@" + x)
-                        .collect(Collectors.joining("\n")));
-        execute(absSender, message, user);
+
     }
 }

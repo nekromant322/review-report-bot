@@ -1,5 +1,6 @@
-package com.nekromant.telegram.commands;
+package com.nekromant.telegram.commands.stat;
 
+import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.UserStatistic;
 import com.nekromant.telegram.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;

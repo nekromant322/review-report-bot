@@ -12,7 +12,9 @@ public enum Command {
     MY_STAT("mystat", "Посмотреть свою статистику"),
     ALL_STAT("allstat", "Посмотреть статистику по всем"),
     REPORT_HISTORY("report_history", "Посмотреть историю отчетов"),
-    REPORT_DELETE("report_delete", "Удалить отчеты студента");
+    REPORT_DELETE("report_delete", "Удалить отчеты студента"),
+    MY_OFF("me_off", "Стать пассивным ментором"),
+    MY_ON("me_on", "Стать активным ментором");
 
     private String alias;
     private String description;

@@ -1,16 +1,6 @@
 package com.nekromant.telegram;
 
-import com.nekromant.telegram.commands.AddMentorsCommand;
-import com.nekromant.telegram.commands.AllStatCommand;
-import com.nekromant.telegram.commands.GetMentorsCommand;
-import com.nekromant.telegram.commands.MyStatCommand;
-import com.nekromant.telegram.commands.RegisterMentorsChatCommand;
-import com.nekromant.telegram.commands.RegisterReportChatCommand;
-import com.nekromant.telegram.commands.ReportCommand;
-import com.nekromant.telegram.commands.ReportDeleteCommand;
-import com.nekromant.telegram.commands.ReportHistoryCommand;
-import com.nekromant.telegram.commands.ReviewCommand;
-import com.nekromant.telegram.commands.StartCommand;
+import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
@@ -27,6 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.MessageContants.NOBODY_CAN_MAKE_REVIEW;
@@ -41,7 +32,6 @@ import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatt
 @Component
 public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
-
     @Value("${bot.name}")
     private String botName;
 
@@ -55,20 +45,9 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private ReviewRequestRepository reviewRequestRepository;
 
     @Autowired
-    public MentoringReviewBot(StartCommand startCommand,
-                              ReviewCommand reviewCommand,
-                              AddMentorsCommand addMentorsCommand,
-                              GetMentorsCommand getMentorsCommand,
-                              RegisterMentorsChatCommand registerMentorsChatCommand,
-                              RegisterReportChatCommand registerReportChatCommand,
-                              ReportCommand reportCommand,
-                              MyStatCommand myStatCommand,
-                              AllStatCommand allStatCommand,
-                              ReportHistoryCommand reportHistoryCommand,
-                              ReportDeleteCommand reportDeleteCommand) {
+    public MentoringReviewBot(List<MentoringReviewCommand> allCommands) {
         super();
-        registerAll(startCommand, reviewCommand, addMentorsCommand, getMentorsCommand, registerMentorsChatCommand, reportCommand,
-                myStatCommand, allStatCommand, registerReportChatCommand, reportHistoryCommand, reportDeleteCommand);
+        allCommands.forEach(this::register);
     }
 
     @Override

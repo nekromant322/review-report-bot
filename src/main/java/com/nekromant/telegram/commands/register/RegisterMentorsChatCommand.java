@@ -1,5 +1,6 @@
-package com.nekromant.telegram.commands;
+package com.nekromant.telegram.commands.register;
 
+import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.service.SpecialChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,11 +10,11 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import static com.nekromant.telegram.contants.Command.REGISTER_REPORT;
+import static com.nekromant.telegram.contants.Command.REGISTER_MENTOR;
 import static com.nekromant.telegram.contants.MessageContants.NOW_OWNER_ERROR;
 
 @Component
-public class RegisterReportChatCommand extends MentoringReviewCommand {
+public class RegisterMentorsChatCommand extends MentoringReviewCommand {
 
     @Value("${owner.userName}")
     private String ownerUserName;
@@ -22,8 +23,8 @@ public class RegisterReportChatCommand extends MentoringReviewCommand {
     private SpecialChatService specialChatService;
 
     @Autowired
-    public RegisterReportChatCommand() {
-        super(REGISTER_REPORT.getAlias(), REGISTER_REPORT.getDescription());
+    public RegisterMentorsChatCommand() {
+        super(REGISTER_MENTOR.getAlias(), REGISTER_MENTOR.getDescription());
     }
 
     @Override
@@ -37,13 +38,13 @@ public class RegisterReportChatCommand extends MentoringReviewCommand {
             return;
         }
         try {
-            specialChatService.updateReportsChatId(chatId);
+            specialChatService.updateMentorsChatId(chatId);
         } catch (Exception e) {
             message.setText(e.getMessage());
             execute(absSender, message, user);
         }
 
-        message.setText("Этот чат теперь основной чат для отчетов, сюда будут приходить отчеты, которые пишут боту");
+        message.setText("Этот чат теперь основной чат менторов, сюда будут приходить запросы о ревью");
         execute(absSender, message, user);
     }
 }

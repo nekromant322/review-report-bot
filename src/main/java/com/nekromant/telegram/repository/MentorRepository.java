@@ -7,5 +7,8 @@ import java.util.*;
 
 public interface MentorRepository extends CrudRepository<Mentor, String> {
     List<Mentor> findAll();
+
     List<Mentor> findAllByIsActiveIsTrue();
+
+    Mentor findMentorByUserName(String userName);
 }
