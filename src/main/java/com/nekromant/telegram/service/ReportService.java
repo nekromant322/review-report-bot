@@ -23,7 +23,7 @@ public class ReportService {
         Integer studyDays = reportRepository.findTotalStudyDays(userName);
         Integer totalHours = reportRepository.findTotalHours(userName);
         Report firstReport =
-                reportRepository.findAll().stream().min(Comparator.comparing(Report::getDate))
+                reportRepository.findAllByStudentUserName(userName).stream().min(Comparator.comparing(Report::getDate))
                         .orElse(Report.builder()
                                 .date(LocalDate.now())
                                 .build()

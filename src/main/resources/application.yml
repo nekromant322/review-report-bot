@@ -6,7 +6,7 @@ owner:
   userName: Marandyuk_Anatolii
 
 server:
-  port: ${PORT}
+  port: ${PORT:8080}
 
 spring:
   datasource:
