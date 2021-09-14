@@ -45,4 +45,6 @@ public class ReviewRequest {
     @Column
     private LocalDateTime bookedDateTime;
 
+    @Column
+    private Integer pollMessageId;
 }

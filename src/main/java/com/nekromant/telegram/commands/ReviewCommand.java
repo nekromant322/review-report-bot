@@ -6,10 +6,12 @@ import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.utils.ValidationUtils;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -100,6 +102,7 @@ public class ReviewCommand extends MentoringReviewCommand {
         return "";
     }
 
+    @SneakyThrows
     private void writeMentors(AbsSender absSender, User user, String mentorsChatId, ReviewRequest reviewRequest) {
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -134,8 +137,9 @@ public class ReviewCommand extends MentoringReviewCommand {
                 reviewRequest.getDate().format(defaultDateFormatter()) + "\n");
         message.setReplyMarkup(inlineKeyboardMarkup);
 
-
-        execute(absSender, message, user);
+        Message executedMessage = absSender.execute(message);
+        reviewRequest.setPollMessageId(executedMessage.getMessageId());
+        reviewRequestRepository.save(reviewRequest);
     }
 
 }

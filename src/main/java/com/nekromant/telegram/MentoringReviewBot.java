@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -59,7 +60,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     @Override
     public void processNonCommandUpdate(Update update) {
         if (update.hasMessage()) {
-            if (!update.getMessage().getChatId().toString().equals(specialChatService.getMentorsChatId())) {
+            if (!(update.getMessage().getChatId().toString().equals(specialChatService.getMentorsChatId()) ||
+                    update.getMessage().getChatId().toString().equals(specialChatService.getReportsChatId()))) {
                 sendMessage(update);
             }
         } else if (update.hasCallbackQuery()) {
@@ -83,6 +85,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
                 messageForMentors.setText(String.format(REVIEW_APPROVED, update.getCallbackQuery().getFrom().getUserName(),
                         review.getStudentUserName(), review.getBookedDateTime().format(defaultDateTimeFormatter())));
+                deleteMessageMarkUp(review.getPollMessageId(), specialChatService.getMentorsChatId());
             }
             if (callBackData.startsWith(CallBack.DENY.getAlias())) {
                 Long reviewId = Long.parseLong(callBackData.split(" ")[1]);
@@ -98,6 +101,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
                 messageForMentors.setText(String.format(SOMEBODY_DENIED_REVIEW, update.getCallbackQuery().getFrom().getUserName(),
                         review.getStudentUserName()));
+                deleteMessageMarkUp(review.getPollMessageId(), specialChatService.getMentorsChatId());
             }
             try {
                 execute(message);
@@ -106,6 +110,16 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 e.printStackTrace();
             }
         }
+    }
+
+    @SneakyThrows
+    private void deleteMessageMarkUp(Integer messageId, String chatId) {
+        EditMessageReplyMarkup message = new EditMessageReplyMarkup();
+        message.setChatId(chatId);
+        message.setMessageId(messageId);
+        message.setReplyMarkup(null);
+        execute(message);
+
     }
 
     @Override
