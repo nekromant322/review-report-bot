@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,7 @@ import static com.nekromant.telegram.contants.MessageContants.ERROR;
 import static com.nekromant.telegram.contants.MessageContants.REVIEW_HELP_MESSAGE;
 import static com.nekromant.telegram.contants.MessageContants.REVIEW_REQUEST_SENT;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component
 public class ReviewCommand extends MentoringReviewCommand {
@@ -75,7 +77,13 @@ public class ReviewCommand extends MentoringReviewCommand {
 
     private LocalDate parseDate(String[] strings) {
 
-        return LocalDate.parse(strings[0], defaultDateFormatter());
+        if (strings[0].equalsIgnoreCase("сегодня")) {
+            return LocalDate.now(ZoneId.of("Europe/Moscow"));
+        }
+        if (strings[0].equalsIgnoreCase("завтра")) {
+            return LocalDate.now(ZoneId.of("Europe/Moscow")).plus(1, DAYS);
+        }
+        throw new InvalidParameterException();
     }
 
     private Set<Integer> parseTimeSlots(String[] strings) {

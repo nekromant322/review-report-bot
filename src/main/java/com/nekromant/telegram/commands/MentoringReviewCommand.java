@@ -15,6 +15,8 @@ public abstract class MentoringReviewCommand extends BotCommand {
     }
 
     public void execute(AbsSender sender, SendMessage message, User user) {
+        System.out.println(this.getDescription() + " , пользователь - " + user.getUserName());
+        System.out.println("output: \n" + message.getText() + "\n");
         try {
             sender.execute(message);
         } catch (TelegramApiException e) {

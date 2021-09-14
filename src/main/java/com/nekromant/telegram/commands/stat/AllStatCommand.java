@@ -37,7 +37,7 @@ public class AllStatCommand extends MentoringReviewCommand {
                             stat.getTotalHours(), stat.getAveragePerWeek()))
                     .collect(Collectors.joining("\n\n"));
 
-            allStatsMessage += "\n\n https://mentoring-review-bot.herokuapp.com/charts.html";
+            allStatsMessage += "\n\nhttps://mentoring-review-bot.herokuapp.com/charts.html";
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(allStatsMessage);
