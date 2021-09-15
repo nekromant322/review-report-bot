@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import static com.nekromant.telegram.contants.Command.REPORT_DELETE;
 import static com.nekromant.telegram.contants.MessageContants.ERROR;
-import static com.nekromant.telegram.contants.MessageContants.NOW_OWNER_ERROR;
+import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 import static com.nekromant.telegram.contants.MessageContants.REPORTS_DELETED;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
 
@@ -38,7 +38,7 @@ public class ReportDeleteCommand extends MentoringReviewCommand {
             message.setChatId(chatId);
 
             if (!user.getUserName().equals(ownerUserName)) {
-                message.setText(NOW_OWNER_ERROR);
+                message.setText(NOT_OWNER_ERROR);
                 execute(absSender, message, user);
                 return;
             }

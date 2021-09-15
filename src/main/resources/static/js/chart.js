@@ -1,10 +1,16 @@
 var ctxPerDay = document.getElementById('myChart').getContext('2d');
 var ctxPerWeek = document.getElementById('myChart2').getContext('2d');
-// console.log(getStat())
+var ctxSteps = document.getElementById('myChart3').getContext('2d');
+
+function done() {
+    var url = myChart.toBase64Image();
+
+    console.log(url);
+    updatePerDayPhoto(url);
+}
+
+
 let statPerDay = getStatPerDay()
-
-
-
 var myChart = new Chart(ctxPerDay, {
     type: 'line',
     data: {
@@ -16,6 +22,9 @@ var myChart = new Chart(ctxPerDay, {
             y: {
                 beginAtZero: true
             }
+        },
+        animation: {
+            onComplete: done
         }
     }
 });
@@ -35,32 +44,24 @@ var myChartPerWeek = new Chart(ctxPerWeek, {
         }
     }
 });
-// var myChart = new Chart(ctx, {
-//     type: 'line',
-//     data: {
-//         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-//         datasets: [{
-//             label: '# of Votes',
-//             data: [12, 19, 3, 5, 2, 3],
-//             backgroundColor: [
-//
-//                 'rgba(54, 162, 235, 0)',
-//             ],
-//             borderColor: [
-//
-//                 'rgba(54, 162, 235, 1)',
-//             ],
-//             borderWidth: 1
-//         }]
-//     },
-//     options: {
-//         scales: {
-//             y: {
-//                 beginAtZero: true
-//             }
-//         }
-//     }
-// });
+
+let statForSteps = getStatForSteps()
+var myStepsChart = new Chart(ctxSteps, {
+    type: 'bar',
+    data: {
+        labels: statForSteps.labels,
+        datasets: statForSteps.userStats
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
 
 
 function getStatPerDay() {
@@ -95,4 +96,39 @@ function getStatPerWeek() {
         }
     });
     return data;
+}
+
+function getStatForSteps() {
+    let data;
+    $.ajax({
+        method: 'GET',
+        url: "/statStep",
+        async: false,
+        success: function (response) {
+            console.log(response)
+            data = response;
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+    return data;
+}
+
+function updatePerDayPhoto(encodedPhotoBase64) {
+    $.ajax({
+        url: "/updatePerDayPhoto",
+        dataType: 'json',
+        type: 'POST',
+        contentType: "application/json",
+        data: JSON.stringify({encodedPhoto: encodedPhotoBase64}),
+        async: false,
+        success: function (response) {
+            console.log(response)
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+
 }

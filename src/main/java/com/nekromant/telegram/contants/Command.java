@@ -14,7 +14,8 @@ public enum Command {
     REPORT_HISTORY("report_history", "Посмотреть историю отчетов"),
     REPORT_DELETE("report_delete", "Удалить отчеты студента"),
     MY_OFF("me_off", "Стать пассивным ментором"),
-    MY_ON("me_on", "Стать активным ментором");
+    MY_ON("me_on", "Стать активным ментором"),
+    STEP_PASSED("step_passed", "Отметить для студента пройденный шаг обучения");
 
     private String alias;
     private String description;
