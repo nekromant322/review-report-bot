@@ -9,6 +9,9 @@ server:
   port: ${PORT:8080}
   host: "https://mentoring-review-bot.herokuapp.com"
 
+reminders:
+  maxDaysWithoutReport: 3
+
 spring:
   datasource:
     password: ${PROD_POSTGRE_PASSWORD}

@@ -149,8 +149,8 @@ public class StatRestController {
             userStats.add(UserStat.builder()
                     .label(userName)
                     .data(daysForSteps)
-                    .borderColor(colors.get(colorNumber++ % colors.size()))
-                    .backgroundColor("rgba(255, 99, 132, 0)")
+                    .borderColor(colors.get(colorNumber % colors.size()))
+                    .backgroundColor(colors.get(colorNumber++ % colors.size()))
                     .borderWidth(1)
                     .build());
         }

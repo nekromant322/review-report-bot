@@ -5,6 +5,7 @@ import com.nekromant.telegram.exception.TooManyReportsException;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SpecialChatService;
+import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,10 @@ public class ReportCommand extends MentoringReviewCommand {
     @Autowired
     private SpecialChatService specialChatService;
 
+    @Autowired
+    private UserInfoService userInfoService;
+
+
     public ReportCommand() {
         super(REPORT.getAlias(), REPORT.getDescription());
     }
@@ -42,6 +47,9 @@ public class ReportCommand extends MentoringReviewCommand {
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         try {
             validateArguments(strings);
+
+            //тут убрать когда получу все chatId, оставить только в /start
+            userInfoService.updateUserInfo(chat, user);
 
             ValidationUtils.validateArguments(strings);
             Report report = new Report();

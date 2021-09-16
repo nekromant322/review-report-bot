@@ -4,6 +4,7 @@ package com.nekromant.telegram.commands.mentors;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.Mentor;
 import com.nekromant.telegram.repository.MentorRepository;
+import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,14 +14,12 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.nekromant.telegram.contants.Command.ADD_MENTORS;
+import static com.nekromant.telegram.contants.Command.ADD_MENTOR;
+import static com.nekromant.telegram.contants.MessageContants.MENTORS_LIST_CHANGED;
 import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 
 @Component
-public class AddMentorsCommand extends MentoringReviewCommand {
+public class AddMentorCommand extends MentoringReviewCommand {
 
     @Value("${owner.userName}")
     private String ownerUserName;
@@ -29,8 +28,11 @@ public class AddMentorsCommand extends MentoringReviewCommand {
     private MentorRepository mentorRepository;
 
     @Autowired
-    public AddMentorsCommand() {
-        super(ADD_MENTORS.getAlias(), ADD_MENTORS.getDescription());
+    private UserInfoService userInfoService;
+
+    @Autowired
+    public AddMentorCommand() {
+        super(ADD_MENTOR.getAlias(), ADD_MENTOR.getDescription());
     }
 
     @Override
@@ -38,27 +40,23 @@ public class AddMentorsCommand extends MentoringReviewCommand {
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
-        if(!user.getUserName().equals(ownerUserName)) {
+        if (!user.getUserName().equals(ownerUserName)) {
             message.setText(NOT_OWNER_ERROR);
             execute(absSender, message, user);
             return;
         }
         try {
             ValidationUtils.validateArguments(arguments);
-            Set<String> mentors = parseMentorsUserNames(arguments);
-            mentors.stream().map(Mentor::new).forEach(m -> mentorRepository.save(m));
+            String newMentorUserName = arguments[0].replaceAll("@", "");
+            mentorRepository.save(new Mentor(newMentorUserName, true));
+            userInfoService.promoteUserToMentor(newMentorUserName);
 
         } catch (Exception e) {
             message.setText(e.getMessage());
             execute(absSender, message, user);
         }
 
-        message.setText("Список менторов изменен");
+        message.setText(MENTORS_LIST_CHANGED);
         execute(absSender, message, user);
     }
-
-    private Set<String> parseMentorsUserNames(String[] arguments) {
-        return Arrays.stream(arguments).map(x -> x.replaceAll("@", "")).collect(Collectors.toSet());
-    }
-
 }

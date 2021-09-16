@@ -7,7 +7,7 @@ public enum Command {
     REGISTER_REPORT("register_report", "Зарегистрировать чат как чат с отчетами"),
     REVIEW("review", "Попросить о ревью"),
     GET_MENTORS("get_mentors", "Узнать список менторов"),
-    ADD_MENTORS("add_mentors", "Добавить менторов"),
+    ADD_MENTOR("add_mentor", "Добавить ментора"),
     REPORT("report", "Отправить отчет"),
     MY_STAT("mystat", "Посмотреть свою статистику"),
     ALL_STAT("allstat", "Посмотреть статистику по всем"),

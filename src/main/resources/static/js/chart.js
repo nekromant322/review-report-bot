@@ -5,7 +5,6 @@ var ctxSteps = document.getElementById('myChart3').getContext('2d');
 function done() {
     var url = myChart.toBase64Image();
 
-    console.log(url);
     updatePerDayPhoto(url);
 }
 
@@ -25,6 +24,10 @@ var myChart = new Chart(ctxPerDay, {
         },
         animation: {
             onComplete: done
+        },
+        title: {
+            display: true,
+            text: 'По дням'
         }
     }
 });
@@ -41,6 +44,10 @@ var myChartPerWeek = new Chart(ctxPerWeek, {
             y: {
                 beginAtZero: true
             }
+        },
+        title: {
+            display: true,
+            text: 'По неделям'
         }
     }
 });
@@ -59,6 +66,10 @@ var myStepsChart = new Chart(ctxSteps, {
                     beginAtZero: true
                 }
             }]
+        },
+        title: {
+            display: true,
+            text: 'Этапы/дни'
         }
     }
 });
