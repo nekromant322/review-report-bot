@@ -92,14 +92,15 @@ public class ReminderScheduler {
                 badStudentsUsernames.add(username);
             }
 
-            mentoringReviewBot.sendMessage(specialChatService.getMentorsChatId(),
-                    String.format(MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS, maxDaysWithoutReport) +
-                            badStudentsUsernames.stream().map(studentName -> "@" + studentName).collect(Collectors.joining(",\n")));
 
-            badStudentsUsernames.stream().
-                    map(name -> userInfoService.getUserInfo(name).getChatId())
-                    .forEach(chatId -> mentoringReviewBot.sendMessage(chatId.toString(), STUDENT_REPORT_FORGET_REMINDER));
         }
+        mentoringReviewBot.sendMessage(specialChatService.getMentorsChatId(),
+                String.format(MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS, maxDaysWithoutReport) +
+                        badStudentsUsernames.stream().map(studentName -> "@" + studentName).collect(Collectors.joining(",\n")));
+
+        badStudentsUsernames.stream().
+                map(name -> userInfoService.getUserInfo(name).getChatId())
+                .forEach(chatId -> mentoringReviewBot.sendMessage(chatId.toString(), STUDENT_REPORT_FORGET_REMINDER));
 
     }
 
