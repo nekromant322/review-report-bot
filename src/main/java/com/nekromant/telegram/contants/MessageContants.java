@@ -4,7 +4,8 @@ public class MessageContants {
 
     public static final String ERROR = "Что-то пошло не так\n";
 
-    public static final String REPORT_HELP_MESSAGE = "Чтобы отправить отчет \n/report [сегодня|вчера] <кол-во часов> <чем занимался>\n" +
+    public static final String REPORT_HELP_MESSAGE = "Чтобы отправить отчет \n/report [сегодня|вчера] <целое кол-во часов> <чем " +
+            "занимался>\n" +
             "Пример:\n /report сегодня 2 Читал статьи про ооп\n\n";
     public static final String REPORT_HISTORY_HELP_MESSAGE = "Чтобы получить историю отчетов\n/" + Command.REPORT_HISTORY.getAlias() + " " +
             "@username <кол-во отчетов>";
