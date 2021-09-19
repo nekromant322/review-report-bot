@@ -94,9 +94,11 @@ public class ReminderScheduler {
 
 
         }
-        mentoringReviewBot.sendMessage(specialChatService.getMentorsChatId(),
-                String.format(MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS, maxDaysWithoutReport) +
-                        badStudentsUsernames.stream().map(studentName -> "@" + studentName).collect(Collectors.joining(",\n")));
+        if (badStudentsUsernames.size() > 0) {
+            mentoringReviewBot.sendMessage(specialChatService.getMentorsChatId(),
+                    String.format(MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS, maxDaysWithoutReport) +
+                            badStudentsUsernames.stream().map(studentName -> "@" + studentName).collect(Collectors.joining(",\n")));
+        }
 
         badStudentsUsernames.stream().
                 map(name -> userInfoService.getUserInfo(name).getChatId())

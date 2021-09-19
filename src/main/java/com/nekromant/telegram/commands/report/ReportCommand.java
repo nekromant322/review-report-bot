@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import static com.nekromant.telegram.contants.Command.REPORT;
 import static com.nekromant.telegram.contants.MessageContants.ERROR;
 import static com.nekromant.telegram.contants.MessageContants.REPORT_HELP_MESSAGE;
+import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
 
 @Component
@@ -66,7 +67,8 @@ public class ReportCommand extends MentoringReviewCommand {
             SendMessage message = new SendMessage();
             message.setChatId(specialChatService.getReportsChatId());
             message.setText(
-                    "@" + report.getStudentUserName() + "\n" + report.getDate() + "\n" + report.getHours() + "\n" + report.getTitle());
+                    "@" + report.getStudentUserName() + "\n" + report.getDate().format(defaultDateFormatter()) + "\n" + report.getHours() +
+                            "\n" + report.getTitle());
             execute(absSender, message, user);
         } catch (TooManyReportsException exception) {
             SendMessage message = new SendMessage();

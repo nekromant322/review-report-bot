@@ -1,6 +1,7 @@
-package com.nekromant.telegram.commands;
+package com.nekromant.telegram.commands.review;
 
 
+import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
