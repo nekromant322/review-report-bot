@@ -6,6 +6,13 @@ function done() {
     var url = myChart.toBase64Image();
 
     updatePerDayPhoto(url);
+    if (document.location.search.toString() !== '') {
+        let studentUsername = document.location.search.replace("?student=", "");
+
+        myChart.data.datasets = myChart.data.datasets.filter(x => x.label === studentUsername)
+        myChart.update();
+    }
+
 }
 
 

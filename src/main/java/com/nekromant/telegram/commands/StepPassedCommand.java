@@ -60,6 +60,7 @@ public class StepPassedCommand extends MentoringReviewCommand {
                     "/step_passed @anfisa_andrienko begin 09.04.2020\n\n"
                     + e.getMessage());
             execute(absSender, message, user);
+            return;
         }
         execute(absSender, message, user);
     }

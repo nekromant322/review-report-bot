@@ -5,6 +5,7 @@ import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -22,6 +23,9 @@ import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
 @Component
 public class ReportHistoryCommand extends MentoringReviewCommand {
 
+    @Value("${server.host}")
+    private String appHost;
+
     @Autowired
     private ReportService reportService;
 
@@ -38,8 +42,9 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
             validateArguments(strings);
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
-            int limitCount = strings.length > 1 ? Integer.parseInt(strings[1]) : 10;
-            String messageWithHistory = reportRepository.findAllByStudentUserName(parseUserName(strings))
+            int limitCount = strings.length > 1 ? Integer.parseInt(strings[1]) : 5;
+            String studentUserName = parseUserName(strings);
+            String messageWithHistory = reportRepository.findAllByStudentUserName(studentUserName)
                     .stream()
                     .sorted(Comparator.comparing(Report::getDate).reversed())
                     .limit(limitCount)
@@ -47,6 +52,8 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
                     .map(report -> report.getStudentUserName() + "\n" + report.getDate() + "\n" + report.getHours() + "\n" +
                             report.getTitle())
                     .collect(Collectors.joining("\n-----------------\n"));
+
+            messageWithHistory += "\n\n" + appHost + "/charts.html?student=" + studentUserName;
             message.setText(messageWithHistory);
 
             execute(absSender, message, user);
