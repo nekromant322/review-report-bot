@@ -3,16 +3,10 @@ var ctxPerWeek = document.getElementById('myChart2').getContext('2d');
 var ctxSteps = document.getElementById('myChart3').getContext('2d');
 
 function done() {
-    var url = myChart.toBase64Image();
-
-    updatePerDayPhoto(url);
-    if (document.location.search.toString() !== '') {
-        let studentUsername = document.location.search.replace("?student=", "");
-
-        myChart.data.datasets = myChart.data.datasets.filter(x => x.label === studentUsername)
-        myChart.update();
+    if (myChart.data.datasets.length > 1) {
+        var url = myChart.toBase64Image();
+        updatePerDayPhoto(url);
     }
-
 }
 
 

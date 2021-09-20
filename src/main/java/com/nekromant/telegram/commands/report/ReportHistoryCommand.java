@@ -53,7 +53,6 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
                             report.getTitle())
                     .collect(Collectors.joining("\n-----------------\n"));
 
-            messageWithHistory += "\n\n" + appHost + "/charts.html?student=" + studentUserName;
             message.setText(messageWithHistory);
 
             execute(absSender, message, user);
