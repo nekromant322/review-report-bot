@@ -2,8 +2,10 @@ package com.nekromant.telegram.controller;
 
 import com.nekromant.telegram.contants.Step;
 import com.nekromant.telegram.model.Report;
+import com.nekromant.telegram.model.Salary;
 import com.nekromant.telegram.model.StepPassed;
 import com.nekromant.telegram.repository.ReportRepository;
+import com.nekromant.telegram.repository.SalaryRepository;
 import com.nekromant.telegram.repository.StepPassedRepository;
 import com.nekromant.telegram.service.ActualStatPhotoHolderService;
 import lombok.AllArgsConstructor;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.WEEKS;
 
 @RestController
@@ -37,6 +40,9 @@ public class StatRestController {
 
     @Autowired
     private StepPassedRepository stepPassedRepository;
+
+    @Autowired
+    private SalaryRepository salaryRepository;
 
     private static final List<String> colors = new ArrayList<>();
 
@@ -164,6 +170,55 @@ public class StatRestController {
                 .build();
     }
 
+    @GetMapping("/statSalary")
+    public Stat getStatSalary() {
+        LocalDate firstSalaryDate = salaryRepository.findAll().stream().min(Comparator.comparing(Salary::getDate)).get().getDate();
+
+
+        List<LocalDate> labels = Stream.iterate(firstSalaryDate, date -> date.plus(1, MONTHS))
+                .limit(MONTHS.between(firstSalaryDate, LocalDate.now()) + 1)
+                .collect(Collectors.toList());
+
+        List<UserStat> userStats = new ArrayList<>();
+
+        List<String> allUserNames = salaryRepository.findAll()
+                .stream()
+                .map(Salary::getUserName)
+                .distinct()
+                .collect(Collectors.toList());
+
+        int colorNumber = 0;
+        for (String userName : allUserNames) {
+            List<Integer> salaries = new ArrayList<>();
+            List<Salary> allStudentSalaries = salaryRepository.findAllByUserName(userName);
+            for (LocalDate label : labels) {
+
+                int salaryIfNotMatched = salaries.size() > 0 ? salaries.get(salaries.size() - 1) : 0;
+                Integer salaryForLabel = allStudentSalaries.stream()
+                        .filter(salary -> salary.getDate().getYear() == label.getYear() &&
+                                salary.getDate().getMonthValue() == label.getMonthValue())
+                        .map(Salary::getSalary)
+                        .findFirst()
+                        .orElse(salaryIfNotMatched);
+
+                salaries.add(salaryForLabel);
+            }
+            userStats.add(UserStat.builder()
+                    .label(userName)
+                    .data(salaries)
+                    .borderColor(colors.get(colorNumber++ % colors.size()))
+                    .backgroundColor("rgba(255, 99, 132, 0)")
+                    .borderWidth(1)
+                    .steppedLine(true)
+                    .build());
+        }
+
+        return Stat.builder()
+                .labels(labels.stream().map(LocalDate::toString).collect(Collectors.toList()))
+                .userStats(userStats)
+                .build();
+    }
+
 
     @PostMapping("/updatePerDayPhoto")
     public void setPerDayGraphEncodedPhoto(@RequestBody PhotoData photoData) {
@@ -225,6 +280,7 @@ public class StatRestController {
         private String borderColor;
         private String backgroundColor;
         private Integer borderWidth;
+        private Boolean steppedLine = false;
 
     }
 

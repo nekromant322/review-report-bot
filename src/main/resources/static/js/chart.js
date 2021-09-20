@@ -1,16 +1,18 @@
 var ctxPerDay = document.getElementById('myChart').getContext('2d');
-var ctxPerWeek = document.getElementById('myChart2').getContext('2d');
 var ctxSteps = document.getElementById('myChart3').getContext('2d');
-
+var ctxSalary = document.getElementById('myChart4').getContext('2d');
+let urlUpdated = false;
 function done() {
-    if (myChart.data.datasets.length > 1) {
+    if (myChart.data.datasets.length > 1 && !urlUpdated) {
         var url = myChart.toBase64Image();
         updatePerDayPhoto(url);
+        urlUpdated = true
     }
 }
 
 
 let statPerDay = getStatPerDay()
+let statPerWeek = getStatPerWeek()
 var myChart = new Chart(ctxPerDay, {
     type: 'line',
     data: {
@@ -28,7 +30,7 @@ var myChart = new Chart(ctxPerDay, {
         },
         title: {
             display: true,
-            text: 'По дням'
+            text: 'Часов на учебу'
         },
         legend: {
             onClick: function (event, elem) {
@@ -44,36 +46,7 @@ var myChart = new Chart(ctxPerDay, {
     }
 });
 
-let statPerWeek = getStatPerWeek()
-var myChartPerWeek = new Chart(ctxPerWeek, {
-    type: 'line',
-    data: {
-        labels: statPerWeek.labels,
-        datasets: statPerWeek.userStats
-    },
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        },
-        title: {
-            display: true,
-            text: 'По неделям'
-        },
-        legend: {
-            onClick: function (event, elem) {
-                if (myChartPerWeek.data.datasets.length > 1) {
-                    myChartPerWeek.data.datasets = myChartPerWeek.data.datasets.filter(x => x.label === elem.text)
-                    myChartPerWeek.update();
-                } else {
-                    myChartPerWeek.data.datasets = statPerWeek.userStats
-                    myChartPerWeek.update();
-                }
-            }
-        }
-    }
-});
+
 
 let statForSteps = getStatForSteps()
 var myStepsChart = new Chart(ctxSteps, {
@@ -108,6 +81,27 @@ var myStepsChart = new Chart(ctxSteps, {
     }
 });
 
+var statSalary = getStatForSalary();
+var salaryChart = new Chart(ctxSalary, {
+    type: 'line',
+    data: {
+        labels: statSalary.labels,
+        datasets: statSalary.userStats
+    },
+    options: {
+        responsive: true,
+        interaction: {
+            intersect: false,
+            axis: 'x'
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: "Зарплаты"
+            }
+        }
+    }
+});
 
 function getStatPerDay() {
     let data;
@@ -160,6 +154,34 @@ function getStatForSteps() {
     return data;
 }
 
+function getStatForSalary() {
+    let data;
+    $.ajax({
+        method: 'GET',
+        url: "/statSalary",
+        async: false,
+        success: function (response) {
+            console.log(response)
+            data = response;
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+
+
+    for (let i = 0; i < data.userStats.length; i++) {
+        for (let j = 0; j < data.userStats[i].data.length; j++) {
+            if (data.userStats[i].data[j] === 0) {
+                data.userStats[i].data[j] = "N/A";
+            }
+        }
+    }
+    console.log("after process");
+    console.log(data);
+    return data;
+}
+
 function updatePerDayPhoto(encodedPhotoBase64) {
     $.ajax({
         url: "/updatePerDayPhoto",
@@ -169,11 +191,23 @@ function updatePerDayPhoto(encodedPhotoBase64) {
         data: JSON.stringify({encodedPhoto: encodedPhotoBase64}),
         async: false,
         success: function (response) {
-            console.log(response)
+            // console.log(response)
         },
         error: function (error) {
             console.log(error);
         }
     });
 
+}
+
+function drawPerDay() {
+    myChart.data.datasets = statPerDay.userStats;
+    myChart.data.labels = statPerDay.labels
+    myChart.update();
+}
+
+function drawPerWeek() {
+    myChart.data.datasets = statPerWeek.userStats;
+    myChart.data.labels = statPerWeek.labels
+    myChart.update();
 }
