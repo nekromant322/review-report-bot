@@ -54,6 +54,7 @@ public class AllStatCommand extends MentoringReviewCommand {
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(allStatsMessage);
+            message.disableNotification();
             execute(absSender, message, user);
 
             SendPhoto sendPhoto = new SendPhoto();

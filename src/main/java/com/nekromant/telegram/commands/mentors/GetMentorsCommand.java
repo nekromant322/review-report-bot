@@ -32,6 +32,7 @@ public class GetMentorsCommand extends MentoringReviewCommand {
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
+        message.disableNotification();
         List<Mentor> activeMentors = new ArrayList<>();
         try {
             activeMentors = mentorRepository.findAllByIsActiveIsTrue();

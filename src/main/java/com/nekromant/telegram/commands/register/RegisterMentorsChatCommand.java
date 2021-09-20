@@ -32,6 +32,7 @@ public class RegisterMentorsChatCommand extends MentoringReviewCommand {
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
+        message.disableNotification();
         if (!user.getUserName().equals(ownerUserName)) {
             message.setText(NOT_OWNER_ERROR);
             execute(absSender, message, user);

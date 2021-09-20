@@ -30,6 +30,7 @@ public class MyOffCommand extends MentoringReviewCommand {
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
+        message.disableNotification();
 
         try {
             Mentor mentor = mentorRepository.findMentorByUserName(user.getUserName());

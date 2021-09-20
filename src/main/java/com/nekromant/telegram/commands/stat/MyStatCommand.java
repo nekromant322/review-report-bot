@@ -33,6 +33,7 @@ public class MyStatCommand extends MentoringReviewCommand {
             message.setChatId(chat.getId().toString());
             message.setText(String.format(USER_STAT_MESSAGE, userStats.getUserName(), userStats.getTotalDays(), userStats.getStudyDays(),
                     userStats.getTotalHours(), userStats.getAveragePerWeek()));
+            message.disableNotification();
             execute(absSender, message, user);
         } catch (Exception e) {
             e.printStackTrace();
