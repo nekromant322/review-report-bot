@@ -35,6 +35,17 @@ var myChart = new Chart(ctxPerDay, {
         title: {
             display: true,
             text: 'По дням'
+        },
+        legend: {
+            onClick: function (event, elem) {
+                if (myChart.data.datasets.length > 1) {
+                    myChart.data.datasets = myChart.data.datasets.filter(x => x.label === elem.text)
+                    myChart.update();
+                } else {
+                    myChart.data.datasets = statPerDay.userStats
+                    myChart.update();
+                }
+            }
         }
     }
 });
@@ -55,6 +66,17 @@ var myChartPerWeek = new Chart(ctxPerWeek, {
         title: {
             display: true,
             text: 'По неделям'
+        },
+        legend: {
+            onClick: function (event, elem) {
+                if (myChartPerWeek.data.datasets.length > 1) {
+                    myChartPerWeek.data.datasets = myChartPerWeek.data.datasets.filter(x => x.label === elem.text)
+                    myChartPerWeek.update();
+                } else {
+                    myChartPerWeek.data.datasets = statPerWeek.userStats
+                    myChartPerWeek.update();
+                }
+            }
         }
     }
 });
@@ -77,6 +99,17 @@ var myStepsChart = new Chart(ctxSteps, {
         title: {
             display: true,
             text: 'Этапы/дни'
+        },
+        legend: {
+            onClick: function (event, elem) {
+                if (myStepsChart.data.datasets.length > 1) {
+                    myStepsChart.data.datasets = myStepsChart.data.datasets.filter(x => x.label === elem.text)
+                    myStepsChart.update();
+                } else {
+                    myStepsChart.data.datasets = statForSteps.userStats
+                    myStepsChart.update();
+                }
+            }
         }
     }
 });
