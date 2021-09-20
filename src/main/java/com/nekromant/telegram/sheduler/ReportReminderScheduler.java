@@ -22,7 +22,7 @@ import static com.nekromant.telegram.contants.MessageContants.STUDENT_REPORT_FOR
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component
-public class ReminderScheduler {
+public class ReportReminderScheduler {
 
     @Value("${reminders.maxDaysWithoutReport}")
     private Integer maxDaysWithoutReport;

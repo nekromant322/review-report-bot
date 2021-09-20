@@ -141,6 +141,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     @SneakyThrows
     public void sendMessage(String chatId, String text) {
         SendMessage message = new SendMessage();
+        //убирает превьюшки ссылок
+        message.disableWebPagePreview();
         message.setText(text);
         message.setChatId(chatId);
         execute(message);

@@ -48,11 +48,12 @@ public class AddMentorCommand extends MentoringReviewCommand {
         try {
             ValidationUtils.validateArguments(arguments);
             String newMentorUserName = arguments[0].replaceAll("@", "");
-            mentorRepository.save(new Mentor(newMentorUserName, true));
+            String newMentorRoom = arguments[1];
+            mentorRepository.save(new Mentor(newMentorUserName, true, newMentorRoom));
             userInfoService.promoteUserToMentor(newMentorUserName);
 
         } catch (Exception e) {
-            message.setText(e.getMessage());
+            message.setText(e.getMessage() + "\n" + "Пример: /add_mentor @Marandyuk_Anatolii https://meet.google.com/yfp-haps-mtz");
             execute(absSender, message, user);
         }
 

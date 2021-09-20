@@ -2,6 +2,7 @@ package com.nekromant.telegram.sheduler;
 
 import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class ReviewScheduler {
     @Autowired
     private UserInfoService userInfoService;
 
+    @Autowired
+    private MentorRepository mentorRepository;
+
     @Scheduled(cron = "0 55 * * * *")
     public void processEveryHour() {
 //        расскоментить, если хочется чтоб история ревью удалялась
@@ -47,7 +51,10 @@ public class ReviewScheduler {
         for (ReviewRequest reviewRequest : sudenReviews) {
             String reviewIncomingMessage = String.format(REVIEW_INCOMING,
                     reviewRequest.getStudentUserName(), reviewRequest.getMentorUserName(),
-                    reviewRequest.getBookedDateTime().format(defaultDateTimeFormatter()), reviewRequest.getTitle());
+                    reviewRequest.getBookedDateTime().format(defaultDateTimeFormatter()),
+                    reviewRequest.getTitle(),
+                    mentorRepository.findMentorByUserName(reviewRequest.getMentorUserName()).getRoomUrl());
+
             mentoringReviewBot.sendMessage(reviewRequest.getStudentChatId(), reviewIncomingMessage);
             mentoringReviewBot.sendMessage(userInfoService.getUserInfo(reviewRequest.getMentorUserName()).getChatId().toString(),
                     reviewIncomingMessage);

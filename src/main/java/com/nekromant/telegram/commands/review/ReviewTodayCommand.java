@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands.review;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,9 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
 
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
+
+    @Autowired
+    private MentorRepository mentorRepository;
 
     @Autowired
     public ReviewTodayCommand() {
@@ -50,9 +54,11 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
                                 "@" + review.getStudentUserName() + "\n" +
                                         review.getBookedDateTime().format(defaultDateTimeFormatter()) + "\n" +
                                         review.getTitle() + "\n" +
-                                        "@" + review.getMentorUserName() + "\n")
+                                        "@" + review.getMentorUserName() + "\n" +
+                                        mentorRepository.findMentorByUserName(review.getMentorUserName()).getRoomUrl() + "\n")
                         .collect(Collectors.joining("\n"));
         message.setText(messageWithReviewsToday);
+        message.disableWebPagePreview();
 
         execute(absSender, message, user);
     }

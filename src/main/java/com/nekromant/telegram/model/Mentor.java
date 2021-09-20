@@ -22,7 +22,6 @@ public class Mentor {
     @Column
     private Boolean isActive = true;
 
-    public Mentor(String userName) {
-        this.userName = userName;
-    }
+    @Column
+    private String roomUrl;
 }

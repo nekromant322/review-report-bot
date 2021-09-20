@@ -35,8 +35,10 @@ public class UserInfoService {
 
     public void promoteUserToMentor(String userName) {
         UserInfo userInfo = userInfoRepository.findUserInfoByUserName(userName);
-        userInfo.setUserType(UserType.MENTOR);
-        userInfoRepository.save(userInfo);
+        if (userInfo.getUserType() != UserType.MENTOR) {
+            userInfo.setUserType(UserType.MENTOR);
+            userInfoRepository.save(userInfo);
+        }
     }
 
     public List<String> getAllStudentUsernames() {
