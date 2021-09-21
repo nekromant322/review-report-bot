@@ -1,7 +1,8 @@
-var ctxPerDay = document.getElementById('myChart').getContext('2d');
-var ctxSteps = document.getElementById('myChart3').getContext('2d');
-var ctxSalary = document.getElementById('myChart4').getContext('2d');
+var ctxPerDay = document.getElementById('perDayChart').getContext('2d');
+var ctxSteps = document.getElementById('stepsChart').getContext('2d');
+var ctxSalary = document.getElementById('salaryChart').getContext('2d');
 let urlUpdated = false;
+
 function done() {
     if (myChart.data.datasets.length > 1 && !urlUpdated) {
         var url = myChart.toBase64Image();

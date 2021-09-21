@@ -16,8 +16,8 @@ public enum Command {
     MY_OFF("me_off", "Стать пассивным ментором"),
     MY_ON("me_on", "Стать активным ментором"),
     STEP_PASSED("step_passed", "Отметить для студента пройденный шаг обучения"),
-    REVIEW_TODAY("review_today", "Расписание ревью на сегодня");
-
+    REVIEW_TODAY("review_today", "Расписание ревью на сегодня"),
+    SET_SALARY("set_salary", "Установить новое значение зп");
     private String alias;
     private String description;
 
