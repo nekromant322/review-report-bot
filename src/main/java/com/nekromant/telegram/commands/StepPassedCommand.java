@@ -2,8 +2,11 @@ package com.nekromant.telegram.commands;
 
 
 import com.nekromant.telegram.contants.Step;
+import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.StepPassed;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.StepPassedRepository;
+import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +32,9 @@ public class StepPassedCommand extends MentoringReviewCommand {
     private StepPassedRepository stepPassedRepository;
 
     @Autowired
+    private UserInfoService userInfoService;
+
+    @Autowired
     public StepPassedCommand() {
         super(STEP_PASSED.getAlias(), STEP_PASSED.getDescription());
     }
@@ -46,13 +52,20 @@ public class StepPassedCommand extends MentoringReviewCommand {
         try {
             ValidationUtils.validateArguments(arguments);
 
+            String userName = arguments[0].replaceAll("@", "");
+            Step step = Step.getStepByAlias(arguments[1]);
             StepPassed stepPassed = StepPassed.builder()
                     .id(null)
-                    .studentUserName(arguments[0].replaceAll("@", ""))
-                    .step(Step.getStepByAlias(arguments[1]))
+                    .studentUserName(userName)
+                    .step(step)
                     .date(parseDate(arguments))
                     .build();
             stepPassedRepository.save(stepPassed);
+            if (step == Step.JOB) {
+                UserInfo userInfo = userInfoService.getUserInfo(userName);
+                userInfo.setUserType(UserType.DEV);
+                userInfoService.save(userInfo);
+            }
             message.setText("Шаг " + stepPassed.getStep().getAlias() + " пройден для студента @" + stepPassed.getStudentUserName());
 
         } catch (Exception e) {

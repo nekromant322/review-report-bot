@@ -90,6 +90,13 @@ var salaryChart = new Chart(ctxSalary, {
         datasets: statSalary.userStats
     },
     options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        },
         responsive: true,
         interaction: {
             intersect: false,

@@ -49,7 +49,7 @@ public class ReportDeleteCommand extends MentoringReviewCommand {
             e.printStackTrace();
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
-            message.setText(ERROR);
+            message.setText(ERROR + "/report_delete @anfisa_andrienko");
             execute(absSender, message, user);
         }
     }

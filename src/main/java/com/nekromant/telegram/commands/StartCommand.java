@@ -25,7 +25,7 @@ public class StartCommand extends MentoringReviewCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
 
-        userInfoService.updateUserInfo(chat, user);
+        userInfoService.initializeUserInfo(chat, user);
 
         SendMessage message = new SendMessage();
         message.setChatId(chat.getId().toString());

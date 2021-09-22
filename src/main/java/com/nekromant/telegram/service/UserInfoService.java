@@ -21,7 +21,7 @@ public class UserInfoService {
     @Autowired
     private MentorRepository mentorRepository;
 
-    public void updateUserInfo(Chat chat, User user) {
+    public void initializeUserInfo(Chat chat, User user) {
         if (chat.getType().equalsIgnoreCase("private")
                 && userInfoRepository.findUserInfoByUserName(user.getUserName()) == null) {
             UserInfo userInfo = UserInfo.builder()
@@ -51,5 +51,9 @@ public class UserInfoService {
 
     public UserInfo getUserInfo(String userName) {
         return userInfoRepository.findUserInfoByUserName(userName);
+    }
+
+    public void save(UserInfo userInfo) {
+        userInfoRepository.save(userInfo);
     }
 }

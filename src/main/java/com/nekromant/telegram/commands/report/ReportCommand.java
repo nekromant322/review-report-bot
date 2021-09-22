@@ -50,7 +50,7 @@ public class ReportCommand extends MentoringReviewCommand {
             validateArguments(strings);
 
             //тут убрать когда получу все chatId, оставить только в /start
-            userInfoService.updateUserInfo(chat, user);
+            userInfoService.initializeUserInfo(chat, user);
 
             ValidationUtils.validateArguments(strings);
             Report report = new Report();
