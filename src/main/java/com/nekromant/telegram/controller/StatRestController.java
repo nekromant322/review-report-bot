@@ -258,7 +258,7 @@ public class StatRestController {
     private int sumHoursPerWeekFromDate(List<Report> allStudentReports, LocalDate localDate) {
         int sum = 0;
         for (Report report : allStudentReports) {
-            if (DAYS.between(localDate, report.getDate()) < 7) {
+            if (DAYS.between(localDate, report.getDate()) < 7 && report.getDate().isAfter(localDate)) {
                 sum += report.getHours();
             }
         }

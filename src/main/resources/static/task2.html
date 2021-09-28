@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en-US" ml-update="aware">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Begin Jekyll SEO tag v2.7.1 -->
+    <title>Задача: “Калькулятор”</title>
+    <meta name="generator" content="Jekyll v3.9.0">
+    <meta property="og:title" content="Задача: “Калькулятор”">
+    <meta property="og:locale" content="en_US">
+
+    <meta name="twitter:card" content="summary">
+    <meta property="twitter:title" content="Задача: “Калькулятор”">
+
+    <!-- End Jekyll SEO tag -->
+
+    <!--  <link rel="stylesheet" href="/css/style.css">-->
+    <!--    <style class="anchorjs"></style><link rel="stylesheet" href="/css/style.css">-->
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+    <!-- Setup Google Analytics -->
+
+
+    <!-- You can set your favicon here -->
+    <!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+    <!-- end custom head snippets -->
+
+</head>
+<body>
+<div class="container-lg px-3 my-5 markdown-body">
+
+
+    <h1 id="задача-калькулятор">Задача: “Калькулятор”</h1>
+
+    <h2 id="описание">Описание:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                  style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h2>
+    <p>Создай консольное приложение “Калькулятор”.
+        Приложение должно читать из консоли введенные пользователем арифметические операции и выводить в консоль результат их
+        выполнения.</p>
+
+    <h2 id="требования">Требования:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                      style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h2>
+
+    <ol>
+        <li>Калькулятор умеет выполнять операции сложения, вычитания, умножения и деления с двумя числами:
+            a + b, a - b, a * b, a / b.
+        </li>
+        <li><b> Данные передаются в одну строку (смотри пример)! Решения, в которых каждое число и арифмитеческая операция передаются с
+            новой строки считаются неверными. </b></li>
+        <li>Калькулятор умеет работать с арабскими (1,2,3,4,5…) числами</li>
+        <li>Калькулятор должен принимать на вход числа от 1 до 100 включительно, не более. На выходе числа не ограничиваются по величине и
+            могут быть любыми.
+        </li>
+        <li>Калькулятор умеет работать только с целыми числами.</li>
+        <li>Калькулятор умеет работать только с целыми числами, при вводе пользователем строки вроде 3.5 + 2
+            калькулятор должен выбросить исключение и прекратить свою работу.
+        </li>
+        <li>При вводе пользователем неподходящих чисел приложение выбрасывает исключение и завершает свою работу.</li>
+        <li>При вводе пользователем строки, не соответствующей одной из вышеописанных арифметических операций, приложение выбрасывает
+            исключение и завершает свою работу.
+        </li>
+        <li>Результатом операции деления является целое число, остаток отбрасывается.&nbsp;</li>
+    </ol>
+
+    <h2 id="пример-работы-программы">Пример работы программы:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                                                style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h2>
+    <h6 id="input">Input:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                            style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">1 + 2</code></p>
+    <h6 id="output">Output:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                              style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">3</code></p>
+
+    <h6 id="input-2">Input:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                              style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">3 / 1.5</code></p>
+    <h6 id="output-2">Output:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">throws Exception //т.к. введено нецелое число</code></p>
+    <h6 id="input-4">Input:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                              style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">1</code></p>
+    <h6 id="output-4">Output:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">throws Exception //т.к. строка не является математической операцией </code></p>
+    <h6 id="input-5">Input:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                              style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">1 + 2 + 3</code></p>
+    <h6 id="output-5">Output:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">throws Exception //т.к. формат математической операции не удовлетворяет заданию -
+        два операнда и один оператор (+, -, /, *) </code></p>
+    <h6 id="input-6">Input:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                              style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">200 + 300</code></p>
+    <h6 id="output-6">Output:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h6>
+    <p><code class="language-plaintext highlighter-rouge">throws Exception //т.к. числа вне диапазона </code></p>
+
+    <h2 id="принципы-оценки-работы">Принципы оценки работы:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                                              style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h2>
+    <p>Обрати внимание на принципы ООП, постарайся разбить программу на логические классы.
+        <ins> Решения, в которых весь код программы находится в одном классе будут низко оценены.</ins>
+        Продемонстрируй своё умение в работе с разными синтаксическими конструкциями, не забудь про исключительные ситуации, при которых
+        выполнение программы невозможно из-за некорректных входных данных.
+    </p>
+
+    <h2 id="как-отправить-решение">Как отправить решение?<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                                            style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h2>
+    <ol>
+        <li>Тебе нужно создать собственный репозиторий на Github и добавить туда проект с решением.</li>
+        <li>Ссылку на репозиторий отправь в телеграмм <a href="https://t.me/Marandyuk_Anatolii">@Marandyuk_Anatolii</a></li>
+
+    </ol>
+
+    <hr>
+    <h1 id="faq">FAQ</h1>
+
+    <h3 id="что-если-я-не-знаю-java">Что, если я не знаю Java?<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                                                 style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h3>
+
+    <ol>
+        <li>Начни с установки JDK c сайта ORACLE - <a href="https://www.oracle.com/ru/java/technologies/javase-downloads.html">скачать</a>.
+            Подойдет любая версия выше 8-й включительно. Обрати внимание, после выбора версии ОС перед началом загрузки необходимо создать
+            учетную запись на сайте ORACLE.
+        </li>
+        <li>Эти материалы помогут вам в установке и настройке JDK:
+            <ul>
+                <li><a href="https://www.youtube.com/watch?v=0OrVOHB42C4">Установка и настройка JDK </a> (Перед просмотром видео не забудь,
+                    пожалуйста, включить русские субтитры :)
+                    )
+                </li>
+                <li><a href="https://www.youtube.com/watch?v=xvUFqDKIKJE">Установка JDK и IntelliJ Idea:</a></li>
+            </ul>
+        </li>
+        <li>Установи среду разработки (рекомендую IntelliJ IDEA) и напиши свою первую маленькую программу на Java.</li>
+    </ol>
+
+    <h3 id="какую-среду-разработки-мне-выбрать">Какую среду разработки мне выбрать?<a class="anchorjs-link " aria-label="Anchor"
+                                                                                      data-anchorjs-icon=""
+                                                                                      style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a>
+    </h3>
+
+    <p>Ты не ограничен в выборе среды разработки, можешь работать там где удобно:</p>
+    <ul>
+        <li>IntelliJ IDEA - <a href="https://www.jetbrains.com/ru-ru/idea/download/">скачать.</a></li>
+        <li>Eclipse - <a href="https://www.eclipse.org/downloads/">скачать.</a></li>
+        <li>NetBeans - <a href="https://netbeans.apache.org/download/index.html">скачать.</a></li>
+    </ul>
+
+    <p>IntelliJ IDEA использует большинство java разработчиков. Вот видео, показывающее как быстро
+        начать с ней работу:</p>
+    <ul>
+        <li><a href="https://www.youtube.com/watch?v=YCnd0IAJHd4">Установка и запуск первой программы под Intellij IDEA.</a></li>
+    </ul>
+
+    <h3 id="я-не-умею-работать-с-git-и-github">Я не умею работать с Git и GitHub<a class="anchorjs-link " aria-label="Anchor"
+                                                                                   data-anchorjs-icon=""
+                                                                                   style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a>
+    </h3>
+
+    <ul>
+        <li>Если ты не знаком с Git и Github, то тебе нужно ознакомиться с <a
+                href="http://maxsite.org/page/how-to-put-your-project-on-github-com">этой статьей</a>, в ней описаны основы работы с Git.
+        </li>
+        <li><a href="https://www.youtube.com/watch?v=kO5u0PFdHUQ">Git: загрузить существующий проект на GitHub.</a></li>
+        <li><a href="https://www.youtube.com/watch?v=zM6z57OtR2Q">Отправка проекта на GitHub из IntelliJ IDEA.</a></li>
+    </ul>
+
+    <h3 id="тебе-потребуется-изучить-некоторый-теоретический-минимум-для-решения-этой-задачи">Тебе потребуется изучить некоторый
+        теоретический минимум для решения этой задачи:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                                         style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h3>
+    <ol>
+        <li>Основы синтаксиса Java, простые (примитивные) типы данных</li>
+        <li>Арифметические операции в java</li>
+        <li>Методы</li>
+        <li>Преобразование строки в число</li>
+        <li>Класс String, работа со строками</li>
+        <li>Циклы в Java</li>
+        <li>Работа с массивами</li>
+        <li>Логические операторы</li>
+        <li>Условные операторы, сравнение, switch case</li>
+        <li>Enum</li>
+        <li>Работа с консолью - ввод/вывод, классы Scanner и BufferedReader</li>
+        <li>Java и ООП</li>
+        <li>Обработка ошибок и создание своих исключений</li>
+    </ol>
+
+    <h3 id="помогут-также-следующие-ресурсы">Помогут также следующие ресурсы:<a class="anchorjs-link " aria-label="Anchor"
+                                                                                data-anchorjs-icon=""
+                                                                                style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a>
+    </h3>
+
+    <p><strong>ВНИМАНИЕ!</strong> Не нужно смотреть все видео из плейлиста, не нужно проходить курс до конца и читать всю книгу! У тебя 10
+        дней на решение задачи, поэтому не трать время. Сверься со списком тем выше и посмотри выборочно материалы только по этим темам! Для
+        того, чтобы сэкономить свое время, выбери один источник из предложенных и используй его для решения ТЗ.</p>
+
+    <ol>
+        <li><a href="https://www.youtube.com/watch?v=TQ_vwm4h0ro&amp;list=PLqj7-hRTFl_rqruGcnd2V8SPbY0j9DzT5">Трегулов, Програмания</a></li>
+        <li><a href="https://www.youtube.com/watch?v=ziOQ8wkmnSE&amp;list=PLAma_mKffTOSUkXp26rgdnC0PicnmnDak">Канал Алишева</a></li>
+        <li><a href="https://metanit.com/java/tutorial/">Metanit. Руководство по языку программирования Java.</a></li>
+        <li><a href="https://ru.code-basics.com/languages/java">Java для начинающих. Курс</a></li>
+        <li>Гугл - основной инструмент для поиска информации.</li>
+    </ol>
+
+    <h3 id="я-написал-код-а-мне-выдает-какую-то-ошибку">Я написал код, а мне выдает какую-то ошибку<a class="anchorjs-link "
+                                                                                                      aria-label="Anchor"
+                                                                                                      data-anchorjs-icon=""
+                                                                                                      style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a>
+    </h3>
+    <p>Часто написанный с ошибками код компилируется и при запуске может выбрасывать исключения, стектрейс которых выводится в консоль. Это
+        нормально.</p>
+    <h5 id="советы">Советы:<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                              style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h5>
+    <ol>
+        <li>Для понимания природы этого исключения можно прочитать java doc этого исключения, либо просто загуглив исключение по названию
+            первого исключения и тексту ошибки.
+        </li>
+        <li>Если по поиску теста ошибки ничего не находится, попробуй сократить текст ошибки, удалив из него текст, относящийся к конкретно
+            к твоему приложению (например там могут быть указаны название написанных тобой методов или переменных).
+        </li>
+        <li>Если не понимаешь английского - пользуйся словарем/переводчиком.</li>
+        <li>Не стесняйся гуглить текст ошибки.</li>
+        <li>Если не работает большой кусок кода - попробуй отладить небольшую его часть.</li>
+        <li>Мысленно пройдись последовательно по коду, записывая значения переменных и результат работы.</li>
+    </ol>
+
+    <p>Так же для отладки приложения и нахождения проблемный мест в среде разработки предсмотрен режим debug. Видео, показывающее основы
+        использования debug режима в IntelliJ Idea <a href="https://www.youtube.com/watch?v=nIABqX19qFM">смотреть</a></p>
+
+    <h3 id="я-не-знаю-как-подступиться-к-задаче">Я не знаю, как подступиться к задаче<a class="anchorjs-link " aria-label="Anchor"
+                                                                                        data-anchorjs-icon=""
+                                                                                        style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a>
+    </h3>
+
+    <p>Если эта первая программа, которую ты пытаешься написать - постарайся отработать основы на более простых задачах (см материалы выше).<br>
+        Постарайся разбить большую задачу на маленькие подзадачи и решать их по отдельности - так гораздо проще. Или упрости задачу до
+        варианта,
+        который ты можешь решить, а потом дорабатывай до заданных требований. Ты можешь задавать вопросы <a
+                href="https://t.me/Marandyuk_Anatolii">@Marandyuk_Anatolii</a></p>
+
+    <h2 id="успехов">Успехов!<a class="anchorjs-link " aria-label="Anchor" data-anchorjs-icon=""
+                                style="font: 1em / 1 anchorjs-icons; padding-left: 0.375em;"></a></h2>
+
+
+</div>
+<script src="/js/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg="
+        crossorigin="anonymous"></script>
+<script>anchors.add();</script>
+
+
+</body>
+</html>
