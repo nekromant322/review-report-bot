@@ -56,7 +56,7 @@ public class SetSalaryCommand extends MentoringReviewCommand {
 
         } catch (Exception e) {
             message.setText("Пример: \n" +
-                    "/step_passed @anfisa_andrienko begin 09.04.2020\n\n"
+                    "/set_salary @vladdosiik 191000 07.10.2021\n\n"
                     + e.getMessage());
             execute(absSender, message, user);
             return;
