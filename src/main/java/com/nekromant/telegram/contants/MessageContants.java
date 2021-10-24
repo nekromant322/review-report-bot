@@ -11,7 +11,7 @@ public class MessageContants {
             "@username <кол-во отчетов>";
     public static final String REVIEW_HELP_MESSAGE = "Для того чтобы попросить " +
             "ревью напишите " +
-            "что-то вроде \n/" + Command.REVIEW.getAlias() + " [сегодня|завтра] <таймслоты через запятую> Тема:<Тема ревью>\n" +
+            "что-то вроде \n/" + Command.REVIEW.getAlias() + " [сегодня|завтра] <таймслоты через пробел> Тема:<Тема ревью>\n" +
             "Пример:\n/" + Command.REVIEW.getAlias() + " завтра 15 16 20 Тема: 4 модуль";
     public static final String START_HELP_MESSAGE = REPORT_HELP_MESSAGE + REVIEW_HELP_MESSAGE;
     public static final String UNKNOWN_COMMAND = "Не понимаю команду";

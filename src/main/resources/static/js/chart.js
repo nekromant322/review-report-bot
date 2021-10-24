@@ -107,6 +107,12 @@ var salaryChart = new Chart(ctxSalary, {
                 display: true,
                 text: "Зарплаты"
             }
+        },
+        scales: {
+            myScale: {
+                type: 'logarithmic',
+                position: 'right', // `axis` is determined by the position as `'y'`
+            }
         }
     }
 });

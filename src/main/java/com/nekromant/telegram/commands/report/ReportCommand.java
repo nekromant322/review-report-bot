@@ -39,7 +39,6 @@ public class ReportCommand extends MentoringReviewCommand {
     @Autowired
     private UserInfoService userInfoService;
 
-
     public ReportCommand() {
         super(REPORT.getAlias(), REPORT.getDescription());
     }
