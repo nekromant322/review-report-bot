@@ -63,7 +63,10 @@ public class ReportReminderScheduler {
     @Scheduled(cron = "0 0 8 * * *")
     public void reminderAboutStudentsWithoutReports() {
 
-        List<String> allStudentsUsernames = userInfoService.getAllStudentUsernames();
+        Set<String> allStudentsUsernames = reportRepository.findAll()
+                .stream()
+                .map(Report::getStudentUserName)
+                .collect(Collectors.toSet());
 
         List<String> badStudentsUsernames = new ArrayList<>();
         for (String username : allStudentsUsernames) {
