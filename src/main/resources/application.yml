@@ -14,9 +14,9 @@ reminders:
 
 spring:
   datasource:
-    password: ${PROD_POSTGRE_PASSWORD}
-    username: ${PROD_POSTGRE_USERNAME}
-    url: ${PROD_POSTGRE_URL}
+    password: ${PROD_POSTGRE_PASSWORD:root}
+    username: ${PROD_POSTGRE_USERNAME:root}
+    url: ${PROD_POSTGRE_URL:jdbc:postgresql://localhost:5432/bot}
     driver-class-name: org.postgresql.Driver
 
   jpa:

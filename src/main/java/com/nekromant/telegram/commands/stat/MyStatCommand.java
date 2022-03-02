@@ -28,6 +28,7 @@ public class MyStatCommand extends MentoringReviewCommand {
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         try {
 
+
             UserStatistic userStats = reportService.getUserStats(user.getUserName());
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
