@@ -12,4 +12,6 @@ public interface ReviewRequestRepository extends CrudRepository<ReviewRequest, L
     void deleteAllByBookedDateTimeIsBefore(LocalDateTime dateTime);
 
     List<ReviewRequest> findAllByBookedDateTimeBetween(LocalDateTime from, LocalDateTime to);
+
+    List<ReviewRequest> findAll();
 }
