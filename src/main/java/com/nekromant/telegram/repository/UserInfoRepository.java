@@ -9,4 +9,6 @@ public interface UserInfoRepository extends CrudRepository<UserInfo, String> {
     List<UserInfo> findAll();
 
     UserInfo findUserInfoByUserName(String userName);
+
+    List<UserInfo> findAllByNotifyAboutReportsIsTrue();
 }

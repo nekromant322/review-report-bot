@@ -29,4 +29,7 @@ public class UserInfo {
 
     @Enumerated(EnumType.STRING)
     private UserType userType;
+
+    @Column
+    private Boolean notifyAboutReports;
 }

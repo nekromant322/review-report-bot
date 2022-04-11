@@ -17,7 +17,9 @@ public enum Command {
     MY_ON("me_on", "Стать активным ментором"),
     STEP_PASSED("step_passed", "Отметить для студента пройденный шаг обучения"),
     REVIEW_TODAY("review_today", "Расписание ревью на сегодня"),
-    SET_SALARY("set_salary", "Установить новое значение зп");
+    SET_SALARY("set_salary", "Установить новое значение зп"),
+    NOTIFY_REVIEW_ON("notify_review_on", "Уведолять о всех ревью"),
+    NOTIFY_REVIEW_OFF("notify_review_off", "Не уведолять о всех ревью");
     private String alias;
     private String description;
 

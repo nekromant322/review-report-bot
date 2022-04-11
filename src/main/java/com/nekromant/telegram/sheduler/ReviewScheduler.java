@@ -55,6 +55,12 @@ public class ReviewScheduler {
                     reviewRequest.getTitle(),
                     mentorRepository.findMentorByUserName(reviewRequest.getMentorUserName()).getRoomUrl());
 
+            userInfoService.getAllUsersReportNotificationsEnabled()
+                    .stream()
+                    .filter(x -> !x.getUserName().equals(reviewRequest.getStudentUserName()))
+                    .filter(x -> !x.getUserName().equals(reviewRequest.getMentorUserName()))
+                    .forEach(x -> mentoringReviewBot.sendMessage(x.getChatId().toString(), reviewIncomingMessage));
+
             mentoringReviewBot.sendMessage(reviewRequest.getStudentChatId(), reviewIncomingMessage);
             mentoringReviewBot.sendMessage(userInfoService.getUserInfo(reviewRequest.getMentorUserName()).getChatId().toString(),
                     reviewIncomingMessage);

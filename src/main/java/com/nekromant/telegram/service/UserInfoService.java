@@ -56,4 +56,8 @@ public class UserInfoService {
     public void save(UserInfo userInfo) {
         userInfoRepository.save(userInfo);
     }
+
+    public List<UserInfo> getAllUsersReportNotificationsEnabled() {
+        return userInfoRepository.findAllByNotifyAboutReportsIsTrue();
+    }
 }
