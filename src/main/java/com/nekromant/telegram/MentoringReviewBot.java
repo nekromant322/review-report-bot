@@ -6,6 +6,7 @@ import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.SpecialChatService;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,7 @@ import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatt
 
 
 @Component
+@Slf4j
 public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     @Value("${bot.name}")
@@ -141,11 +143,16 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     @SneakyThrows
     public void sendMessage(String chatId, String text) {
-        SendMessage message = new SendMessage();
-        //убирает превьюшки ссылок
-        message.disableWebPagePreview();
-        message.setText(text);
-        message.setChatId(chatId);
-        execute(message);
+        try {
+            SendMessage message = new SendMessage();
+            //убирает превьюшки ссылок
+            message.disableWebPagePreview();
+            message.setText(text);
+            message.setChatId(chatId);
+            execute(message);
+        } catch (Exception e) {
+            log.error("Ошибка при отправке сообщения " + e.getMessage());
+        }
+
     }
 }
