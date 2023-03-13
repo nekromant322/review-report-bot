@@ -112,7 +112,14 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
+        } else if (update.hasEditedMessage()) {
+            processEditedMessageUpdate(update);
         }
+    }
+
+    public void processEditedMessageUpdate(Update update) {
+        update.setMessage(update.getEditedMessage());
+        super.onUpdateReceived(update);
     }
 
     @SneakyThrows
