@@ -1,13 +1,15 @@
 $(document).ready(function () {
-    updateTable();
+    let mentor = (new URL(document.location)).searchParams.get("mentor");
+
+    updateTable(mentor);
     setInterval(function () {
-        updateTable();
+        updateTable(mentor);
     }, 60 * 1000);
 
 });
 
-function updateTable() {
-    let reviewList = getReview();
+function updateTable(mentor) {
+    let reviewList = getReview(mentor);
     $("#tableBody").empty();
 
     let now = new Date();
@@ -27,10 +29,10 @@ function updateTable() {
 
 }
 
-function getReview() {
+function getReview(mentor) {
     let reviewList;
     $.ajax({
-        url: "/incoming-review-with-period",
+        url: "/incoming-review-with-period?mentor=" + mentor,
         dataType: 'json',
         type: 'GET',
         contentType: "application/json",
