@@ -6,6 +6,7 @@ import com.nekromant.telegram.service.SchedulePeriodService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
@@ -65,7 +66,7 @@ public class IncomingReviewRestController {
     }
 
     @GetMapping("/incoming-review-with-period")
-    public List<BookedReviewDTO> getIncomingReviewWithPeriod() {
+    public List<BookedReviewDTO> getIncomingReviewWithPeriod(@RequestParam String mentor) {
         Long startTime = schedulePeriodService.getStart();
         Long endTime = schedulePeriodService.getEnd();
         LocalDateTime startDateTime = LocalDate.now(ZoneId.of("Europe/Moscow")).atStartOfDay().plusHours(startTime);
@@ -74,7 +75,7 @@ public class IncomingReviewRestController {
         Stream<BookedReviewDTO> streamReviews = reviewRequestRepository
                 .findAllByBookedDateTimeBetween(startDateTime, endDateTime)
                 .stream()
-                .filter(x -> x.getMentorUserName() != null)
+                .filter(x -> x.getMentorUserName().equals(mentor))
                 .map(x -> new BookedReviewDTO(
                         x.getStudentUserName(),
                         "https://t.me/" + x.getStudentUserName(),
