@@ -35,4 +35,5 @@ public class MessageContants {
             "/notify_review_on";
     public static final String STUDENT_REPORT_FORGET_REMINDER = "Кажется ты уже пару дней забываешь написать отчет\n" +
             "Бездельничаешь?\uD83D\uDE49";
+    public static final String PERIOD_IS_SET = "Период установлен";
 }
