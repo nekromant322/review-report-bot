@@ -3,23 +3,26 @@ package com.nekromant.telegram.service;
 import com.nekromant.telegram.model.SchedulePeriod;
 import com.nekromant.telegram.repository.SchedulePeriodRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class SchedulePeriodService {
+    @Value("${schedulePeriod.start}")
+    private Long defaultStart;
+    @Value("${schedulePeriod.end}")
+    private Long defaultEnd;
+
     @Autowired
     private SchedulePeriodRepository schedulePeriodRepository;
 
-    private final static Long DEFAULT_START = 18L;
-    private final static Long DEFAULT_END = 3L;
     private Map<String, Long> period = new HashMap<>();
 
-    @EventListener(ApplicationReadyEvent.class)
+    @PostConstruct
     public void setSchedulePeriod() {
         SchedulePeriod schedulePeriod = schedulePeriodRepository.findById(1L).orElse(null);
         Long start;
@@ -29,8 +32,8 @@ public class SchedulePeriodService {
             start = schedulePeriod.getStartTime();
             end = schedulePeriod.getEndTime();
         } else {
-            start = DEFAULT_START;
-            end = DEFAULT_END;
+            start = defaultStart;
+            end = defaultEnd;
         }
 
         period.put("start", start);
@@ -56,7 +59,7 @@ public class SchedulePeriodService {
             SchedulePeriod newSchedulePeriod = new SchedulePeriod();
             newSchedulePeriod.setId(1L);
             newSchedulePeriod.setStartTime(start);
-            newSchedulePeriod.setEndTime(DEFAULT_END);
+            newSchedulePeriod.setEndTime(defaultEnd);
             schedulePeriodRepository.save(newSchedulePeriod);
         }
     }
@@ -71,7 +74,7 @@ public class SchedulePeriodService {
         } else {
             SchedulePeriod newSchedulePeriod = new SchedulePeriod();
             newSchedulePeriod.setId(1L);
-            newSchedulePeriod.setStartTime(DEFAULT_START);
+            newSchedulePeriod.setStartTime(defaultStart);
             newSchedulePeriod.setEndTime(end);
             schedulePeriodRepository.save(newSchedulePeriod);
         }

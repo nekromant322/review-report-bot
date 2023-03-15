@@ -33,3 +33,7 @@ spring:
 lombok:
   accessors:
     chain: true
+
+schedulePeriod:
+  start: 18
+  end: 3
