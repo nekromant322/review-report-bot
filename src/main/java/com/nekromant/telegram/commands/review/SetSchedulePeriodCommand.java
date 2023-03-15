@@ -1,7 +1,7 @@
 package com.nekromant.telegram.commands.review;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
-import com.nekromant.telegram.utils.SchedulePeriodUtils;
+import com.nekromant.telegram.service.SchedulePeriodService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +21,9 @@ public class SetSchedulePeriodCommand extends MentoringReviewCommand {
     private String ownerUserName;
 
     @Autowired
+    private SchedulePeriodService schedulePeriodService;
+
+    @Autowired
     public SetSchedulePeriodCommand() {
         super(SET_SCHEDULE_PERIOD.getAlias(), SET_SCHEDULE_PERIOD.getDescription());
     }
@@ -37,8 +40,8 @@ public class SetSchedulePeriodCommand extends MentoringReviewCommand {
         }
         try {
             ValidationUtils.validateArguments(arguments);
-            SchedulePeriodUtils.setStart(Long.valueOf(arguments[0]));
-            SchedulePeriodUtils.setEnd(Long.valueOf(arguments[1]));
+            schedulePeriodService.setStart(Long.valueOf(arguments[0]));
+            schedulePeriodService.setEnd(Long.valueOf(arguments[1]));
 
         } catch (Exception e) {
             message.setText(e.getMessage() + "\n" + "Пример: /set_period 18 3");

@@ -2,7 +2,7 @@ package com.nekromant.telegram.controller;
 
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
-import com.nekromant.telegram.utils.SchedulePeriodUtils;
+import com.nekromant.telegram.service.SchedulePeriodService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +25,8 @@ public class IncomingReviewRestController {
     private ReviewRequestRepository reviewRequestRepository;
     @Autowired
     private MentorRepository mentorRepository;
+    @Autowired
+    private SchedulePeriodService schedulePeriodService;
 
     @GetMapping("/incoming-review")
     public List<BookedReviewDTO> getIncomingReview() {
@@ -47,7 +49,6 @@ public class IncomingReviewRestController {
         Stream<BookedReviewDTO> streamWithBooked = reviewRequestRepository
                 .findAllByBookedDateTimeBetween(nowInMoscow.minus(2, ChronoUnit.HOURS), nowInMoscow.plus(2, ChronoUnit.DAYS))
                 .stream()
-                .filter(x -> x.getMentorUserName() != null)
                 .map(x -> new BookedReviewDTO(
                         x.getStudentUserName(),
                         "https://t.me/" + x.getStudentUserName(),
@@ -65,14 +66,15 @@ public class IncomingReviewRestController {
 
     @GetMapping("/incoming-review-with-period")
     public List<BookedReviewDTO> getIncomingReviewWithPeriod() {
-        Long startTime = SchedulePeriodUtils.getStart();
-        Long endTime = SchedulePeriodUtils.getEnd();
+        Long startTime = schedulePeriodService.getStart();
+        Long endTime = schedulePeriodService.getEnd();
         LocalDateTime startDateTime = LocalDate.now(ZoneId.of("Europe/Moscow")).atStartOfDay().plusHours(startTime);
         LocalDateTime endDateTime = startDateTime.plusHours(endTime <= 12 ? (24 + endTime - startTime) : (endTime - startTime));
 
         Stream<BookedReviewDTO> streamReviews = reviewRequestRepository
                 .findAllByBookedDateTimeBetween(startDateTime, endDateTime)
                 .stream()
+                .filter(x -> x.getMentorUserName() != null)
                 .map(x -> new BookedReviewDTO(
                         x.getStudentUserName(),
                         "https://t.me/" + x.getStudentUserName(),
