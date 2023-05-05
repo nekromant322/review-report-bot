@@ -31,6 +31,7 @@ public class PayCommand extends MentoringReviewCommand {
     @Autowired
     private LifePayFeign lifePayFeign;
 
+
     @Autowired
     public PayCommand() {
         super(PAY.getAlias(), PAY.getDescription());
@@ -83,5 +84,4 @@ public class PayCommand extends MentoringReviewCommand {
     public String parseAmount(String[] strings){
         return strings[1];
     }
-
 }
