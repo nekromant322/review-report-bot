@@ -20,7 +20,8 @@ public enum Command {
     SET_SALARY("set_salary", "Установить новое значение зп"),
     NOTIFY_REVIEW_ON("notify_review_on", "Уведолять о всех ревью"),
     NOTIFY_REVIEW_OFF("notify_review_off", "Не уведолять о всех ревью"),
-    SET_SCHEDULE_PERIOD("set_schedule_period", "Установить период времени, за который выводить список ревью");
+    SET_SCHEDULE_PERIOD("set_schedule_period", "Установить период времени, за который выводить список ревью"),
+    SET_CONTRACT("set_contract", "Задать номер договора студента");
     private String alias;
     private String description;
 
