@@ -25,6 +25,7 @@ public enum Command {
     ANNOUNCE("announce", "Отправить аннонс о новых возможностях указанным пользователям"),
 
     PAY("pay", "Оплатить чен");
+
     private String alias;
     private String description;
 
