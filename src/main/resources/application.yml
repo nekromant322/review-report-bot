@@ -3,14 +3,20 @@ bot:
   token: ${TELEGRAM_BOT_TOKEN}
 
 owner:
-  userName: Marandyuk_Anatolii
+  userName: etozhealexis # Marandyuk_Anatolii
 
 server:
   port: ${PORT:8080}
-  host: "https://mentoring-review-bot.herokuapp.com"
+  host: localhost # "https://mentoring-review-bot.herokuapp.com"
 
 reminders:
   maxDaysWithoutReport: 3
+
+pay-info:
+  login: ${LIFE_PAY_LOGIN}
+  apikey: ${LIFE_PAY_KEY}
+  description: ${LIFE_PAY_DESCRIPTION:test}
+  method: sbp
 
 spring:
   datasource:
