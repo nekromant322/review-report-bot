@@ -83,5 +83,4 @@ public class PayCommand extends MentoringReviewCommand {
     public String parseAmount(String[] strings){
         return strings[1];
     }
-
 }
