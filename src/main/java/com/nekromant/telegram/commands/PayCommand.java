@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import javax.management.InstanceNotFoundException;
-
 import static com.nekromant.telegram.contents.Command.PAY;
 
 @Component
@@ -81,7 +80,6 @@ public class PayCommand extends MentoringReviewCommand {
     public String parseCustomerPhone(String[] strings){
         return strings[0];
     }
-
 
     public String parseAmount(String[] strings){
         return validateAmount(strings[1]);
