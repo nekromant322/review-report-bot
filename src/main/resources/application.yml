@@ -3,11 +3,11 @@ bot:
   token: ${TELEGRAM_BOT_TOKEN}
 
 owner:
-  userName: etozhealexis # Marandyuk_Anatolii
+  userName: Marandyuk_Anatolii
 
 server:
   port: ${PORT:8080}
-  host: localhost # "https://mentoring-review-bot.herokuapp.com"
+  host: "https://mentoring-review-bot.herokuapp.com"
 
 reminders:
   maxDaysWithoutReport: 3

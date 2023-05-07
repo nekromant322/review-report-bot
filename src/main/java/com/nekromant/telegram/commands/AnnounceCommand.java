@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.nekromant.telegram.contants.Command.ANNOUNCE;
-import static com.nekromant.telegram.contants.MessageContants.*;
+import static com.nekromant.telegram.contents.Command.ANNOUNCE;
+import static com.nekromant.telegram.contents.MessageContents.*;
 
 @Component
 public class AnnounceCommand extends MentoringReviewCommand {

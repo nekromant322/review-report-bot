@@ -25,7 +25,7 @@ public class PaymentDetails {
     @JsonProperty(value = "original_number")
     private String originalNumber;
 
-    @Column
+    @Column(name = "td_type")
     private String type;
 
     @Column
@@ -74,7 +74,8 @@ public class PaymentDetails {
     private String pan;
 
     @Column
-    private String cardholder;
+    @JsonProperty(value = "cardholder")
+    private String cardHolder;
 
     @Column
     private String rrn;
@@ -93,7 +94,7 @@ public class PaymentDetails {
     private Purchase[] purchase;
 
     @Convert(converter = OrderConverter.class)
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "jsonb", name = "td_order")
     private Order order;
 
     @Convert(converter = AddFieldsConverter.class)
