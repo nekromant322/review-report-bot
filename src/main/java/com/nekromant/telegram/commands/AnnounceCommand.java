@@ -20,7 +20,6 @@ import static com.nekromant.telegram.contants.MessageContants.*;
 
 @Component
 public class AnnounceCommand extends MentoringReviewCommand {
-    //TODO поменять назад владельца
     @Value("${owner.userName}")
     private String ownerUserName;
 
@@ -43,7 +42,6 @@ public class AnnounceCommand extends MentoringReviewCommand {
             return;
         }
         StringBuilder newAnnounce = new StringBuilder();
-        StringBuilder announceRecipients = new StringBuilder();
         try {
             ValidationUtils.validateArguments(arguments);
             List<String> newAnnounceList = new ArrayList<>();
@@ -56,8 +54,7 @@ public class AnnounceCommand extends MentoringReviewCommand {
                 }
             }
             newAnnounceList.forEach(word -> {
-                newAnnounce.append(word);
-                newAnnounce.append(" ");
+                newAnnounce.append(word).append(" ");
             });
 
             announceRecipientsList.forEach(recipient -> {
@@ -70,16 +67,15 @@ public class AnnounceCommand extends MentoringReviewCommand {
                     SendMessage messageForRecipient = new SendMessage();
                     messageForRecipient.setChatId(recipientInfo.getChatId().toString());
                     messageForRecipient.setText(newAnnounce.toString());
-                    execute(absSender, messageForRecipient, recipientUser, true);
-                    announceRecipients.append(recipient);
-                    announceRecipients.append(" ");
+                    absSender.execute(messageForRecipient);
+
                 } catch (Exception e) {
                     message.setText(e.getMessage() + "\n" + "Что-то пошло не так с @" + recipient);
                     execute(absSender, message, user);
                 }
             });
             message.setText(ANNOUNCE_SENT);
-            execute(absSender, message, user, true);
+            execute(absSender, message, user);
         } catch (Exception e) {
             message.setText(e.getClass() + "\n" + "Пример: /announce \"Текст аннонса\" @UserName");
             execute(absSender, message, user);

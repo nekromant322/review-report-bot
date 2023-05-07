@@ -23,16 +23,5 @@ public abstract class MentoringReviewCommand extends BotCommand {
             System.out.println(e.getMessage());
         }
     }
-
-    public void execute(AbsSender sender, SendMessage message, User user, boolean throwE) throws TelegramApiException {
-        System.out.println(this.getDescription() + " , пользователь - " + user.getUserName());
-        System.out.println("output: \n" + message.getText() + "\n");
-        try {
-            sender.execute(message);
-        } catch (TelegramApiException e) {
-            System.out.println(e.getMessage());
-            throw e;
-        }
-    }
 }
 
