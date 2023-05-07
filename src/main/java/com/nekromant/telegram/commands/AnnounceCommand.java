@@ -53,9 +53,7 @@ public class AnnounceCommand extends MentoringReviewCommand {
                     newAnnounceList.add(argument.replace("\"", ""));
                 }
             }
-            newAnnounceList.forEach(word -> {
-                newAnnounce.append(word).append(" ");
-            });
+            newAnnounceList.forEach(word -> newAnnounce.append(word).append(" "));
 
             announceRecipientsList.forEach(recipient -> {
                 try {
@@ -63,7 +61,6 @@ public class AnnounceCommand extends MentoringReviewCommand {
                     if (Objects.equals(recipientInfo, null)) {
                         throw new Exception("User not found");
                     }
-                    User recipientUser = new User(recipientInfo.getChatId(), recipientInfo.getUserName(), false);
                     SendMessage messageForRecipient = new SendMessage();
                     messageForRecipient.setChatId(recipientInfo.getChatId().toString());
                     messageForRecipient.setText(newAnnounce.toString());
