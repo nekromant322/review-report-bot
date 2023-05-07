@@ -1,6 +1,6 @@
 package com.nekromant.telegram.model;
 
-import com.nekromant.telegram.contants.Step;
+import com.nekromant.telegram.contents.Step;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

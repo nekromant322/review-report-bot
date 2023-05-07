@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.nekromant.telegram.contants.Command.GET_MENTORS;
+import static com.nekromant.telegram.contents.Command.GET_MENTORS;
 
 @Component
 public class GetMentorsCommand extends MentoringReviewCommand {

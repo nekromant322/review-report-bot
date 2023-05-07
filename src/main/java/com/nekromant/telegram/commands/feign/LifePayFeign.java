@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "mentoringReviewBot", url = "https://api.life-pay.ru/")
+@FeignClient(name = "LifePayApi", url = "https://api.life-pay.ru/")
 public interface LifePayFeign {
     @PostMapping(value = "v1/bill")
     ResponseEntity<String> payCheque(@RequestBody Cheque cheque);

@@ -15,7 +15,6 @@ reminders:
 pay-info:
   login: ${LIFE_PAY_LOGIN}
   apikey: ${LIFE_PAY_KEY}
-  description: ${LIFE_PAY_DESCRIPTION:test}
   method: sbp
 
 spring:

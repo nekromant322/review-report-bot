@@ -9,8 +9,8 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import static com.nekromant.telegram.contants.Command.START;
-import static com.nekromant.telegram.contants.MessageContants.START_HELP_MESSAGE;
+import static com.nekromant.telegram.contents.Command.START;
+import static com.nekromant.telegram.contents.MessageContents.START_HELP_MESSAGE;
 
 @Component
 public class StartCommand extends MentoringReviewCommand {

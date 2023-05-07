@@ -15,7 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import javax.management.InstanceNotFoundException;
-import static com.nekromant.telegram.contants.Command.PAY;
+import static com.nekromant.telegram.contents.Command.PAY;
 
 @Component
 @Slf4j
@@ -49,7 +49,7 @@ public class PayCommand extends MentoringReviewCommand {
                     login,
                     apikey,
                     parseAmount(strings),
-                    parseDescription(user),
+                    createDescription(user),
                     parseCustomerPhone(strings),
                     method);
 
@@ -71,8 +71,8 @@ public class PayCommand extends MentoringReviewCommand {
         execute(absSender, message, user);
     }
 
-    private String parseDescription(User user) throws InstanceNotFoundException {
-        Contract contract = contractService.getContractByUsername(user.getUserName());
+    private String createDescription(User user) throws InstanceNotFoundException {
+        final Contract contract = contractService.getContractByUsername(user.getUserName());
         return "Оплата по договору " + contract.getContractId() + " от " +
                 contract.getDate() + " за консультации по разработке ПО";
     }

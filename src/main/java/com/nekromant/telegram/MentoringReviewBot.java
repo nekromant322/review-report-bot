@@ -1,7 +1,7 @@
 package com.nekromant.telegram;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
-import com.nekromant.telegram.contants.CallBack;
+import com.nekromant.telegram.contents.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.SpecialChatService;
@@ -22,11 +22,11 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.nekromant.telegram.contants.MessageContants.NOBODY_CAN_MAKE_REVIEW;
-import static com.nekromant.telegram.contants.MessageContants.REVIEW_APPROVED;
-import static com.nekromant.telegram.contants.MessageContants.REVIEW_BOOKED;
-import static com.nekromant.telegram.contants.MessageContants.SOMEBODY_DENIED_REVIEW;
-import static com.nekromant.telegram.contants.MessageContants.UNKNOWN_COMMAND;
+import static com.nekromant.telegram.contents.MessageContents.NOBODY_CAN_MAKE_REVIEW;
+import static com.nekromant.telegram.contents.MessageContents.REVIEW_APPROVED;
+import static com.nekromant.telegram.contents.MessageContents.REVIEW_BOOKED;
+import static com.nekromant.telegram.contents.MessageContents.SOMEBODY_DENIED_REVIEW;
+import static com.nekromant.telegram.contents.MessageContents.UNKNOWN_COMMAND;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 

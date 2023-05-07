@@ -1,6 +1,6 @@
 package com.nekromant.telegram.service;
 
-import com.nekromant.telegram.contants.UserType;
+import com.nekromant.telegram.contents.UserType;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.UserInfoRepository;

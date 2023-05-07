@@ -1,4 +1,4 @@
-package com.nekromant.telegram.contants;
+package com.nekromant.telegram.contents;
 
 public enum Command {
 
