@@ -10,9 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import static com.nekromant.telegram.contants.Command.MY_STAT;
-import static com.nekromant.telegram.contants.MessageContants.ERROR;
-import static com.nekromant.telegram.contants.MessageContants.USER_STAT_MESSAGE;
+import static com.nekromant.telegram.contents.Command.MY_STAT;
+import static com.nekromant.telegram.contents.MessageContents.ERROR;
+import static com.nekromant.telegram.contents.MessageContents.USER_STAT_MESSAGE;
 
 @Component
 public class MyStatCommand extends MentoringReviewCommand {

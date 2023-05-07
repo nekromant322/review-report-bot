@@ -10,8 +10,8 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import static com.nekromant.telegram.contants.Command.NOTIFY_REVIEW_OFF;
-import static com.nekromant.telegram.contants.MessageContants.SUBSCIBED_OFF_NOTIFICATIONS;
+import static com.nekromant.telegram.contents.Command.NOTIFY_REVIEW_OFF;
+import static com.nekromant.telegram.contents.MessageContents.SUBSCRIBED_OFF_NOTIFICATIONS;
 
 @Component
 public class NotifyOffCommand extends MentoringReviewCommand {
@@ -41,7 +41,7 @@ public class NotifyOffCommand extends MentoringReviewCommand {
             execute(absSender, message, user);
         }
 
-        message.setText(SUBSCIBED_OFF_NOTIFICATIONS);
+        message.setText(SUBSCRIBED_OFF_NOTIFICATIONS);
         execute(absSender, message, user);
     }
 }

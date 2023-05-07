@@ -1,6 +1,6 @@
-package com.nekromant.telegram.contants;
+package com.nekromant.telegram.contents;
 
-public class MessageContants {
+public class MessageContents {
 
     public static final String ERROR = "Что-то пошло не так\n";
 
@@ -29,9 +29,9 @@ public class MessageContants {
     public static final String REPORT_REMINDER = "Не забудь написать отчет \uD83D\uDE4A \n";
     public static final String MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS = "Студенты у которых %d дней не было отчетов:\n";
     public static final String MENTORS_LIST_CHANGED = "Список менторов изменен";
-    public static final String SUBSCIBED_ON_NOTIFICATIONS = "Теперь ты подписан на уведомления о ревью, чтобы отписаться жми " +
+    public static final String SUBSCRIBED_ON_NOTIFICATIONS = "Теперь ты подписан на уведомления о ревью, чтобы отписаться жми " +
             "/notify_review_off";
-    public static final String SUBSCIBED_OFF_NOTIFICATIONS = "Ты больше не подписан на уведомления о ревью, чтобы подписаться жми " +
+    public static final String SUBSCRIBED_OFF_NOTIFICATIONS = "Ты больше не подписан на уведомления о ревью, чтобы подписаться жми " +
             "/notify_review_on";
     public static final String STUDENT_REPORT_FORGET_REMINDER = "Кажется ты уже пару дней забываешь написать отчет\n" +
             "Бездельничаешь?\uD83D\uDE49";

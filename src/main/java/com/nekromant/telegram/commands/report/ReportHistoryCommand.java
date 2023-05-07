@@ -15,9 +15,9 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.nekromant.telegram.contants.Command.REPORT_HISTORY;
-import static com.nekromant.telegram.contants.MessageContants.ERROR;
-import static com.nekromant.telegram.contants.MessageContants.REPORT_HISTORY_HELP_MESSAGE;
+import static com.nekromant.telegram.contents.Command.REPORT_HISTORY;
+import static com.nekromant.telegram.contents.MessageContents.ERROR;
+import static com.nekromant.telegram.contents.MessageContents.REPORT_HISTORY_HELP_MESSAGE;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
 
 @Component

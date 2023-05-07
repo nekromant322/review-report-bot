@@ -11,9 +11,9 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import static com.nekromant.telegram.contants.Command.SET_SCHEDULE_PERIOD;
-import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
-import static com.nekromant.telegram.contants.MessageContants.PERIOD_IS_SET;
+import static com.nekromant.telegram.contents.Command.SET_SCHEDULE_PERIOD;
+import static com.nekromant.telegram.contents.MessageContents.NOT_OWNER_ERROR;
+import static com.nekromant.telegram.contents.MessageContents.PERIOD_IS_SET;
 
 @Component
 public class SetSchedulePeriodCommand extends MentoringReviewCommand {
