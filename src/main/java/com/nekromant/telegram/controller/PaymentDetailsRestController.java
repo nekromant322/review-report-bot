@@ -50,6 +50,7 @@ public class PaymentDetailsRestController {
                 .append("Статус транзакции: ").append(paymentDetails.getStatus()).append("\n")
                 .append("Сумма: ").append(paymentDetails.getAmount()).append("\n")
                 .append("Номер телефона плательщика: ").append(paymentDetails.getPhone()).append("\n")
-                .append("Имя плательщика: ").append(paymentDetails.getCardHolder()).append("\n").toString();
+                .append("Имя плательщика: ").append(paymentDetails.getCardHolder()).append("\n")
+                .append("Дата транзакции: ").append(paymentDetails.getCreated()).append("\n").toString();
     }
 }
