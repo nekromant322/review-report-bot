@@ -2,6 +2,7 @@ package com.nekromant.telegram;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 })
 @EnableJpaRepositories(basePackages = {"com.nekromant.telegram.repository"})
 @EnableScheduling
+@EnableFeignClients
 public class TelegramApplication {
 
     public static void main(String[] args) {

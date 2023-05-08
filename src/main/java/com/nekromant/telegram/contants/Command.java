@@ -22,7 +22,9 @@ public enum Command {
     NOTIFY_REVIEW_OFF("notify_review_off", "Не уведолять о всех ревью"),
     SET_SCHEDULE_PERIOD("set_schedule_period", "Установить период времени, за который выводить список ревью"),
     SET_CONTRACT("set_contract", "Задать номер договора студента"),
-    ANNOUNCE("announce", "Отправить аннонс о новых возможностях указанным пользователям");
+    ANNOUNCE("announce", "Отправить аннонс о новых возможностях указанным пользователям"),
+
+    PAY("pay", "Оплатить чек");
 
     private String alias;
     private String description;
