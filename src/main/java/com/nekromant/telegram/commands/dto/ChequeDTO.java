@@ -1,4 +1,4 @@
-package com.nekromant.telegram.model;
+package com.nekromant.telegram.commands.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Cheque {
+public class ChequeDTO {
     @JsonProperty(value = "login")
     private String login;
 

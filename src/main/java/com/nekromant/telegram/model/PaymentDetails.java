@@ -1,14 +1,14 @@
 package com.nekromant.telegram.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nekromant.telegram.converter.AddFieldsConverter;
-import com.nekromant.telegram.converter.OrderConverter;
-import com.nekromant.telegram.converter.OriginalAddFieldsConverter;
-import com.nekromant.telegram.converter.PurchaseConverter;
+import com.nekromant.telegram.commands.dto.*;
+import com.nekromant.telegram.converter.OrderJsonType;
+import com.nekromant.telegram.converter.PurchaseJsonType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
 
@@ -16,13 +16,18 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
+@TypeDefs(
+        {
+                @TypeDef(name = "PurchaseJsonType", typeClass = PurchaseJsonType.class),
+                @TypeDef(name = "OrderJsonType", typeClass = OrderJsonType.class)
+        }
+)
+
 public class PaymentDetails {
     @Id
     private String number;
 
     @Column
-    @JsonProperty(value = "original_number")
     private String originalNumber;
 
     @Column(name = "td_type")
@@ -35,30 +40,24 @@ public class PaymentDetails {
     private String method;
 
     @Column
-    @JsonProperty(value = "terminal_serial")
     private String terminalSerial;
 
     @Column
-    @JsonProperty(value = "recipient_inn")
     private String recipientInn;
 
     @Column
-    @JsonProperty(value = "operator_login")
     private String operatorLogin;
 
     @Column
-    @JsonProperty(value = "operator_name")
     private String operatorName;
 
     @Column
     private String amount;
 
     @Column
-    @JsonProperty(value = "tip_amount")
     private String tipAmount;
 
     @Column
-    @JsonProperty(value = "discount_amount")
     private String discountAmount;
 
     @Column
@@ -74,7 +73,6 @@ public class PaymentDetails {
     private String pan;
 
     @Column
-    @JsonProperty(value = "cardholder")
     private String cardHolder;
 
     @Column
@@ -89,21 +87,13 @@ public class PaymentDetails {
     @Column
     private String created;
 
-    @Convert(converter = PurchaseConverter.class)
+    @Convert(disableConversion = true)
+    @Type(type = "PurchaseJsonType")
     @Column(columnDefinition = "jsonb")
-    private Purchase[] purchase;
+    private PurchaseDTO[] purchase;
 
-    @Convert(converter = OrderConverter.class)
-    @Column(columnDefinition = "jsonb", name = "td_order")
-    private Order order;
-
-    @Convert(converter = AddFieldsConverter.class)
-    @Column(columnDefinition = "jsonb")
-    @JsonProperty(value = "add_fields")
-    private AddFields addFields;
-
-    @Convert(converter = OriginalAddFieldsConverter.class)
-    @Column(columnDefinition = "jsonb")
-    @JsonProperty(value = "original_add_fields")
-    private OriginalAddFields originalAddFields;
+    @Convert(disableConversion = true)
+    @Type(type = "OrderJsonType")
+    @Column(name = "td_order")
+    private OrderDTO order;
 }
