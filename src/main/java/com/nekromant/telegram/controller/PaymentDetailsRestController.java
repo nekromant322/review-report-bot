@@ -1,19 +1,27 @@
 package com.nekromant.telegram.controller;
 
+import com.google.gson.Gson;
 import com.nekromant.telegram.MentoringReviewBot;
+import com.nekromant.telegram.commands.dto.OrderDTO;
+import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
+import com.nekromant.telegram.commands.dto.PurchaseDTO;
 import com.nekromant.telegram.model.*;
 import com.nekromant.telegram.service.PaymentDetailsService;
 import com.nekromant.telegram.service.UserInfoService;
-import org.apache.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
+
 
 @RestController
-public class PaymentDetailsController {
+@Slf4j
+public class PaymentDetailsRestController {
     @Value("${owner.userName}")
     private String ownerUserName;
     @Autowired
@@ -22,12 +30,14 @@ public class PaymentDetailsController {
     private UserInfoService userInfoService;
     @Autowired
     private MentoringReviewBot mentoringReviewBot;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @PostMapping("/paymentCallback")
-    public int paymentCallback(@RequestBody PaymentDetails paymentDetails) {
-        paymentDetailsService.save(paymentDetails);
+    public void paymentCallback(@RequestBody PaymentDetailsDTO paymentDetailsDTO) {
+        PaymentDetails paymentDetails = modelMapper.map(paymentDetailsDTO, PaymentDetails.class);
         sendMessage(paymentDetails);
-        return HttpStatus.SC_OK;
+        paymentDetailsService.save(paymentDetails);
     }
 
     public void sendMessage(PaymentDetails paymentDetails) {

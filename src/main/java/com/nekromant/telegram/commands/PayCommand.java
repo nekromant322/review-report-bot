@@ -1,7 +1,7 @@
 package com.nekromant.telegram.commands;
 
 import com.nekromant.telegram.commands.feign.LifePayFeign;
-import com.nekromant.telegram.model.Cheque;
+import com.nekromant.telegram.commands.dto.ChequeDTO;
 import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.service.ContractService;
 import com.nekromant.telegram.utils.ValidationUtils;
@@ -38,33 +38,33 @@ public class PayCommand extends MentoringReviewCommand {
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
+    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
         SendMessage message = new SendMessage();
         String studentChatId = chat.getId().toString();
         message.setChatId(studentChatId);
 
         try {
-            ValidationUtils.validateArguments(strings);
-            Cheque cheque = new Cheque(
+            ValidationUtils.validateArguments(arguments);
+            ChequeDTO chequeDTO = new ChequeDTO(
                     login,
                     apikey,
-                    parseAmount(strings),
+                    parseAmount(arguments),
                     createDescription(user),
-                    parseCustomerPhone(strings),
+                    parseCustomerPhone(arguments),
                     method);
 
-            log.info(lifePayFeign.payCheque(cheque).getBody());
+            String paymentUrl = parseUrl(lifePayFeign.payCheque(chequeDTO).getBody());
 
-            message.setText("Отправлено SMS-сообщение со счетом на номер " + cheque.getCustomerPhone()
-                    + " на сумму " + cheque.getAmount());
+            message.setText("Отправлено SMS-сообщение со счетом на номер " + chequeDTO.getCustomerPhone()
+                    + " на сумму " + chequeDTO.getAmount() + "\n Ссылка на оплату:\n" + paymentUrl);
 
         } catch (InstanceNotFoundException e) {
-            message.setText("У вас нет контракта");
+            message.setText("У вас нет контракта, обратитесь к @Marandyuk_Anatolii");
             execute(absSender, message, user);
             return;
         } catch (Exception e) {
             message.setText("Пример: \n" +
-                    "/pay 79775548911 5000.00");
+                    "/pay <ваш номер в формате 79xxxxxxxxx> <сумма услуги в формате 5000.00>");
             execute(absSender, message, user);
             return;
         }
@@ -77,20 +77,25 @@ public class PayCommand extends MentoringReviewCommand {
                 contract.getDate() + " за консультации по разработке ПО";
     }
 
-    public String parseCustomerPhone(String[] strings){
-        return strings[0];
+    public String parseCustomerPhone(String[] arguments){
+        return arguments[0];
     }
 
-    public String parseAmount(String[] strings){
-        return validateAmount(strings[1]);
+    public String parseAmount(String[] arguments){
+        return validateAmount(arguments[1]);
     }
 
-    private String validateAmount(String string) {
+    private String validateAmount(String argument) {
         try {
-            Double.parseDouble(string);
-            return string;
+            Double.parseDouble(argument);
+            return argument;
         } catch (ClassCastException e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
+
+    private String parseUrl(String json) {
+        return json.substring(json.indexOf("https"), json.lastIndexOf("\""));
+    }
+
 }
