@@ -1,6 +1,6 @@
-package com.nekromant.telegram.contents;
+package com.nekromant.telegram.contants;
 
-public class MessageContents {
+public class MessageContants {
 
     public static final String ERROR = "Что-то пошло не так\n";
 

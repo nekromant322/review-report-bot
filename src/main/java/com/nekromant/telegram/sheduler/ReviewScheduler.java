@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import static com.nekromant.telegram.contents.MessageContents.REVIEW_INCOMING;
+import static com.nekromant.telegram.contants.MessageContants.REVIEW_INCOMING;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 
 @Component

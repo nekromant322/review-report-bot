@@ -14,9 +14,9 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import static com.nekromant.telegram.contents.Command.ADD_MENTOR;
-import static com.nekromant.telegram.contents.MessageContents.MENTORS_LIST_CHANGED;
-import static com.nekromant.telegram.contents.MessageContents.NOT_OWNER_ERROR;
+import static com.nekromant.telegram.contants.Command.ADD_MENTOR;
+import static com.nekromant.telegram.contants.MessageContants.MENTORS_LIST_CHANGED;
+import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 
 @Component
 public class AddMentorCommand extends MentoringReviewCommand {

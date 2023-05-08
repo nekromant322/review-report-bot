@@ -10,8 +10,8 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import static com.nekromant.telegram.contents.Command.REGISTER_REPORT;
-import static com.nekromant.telegram.contents.MessageContents.NOT_OWNER_ERROR;
+import static com.nekromant.telegram.contants.Command.REGISTER_REPORT;
+import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 
 @Component
 public class RegisterReportChatCommand extends MentoringReviewCommand {

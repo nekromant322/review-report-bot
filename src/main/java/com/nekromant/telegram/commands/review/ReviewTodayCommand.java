@@ -2,7 +2,7 @@ package com.nekromant.telegram.commands.review;
 
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
-import com.nekromant.telegram.contents.CallBack;
+import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
@@ -24,7 +24,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.nekromant.telegram.contents.Command.REVIEW_TODAY;
+import static com.nekromant.telegram.contants.Command.REVIEW_TODAY;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 import static java.time.temporal.ChronoUnit.DAYS;
 

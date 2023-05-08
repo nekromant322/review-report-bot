@@ -11,8 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import static com.nekromant.telegram.contents.Command.MY_OFF;
-import static com.nekromant.telegram.contents.Command.MY_ON;
+import static com.nekromant.telegram.contants.Command.MY_OFF;
+import static com.nekromant.telegram.contants.Command.MY_ON;
 
 @Component
 public class MyOffCommand extends MentoringReviewCommand {

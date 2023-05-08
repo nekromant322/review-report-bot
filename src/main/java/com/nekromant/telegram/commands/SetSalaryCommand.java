@@ -14,8 +14,8 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.time.LocalDate;
 
-import static com.nekromant.telegram.contents.Command.SET_SALARY;
-import static com.nekromant.telegram.contents.MessageContents.NOT_OWNER_ERROR;
+import static com.nekromant.telegram.contants.Command.SET_SALARY;
+import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 @Component

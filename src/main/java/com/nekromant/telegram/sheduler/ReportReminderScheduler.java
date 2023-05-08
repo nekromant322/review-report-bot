@@ -16,9 +16,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.nekromant.telegram.contents.MessageContents.MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS;
-import static com.nekromant.telegram.contents.MessageContents.REPORT_REMINDER;
-import static com.nekromant.telegram.contents.MessageContents.STUDENT_REPORT_FORGET_REMINDER;
+import static com.nekromant.telegram.contants.MessageContants.MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS;
+import static com.nekromant.telegram.contants.MessageContants.REPORT_REMINDER;
+import static com.nekromant.telegram.contants.MessageContants.STUDENT_REPORT_FORGET_REMINDER;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component

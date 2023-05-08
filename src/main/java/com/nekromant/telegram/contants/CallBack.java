@@ -1,4 +1,4 @@
-package com.nekromant.telegram.contents;
+package com.nekromant.telegram.contants;
 
 public enum CallBack {
     APPROVE("/approve"),

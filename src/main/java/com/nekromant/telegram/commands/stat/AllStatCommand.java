@@ -20,9 +20,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.nekromant.telegram.contents.Command.ALL_STAT;
-import static com.nekromant.telegram.contents.MessageContents.ERROR;
-import static com.nekromant.telegram.contents.MessageContents.USER_STAT_MESSAGE;
+import static com.nekromant.telegram.contants.Command.ALL_STAT;
+import static com.nekromant.telegram.contants.MessageContants.ERROR;
+import static com.nekromant.telegram.contants.MessageContants.USER_STAT_MESSAGE;
 
 @Component
 public class AllStatCommand extends MentoringReviewCommand {

@@ -15,7 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import javax.management.InstanceNotFoundException;
-import static com.nekromant.telegram.contents.Command.PAY;
+import static com.nekromant.telegram.contants.Command.PAY;
 
 @Component
 @Slf4j

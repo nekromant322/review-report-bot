@@ -1,8 +1,8 @@
 package com.nekromant.telegram.commands;
 
 
-import com.nekromant.telegram.contents.Step;
-import com.nekromant.telegram.contents.UserType;
+import com.nekromant.telegram.contants.Step;
+import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.StepPassed;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.StepPassedRepository;
@@ -18,8 +18,8 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.time.LocalDate;
 
-import static com.nekromant.telegram.contents.Command.STEP_PASSED;
-import static com.nekromant.telegram.contents.MessageContents.NOT_OWNER_ERROR;
+import static com.nekromant.telegram.contants.Command.STEP_PASSED;
+import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 @Component

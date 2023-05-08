@@ -1,6 +1,6 @@
 package com.nekromant.telegram.controller;
 
-import com.nekromant.telegram.contents.Step;
+import com.nekromant.telegram.contants.Step;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.model.Salary;
 import com.nekromant.telegram.model.StepPassed;
