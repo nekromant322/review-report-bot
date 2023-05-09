@@ -7,12 +7,17 @@ import org.springframework.stereotype.Service;
 
 import javax.management.InstanceNotFoundException;
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class ContractService {
 
     @Autowired
     private ContractRepository contractRepository;
+
+    public List<Contract> getAllContracts() {
+        return (List<Contract>) contractRepository.findAll();
+    }
 
     public Contract getContractByUsername(String username) throws InstanceNotFoundException {
         return contractRepository.findById(username).orElseThrow(() -> new InstanceNotFoundException("No contract bound to this username"));
