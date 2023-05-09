@@ -24,7 +24,8 @@ public enum Command {
     SET_CONTRACT("set_contract", "Задать номер договора студента"),
     ANNOUNCE("announce", "Отправить аннонс о новых возможностях указанным пользователям"),
 
-    PAY("pay", "Оплатить чек");
+    PAY("pay", "Оплатить чек"),
+    GET_CONTRACTS("get_contracts", "Посмотреть все контракты");
 
     private String alias;
     private String description;
