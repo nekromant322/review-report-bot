@@ -1,26 +1,19 @@
 package com.nekromant.telegram.controller;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nekromant.telegram.MentoringReviewBot;
-import com.nekromant.telegram.commands.dto.OrderDTO;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
-import com.nekromant.telegram.commands.dto.PurchaseDTO;
 import com.nekromant.telegram.model.*;
 import com.nekromant.telegram.service.PaymentDetailsService;
 import com.nekromant.telegram.service.UserInfoService;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Arrays;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@Slf4j
 public class PaymentDetailsRestController {
     @Value("${owner.userName}")
     private String ownerUserName;
@@ -32,9 +25,12 @@ public class PaymentDetailsRestController {
     private MentoringReviewBot mentoringReviewBot;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @PostMapping("/paymentCallback")
-    public void paymentCallback(@RequestBody PaymentDetailsDTO paymentDetailsDTO) {
+    @PostMapping(value = "/paymentCallback")
+    public void paymentCallback(@RequestParam("data") String json) throws JsonProcessingException {
+        PaymentDetailsDTO paymentDetailsDTO = objectMapper.readValue(json, PaymentDetailsDTO.class);
         PaymentDetails paymentDetails = modelMapper.map(paymentDetailsDTO, PaymentDetails.class);
         sendMessage(paymentDetails);
         paymentDetailsService.save(paymentDetails);
