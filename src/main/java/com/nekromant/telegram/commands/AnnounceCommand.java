@@ -15,10 +15,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.ANNOUNCE;
 import static com.nekromant.telegram.contants.MessageContants.*;
