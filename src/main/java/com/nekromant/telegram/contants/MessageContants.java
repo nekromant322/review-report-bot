@@ -14,6 +14,7 @@ public class MessageContants {
             "что-то вроде \n/" + Command.REVIEW.getAlias() + " [сегодня|завтра] <таймслоты через пробел> Тема:<Тема ревью>\n" +
             "Пример:\n/" + Command.REVIEW.getAlias() + " завтра 15 16 20 Тема: 4 модуль";
     public static final String START_HELP_MESSAGE = REPORT_HELP_MESSAGE + REVIEW_HELP_MESSAGE;
+    public static final String ANNOUNCE_HELP_MESSAGE = "Пример: /announce \"Текст анонса\" @UserName";
     public static final String UNKNOWN_COMMAND = "Не понимаю команду";
     public static final String REVIEW_BOOKED = "Ревью c @%s назначено на \n%s\n%s";
     public static final String REVIEW_APPROVED = "@%s апрувнул ревью с @%s\n %s";

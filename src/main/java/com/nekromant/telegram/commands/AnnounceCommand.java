@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +35,7 @@ public class AnnounceCommand extends MentoringReviewCommand {
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+    public void execute(AbsSender absSender, User user, Chat chat, String[] args) {
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
@@ -41,41 +44,51 @@ public class AnnounceCommand extends MentoringReviewCommand {
             execute(absSender, message, user);
             return;
         }
-        StringBuilder newAnnounce = new StringBuilder();
         try {
-            ValidationUtils.validateArguments(arguments);
-            List<String> newAnnounceList = new ArrayList<>();
-            List<String> announceRecipientsList = new ArrayList<>();
-            for (String argument : arguments) {
-                if (argument.contains("@")) {
-                    announceRecipientsList.add(argument.replaceAll("\\p{Punct}", ""));
-                } else {
-                    newAnnounceList.add(argument.replace("\"", ""));
-                }
-            }
-            newAnnounceList.forEach(word -> newAnnounce.append(word).append(" "));
-
-            announceRecipientsList.forEach(recipient -> {
+            ValidationUtils.validateArguments(args);
+            String announce = parseAnnounce(args);
+            parseRecipients(args).forEach(recipient -> {
                 try {
-                    UserInfo recipientInfo = userInfoService.getUserInfo(recipient.replace("@", ""));
-                    if (Objects.equals(recipientInfo, null)) {
-                        throw new Exception("User not found");
-                    }
-                    SendMessage messageForRecipient = new SendMessage();
-                    messageForRecipient.setChatId(recipientInfo.getChatId().toString());
-                    messageForRecipient.setText(newAnnounce.toString());
-                    absSender.execute(messageForRecipient);
+                    sendAnnounce(absSender, announce, recipient);
 
-                } catch (Exception e) {
+                } catch (NotFoundException | TelegramApiException e) {
                     message.setText(e.getMessage() + "\n" + "Что-то пошло не так с @" + recipient);
                     execute(absSender, message, user);
                 }
             });
-            message.setText(ANNOUNCE_SENT);
-            execute(absSender, message, user);
         } catch (Exception e) {
-            message.setText(e.getClass() + "\n" + "Пример: /announce \"Текст аннонса\" @UserName");
+            message.setText(e.getClass() + "\n" + ANNOUNCE_HELP_MESSAGE);
             execute(absSender, message, user);
         }
+    }
+
+    private String parseAnnounce(String[] args) {
+        String inputText = String.join(" ", args);
+        if (!inputText.matches("\".*\" @.*")) {
+            throw new InvalidParameterException();
+        }
+        return inputText.substring(inputText.indexOf("\"") + 1, inputText.lastIndexOf("\""));
+    }
+
+    private List<String> parseRecipients(String[] args) {
+        String inputText = String.join(" ", args);
+        List<String> recipientsList = new ArrayList<>();
+        for (String argument : inputText.substring(inputText.lastIndexOf("\"") + 1).split(" ")) {
+            if (argument.contains("@")) {
+                recipientsList.add(argument.replaceAll("@", ""));
+            }
+        }
+        return recipientsList;
+    }
+
+    private void sendAnnounce(AbsSender absSender, String announce, String recipient) throws NotFoundException, TelegramApiException {
+        UserInfo recipientInfo = userInfoService.getUserInfo(recipient.replace("@", ""));
+        if (Objects.equals(recipientInfo, null)) {
+            throw new NotFoundException("User not found");
+        }
+        SendMessage messageForRecipient = new SendMessage();
+        messageForRecipient.setChatId(recipientInfo.getChatId().toString());
+        messageForRecipient.setText(announce);
+        absSender.execute(messageForRecipient);
     }
 }
