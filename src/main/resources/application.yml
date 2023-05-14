@@ -7,7 +7,7 @@ owner:
 
 
 server:
-  port: ${REVIEW_BOT_PORT}
+  port: ${REVIEW_BOT_PORT}:9010
   host: "https://overridetech.ru/review-report-bot"
 
 reminders:

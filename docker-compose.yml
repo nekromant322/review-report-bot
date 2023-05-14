@@ -14,16 +14,16 @@ services:
 
   review-bot:
     image: vladimirbalakin933/review-bot:latest
-    container_name: review-bot-app
+    container_name: review-bot
     environment:
-      POSTGRES_DB: review_bot
-      POSTGRES_USER: ${REVIEW_BOT_DB_USER}
-      POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}
-      TELEGRAM_BOT_NAME: ${TELEGRAM_BOT_NAME}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      POSTGRES_DB: ${REVIEW_BOT_DB}:review_bot
+      POSTGRES_USER: ${REVIEW_BOT_DB}:review_bot
+      POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}:root
+      TELEGRAM_BOT_NAME: ${TELEGRAM_BOT_NAME}:root
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}:root
 
-      LIFE_PAY_LOGIN: ${LIFE_PAY_LOGIN}
-      LIFE_PAY_KEY: ${LIFE_PAY_KEY}
+      LIFE_PAY_LOGIN: ${LIFE_PAY_LOGIN}:test
+      LIFE_PAY_KEY: ${LIFE_PAY_KEY}:test
     ports:
       - "9100:8080"
     depends_on:
