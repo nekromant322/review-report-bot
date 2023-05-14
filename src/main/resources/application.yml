@@ -3,7 +3,7 @@ bot:
   token: ${TELEGRAM_BOT_TOKEN}
 
 owner:
-  userName: Marandyuk_Anatolii
+  userName: HomerTheBald
 
 server:
   port: ${REVIEW_BOT_PORT}
