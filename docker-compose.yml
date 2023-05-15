@@ -16,6 +16,7 @@ services:
     image: nekromant322/review-bot:latest
     container_name: review-bot
     environment:
+      POSTGRES_HOST: review-bot-db
       POSTGRES_DB: review_bot
       POSTGRES_USER: ${REVIEW_BOT_DB_USER}
       POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}

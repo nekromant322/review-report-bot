@@ -14,15 +14,15 @@ reminders:
   maxDaysWithoutReport: 3
 
 pay-info:
-  login: ${LIFE_PAY_LOGIN}
-  apikey: ${LIFE_PAY_KEY}
+  login: ${LIFE_PAY_LOGIN:root}
+  apikey: ${LIFE_PAY_KEY:root}
   method: sbp
 
 spring:
   datasource:
-    password: ${POSTGRES_PASSWORD}
-    username: ${POSTGRES_USER}
-    url: jdbc:postgresql://review-bot-db:5432/review_bot
+    password: ${POSTGRES_PASSWORD:root}
+    username: ${POSTGRES_USER:root}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${TELEGRAM_BOT_DB_PORT:5432}/review_bot
     driver-class-name: org.postgresql.Driver
 
   jpa:
