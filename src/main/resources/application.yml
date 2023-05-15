@@ -5,9 +5,10 @@ bot:
 owner:
   userName: Marandyuk_Anatolii
 
+
 server:
-  port: ${PORT:8080}
-  host: "https://mentoring-review-bot.herokuapp.com"
+  port: 8080
+  host: "https://overridetech.ru/review-report-bot"
 
 reminders:
   maxDaysWithoutReport: 3
@@ -19,9 +20,9 @@ pay-info:
 
 spring:
   datasource:
-    password: ${PROD_POSTGRE_PASSWORD:root}
-    username: ${PROD_POSTGRE_USERNAME:root}
-    url: ${PROD_POSTGRE_URL:jdbc:postgresql://localhost:5432/bot}
+    password: ${POSTGRES_PASSWORD}
+    username: ${POSTGRES_USER}
+    url: jdbc:postgresql://review-bot-db:5432/review_bot
     driver-class-name: org.postgresql.Driver
 
   jpa:

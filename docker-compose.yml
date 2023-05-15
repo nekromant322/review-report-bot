@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  review-bot-db:
+    image: postgres:14.1-alpine
+    container_name: review-bot-db
+    restart: always
+    environment:
+      POSTGRES_DB: review_bot
+      POSTGRES_USER: ${REVIEW_BOT_DB_USER}
+      POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}
+    ports:
+      - "5436:5432"
+
+  review-bot:
+    image: nekromant322/review-bot:latest
+    container_name: review-bot
+    environment:
+      POSTGRES_DB: review_bot
+      POSTGRES_USER: ${REVIEW_BOT_DB_USER}
+      POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}
+      TELEGRAM_BOT_NAME: MentoringReviewBot
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+
+      LIFE_PAY_LOGIN: ${LIFE_PAY_LOGIN}
+      LIFE_PAY_KEY: ${LIFE_PAY_KEY}
+    ports:
+      - "9100:8080"
+    depends_on:
+      - review-bot-db
