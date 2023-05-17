@@ -19,6 +19,8 @@ pay-info:
   method: sbp
 
 spring:
+  application:
+    name: review-bot
   datasource:
     password: ${POSTGRES_PASSWORD:root}
     username: ${POSTGRES_USER:root}
@@ -43,3 +45,8 @@ lombok:
 schedulePeriod:
   start: 18
   end: 3
+
+logging:
+  level:
+    org.zalando.logbook: TRACE
+
