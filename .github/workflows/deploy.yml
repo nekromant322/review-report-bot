@@ -65,8 +65,8 @@ jobs:
             echo LIFE_PAY_LOGIN = ${{ secrets.LIFE_PAY_LOGIN }} >> review-bot-env.txt
             echo LIFE_PAY_KEY = ${{ secrets.LIFE_PAY_KEY }} >> review-bot-env.txt
             
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker stop review-bot-app
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rm review-bot-app
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker stop review-bot
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rm review-bot
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rmi nekromant322/review-bot
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker-compose -f docker-compose.yml --env-file=review-bot-env.txt up -d
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker ps -a  
