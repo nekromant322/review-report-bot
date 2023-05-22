@@ -19,6 +19,8 @@ pay-info:
   method: sbp
 
 spring:
+  application:
+    name: review-bot
   datasource:
     password: ${POSTGRES_PASSWORD:root}
     username: ${POSTGRES_USER:root}
@@ -49,3 +51,7 @@ management:
     web:
       exposure:
         include: "*"
+logging:
+  level:
+    org.zalando.logbook: TRACE
+
