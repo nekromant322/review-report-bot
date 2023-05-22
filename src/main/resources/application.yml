@@ -46,6 +46,11 @@ schedulePeriod:
   start: 18
   end: 3
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 logging:
   level:
     org.zalando.logbook: TRACE
