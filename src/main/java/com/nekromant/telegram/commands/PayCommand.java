@@ -55,8 +55,9 @@ public class PayCommand extends MentoringReviewCommand {
 
             String paymentUrl = parseUrl(lifePayFeign.payCheque(chequeDTO).getBody());
 
-            message.setText("Отправлено SMS-сообщение со счетом на номер " + chequeDTO.getCustomerPhone()
-                    + " на сумму " + chequeDTO.getAmount() + "\n Ссылка на оплату:\n" + paymentUrl);
+            message.enableMarkdownV2(true);
+            message.setText("Отправлено SMS\\-сообщение со счетом на номер " + chequeDTO.getCustomerPhone()
+                    + " на сумму " + chequeDTO.getAmount() + "\n[Ссылка на оплату](" + paymentUrl + ")");
 
         } catch (InstanceNotFoundException e) {
             message.setText("У вас нет контракта, обратитесь к @Marandyuk_Anatolii");
@@ -95,7 +96,7 @@ public class PayCommand extends MentoringReviewCommand {
     }
 
     private String parseUrl(String json) {
-        return json.substring(json.indexOf("https"), json.lastIndexOf("\""));
+        return json.substring(json.lastIndexOf("https"), json.lastIndexOf("\"")).replace("\\", "");
     }
 
 }
