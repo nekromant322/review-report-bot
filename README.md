@@ -7,6 +7,7 @@
   heroku logs --tail --app mentoring-review-bot
 
 
+
 - manage  
   heroku run bash --app mentoring-review-bot
 
