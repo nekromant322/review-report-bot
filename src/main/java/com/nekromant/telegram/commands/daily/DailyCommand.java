@@ -28,15 +28,15 @@ public class DailyCommand extends MentoringReviewCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
-        SendMessage message = new SendMessage();
-        String chatId = chat.getId().toString();
-        message.setChatId(chatId);
-        if (!user.getUserName().equals(ownerUserName)) {
-            message.setText(NOT_OWNER_ERROR);
-            execute(absSender, message, user);
-            return;
-        }
         try {
+            SendMessage message = new SendMessage();
+            String chatId = chat.getId().toString();
+            message.setChatId(chatId);
+            if (!user.getUserName().equals(ownerUserName)) {
+                message.setText(NOT_OWNER_ERROR);
+                execute(absSender, message, user);
+                return;
+            }
             ValidationUtils.validateArguments(strings);
             Daily daily = new Daily();
             daily.setChatId(chatId);

@@ -3,12 +3,12 @@ bot:
   token: ${TELEGRAM_BOT_TOKEN}
 
 owner:
-  userName: Marandyuk_Anatolii
+  userName: SmackMyBitch_Up
 
 
 server:
   port: 8080
-  host: "https://overridetech.ru/review-report-bot"
+  host: "http://localhost"
 
 reminders:
   maxDaysWithoutReport: 3
