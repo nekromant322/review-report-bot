@@ -25,7 +25,9 @@ public enum Command {
     ANNOUNCE("announce", "Отправить аннонс о новых возможностях указанным пользователям"),
 
     PAY("pay", "Оплатить чек"),
-    GET_CONTRACTS("get_contracts", "Посмотреть все контракты");
+    GET_CONTRACTS("get_contracts", "Посмотреть все контракты"),
+
+    DAILY("daily", "Назначить ежедневное уведомление");
 
     private String alias;
     private String description;
