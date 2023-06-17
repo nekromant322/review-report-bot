@@ -10,25 +10,19 @@ import java.util.List;
 
 @Service
 public class DailyService {
-
     @Autowired
     private DailyRepository dailyRepository;
 
     public void saveDaily(Daily daily) {
-        LocalTime localTime = LocalTime.of(daily.getTime().getHour(), daily.getTime().getMinute());
-        daily.setTime(localTime);
         dailyRepository.save(daily);
     }
 
-    public List<Daily> getAllDaily() {
-        return (List<Daily>) dailyRepository.findAll();
+    public List<Daily> getAllDailyByTime(LocalTime time) {
+        return dailyRepository.findAllByTime(time);
     }
 
-    public Daily getDailyByTime(LocalTime time) {
-        return dailyRepository.findByTime(time);
+    public void deleteDailyByChatId(String message) {
+        dailyRepository.deleteByChatId(message);
     }
 
-    public void deleteDaily(Daily daily) {
-        dailyRepository.deleteById(daily.getId());
-    }
 }

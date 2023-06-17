@@ -23,11 +23,10 @@ public enum Command {
     SET_SCHEDULE_PERIOD("set_schedule_period", "Установить период времени, за который выводить список ревью"),
     SET_CONTRACT("set_contract", "Задать номер договора студента"),
     ANNOUNCE("announce", "Отправить аннонс о новых возможностях указанным пользователям"),
-
     PAY("pay", "Оплатить чек"),
     GET_CONTRACTS("get_contracts", "Посмотреть все контракты"),
-
-    DAILY("daily", "Назначить ежедневное уведомление");
+    DAILY("daily", "Назначить ежедневное уведомление"),
+    DAILY_DELETE("daily_delete", "Удалить ежедневное уведомление");
 
     private String alias;
     private String description;

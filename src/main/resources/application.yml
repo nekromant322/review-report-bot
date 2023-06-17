@@ -3,12 +3,12 @@ bot:
   token: ${TELEGRAM_BOT_TOKEN}
 
 owner:
-  userName: SmackMyBitch_Up
+  userName: Marandyuk_Anatolii
 
 
 server:
   port: 8080
-  host: "http://localhost"
+  host: "https://overridetech.ru/review-report-bot"
 
 reminders:
   maxDaysWithoutReport: 3
@@ -54,4 +54,3 @@ management:
 logging:
   level:
     org.zalando.logbook: TRACE
-

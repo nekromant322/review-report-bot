@@ -9,34 +9,29 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.List;
 
 @Component
 public class DailyScheduler {
-
     @Autowired
     private DailyService dailyService;
-
     @Autowired
-    MentoringReviewBot mentoringReviewBot;
+    private MentoringReviewBot mentoringReviewBot;
 
-
-    @Scheduled(cron = "0 1 * * * *")
+    @Scheduled(cron = "59 * * * * *")
     public void processEveryMinute() {
         notifyDaily();
     }
 
     public void notifyDaily() {
         System.out.println("Отправка уведомлений");
-        // LocalTime nowInMoscow1 = ZonedDateTime.now(ZoneId.of("Europe/Moscow")).toLocalTime();
         LocalTime nowInMoscow = LocalTime.now(ZoneId.of("Europe/Moscow"));
         LocalTime localTime = LocalTime.of(nowInMoscow.getHour(), nowInMoscow.getMinute());
-        Daily daily = dailyService.getDailyByTime(localTime);
+        List<Daily> dailyList = dailyService.getAllDailyByTime(localTime);
 
-        if (daily != null) {
-            String dailyMessage = daily.getMessage();
-            mentoringReviewBot.sendMessage(daily.getChatId(), dailyMessage);
+        for (Daily daily : dailyList) {
+            mentoringReviewBot.sendMessage(daily.getChatId(), daily.getMessage());
         }
-
     }
 
 }

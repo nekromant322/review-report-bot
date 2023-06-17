@@ -38,4 +38,8 @@ public class MessageContants {
             "Бездельничаешь?\uD83D\uDE49";
     public static final String PERIOD_IS_SET = "Период установлен";
     public static final String ANNOUNCE_SENT = "Аннонсы отправлены";
+    public static final String DAILY_CREATED = "Ежедневное уведомление установлено";
+    public static final String DAILY_HELP_MESSAGE = "Чтобы назначить ежедневное уведомление \n/daily <час:минута> " +
+            "<текст уведомления>\n Пример:\n/daily 20:55 подключаемся на дейлик";
+    public static final String DAILY_DELETED = "Ежедневные уведомления в данном чате удалены";
 }
