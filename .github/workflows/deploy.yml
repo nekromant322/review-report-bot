@@ -45,7 +45,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: [build_and_push_images]
+    needs: [build_and_push_images, push_compose]
     steps:
       - name: Connect with SSH and Deploy
         uses: appleboy/ssh-action@v0.1.8
