@@ -15,6 +15,7 @@ services:
   review-bot:
     image: nekromant322/review-bot:latest
     container_name: review-bot
+    restart: unless-stopped
     environment:
       POSTGRES_HOST: review-bot-db
       POSTGRES_DB: review_bot
