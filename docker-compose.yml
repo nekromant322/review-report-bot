@@ -11,6 +11,10 @@ services:
       POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}
     ports:
       - "5436:5432"
+    logging:
+      driver: "json-file" 
+      options:
+        max-size: 50m
 
   review-bot:
     image: nekromant322/review-bot:latest
@@ -28,5 +32,10 @@ services:
       LIFE_PAY_KEY: ${LIFE_PAY_KEY}
     ports:
       - "9100:8080"
+    logging:
+      driver: "json-file" 
+      options:
+        max-size: 50m
     depends_on:
       - review-bot-db
+
