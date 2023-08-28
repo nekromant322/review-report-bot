@@ -54,10 +54,12 @@ public class ReportReminderScheduler {
 
         allStudents.removeAll(alreadyWroteReportToday);
 
-        mentoringReviewBot.sendMessage(specialChatService.getReportsChatId(), REPORT_REMINDER +
+        if (!allStudents.isEmpty()) {
+            mentoringReviewBot.sendMessage(specialChatService.getReportsChatId(), REPORT_REMINDER +
                 allStudents.stream()
                         .map(username -> "@" + username)
                         .collect(Collectors.joining(", ")));
+        }
     }
 
     @Scheduled(cron = "0 0 8 * * *")
