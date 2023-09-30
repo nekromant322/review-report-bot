@@ -53,7 +53,12 @@ public class PayCommand extends MentoringReviewCommand {
                     parseCustomerPhone(arguments),
                     method);
 
-            String paymentUrl = parseUrl(lifePayFeign.payCheque(chequeDTO).getBody());
+            log.info(String.valueOf(chequeDTO));
+            log.info("Sending request to LifePay");
+            String lifePayResponse = lifePayFeign.payCheque(chequeDTO).getBody();
+            log.info("LifePay response: " + lifePayResponse);
+            String paymentUrl = parseUrl(lifePayResponse);
+            log.info("PaymentURL: " + paymentUrl);
 
             message.enableMarkdownV2(true);
             message.setText("Отправлено SMS\\-сообщение со счетом на номер " + chequeDTO.getCustomerPhone()
