@@ -43,7 +43,7 @@ lombok:
     chain: true
 
 schedulePeriod:
-  start: 18
+  start: 15
   end: 3
 
 management:
