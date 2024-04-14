@@ -24,8 +24,12 @@ spring:
   datasource:
     password: ${POSTGRES_PASSWORD:root}
     username: ${POSTGRES_USER:root}
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${TELEGRAM_BOT_DB_PORT:5432}/review_bot
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${TELEGRAM_BOT_DB_PORT:5436}/review_bot
     driver-class-name: org.postgresql.Driver
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
   jpa:
     properties:
