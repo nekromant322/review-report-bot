@@ -3,12 +3,10 @@ package com.nekromant.telegram.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import javax.annotation.processing.Generated;
-
 @Controller
-public class SubmissionController {
+public class ResumeAnalysisRequestController {
     @GetMapping("/submit")
-    public String getSubmissionPage() {
+    public String getResumeAnalysisRequestPage() {
         return "submission/submission.html";
     }
 }

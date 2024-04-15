@@ -7,8 +7,8 @@ services:
     restart: always
     environment:
       POSTGRES_DB: review_bot
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
+      POSTGRES_USER: ${REVIEW_BOT_DB_USER}
+      POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}
     ports:
       - "5436:5432"
     logging:
