@@ -31,42 +31,6 @@ public class IncomingReviewRestController {
     @Autowired
     private SchedulePeriodService schedulePeriodService;
 
-    @GetMapping("/incoming-review")
-    public List<BookedReviewDTO> getIncomingReview() {
-        LocalDateTime nowInMoscow = ZonedDateTime.now(ZoneId.of("Europe/Moscow")).toLocalDateTime();
-
-        Stream<BookedReviewDTO> streamWithNotBooked = reviewRequestRepository.findAll()
-                .stream()
-                .filter(x -> x.getBookedDateTime() == null)
-                .map(x -> new BookedReviewDTO(
-                        x.getStudentUserName(),
-                        "https://t.me/" + x.getStudentUserName(),
-                        null,
-                        x.getTitle().replace("Тема:", ""),
-                        x.getDate() + " slots: " + x.getTimeSlots().stream().map(String::valueOf).collect(Collectors.joining(" ")),
-                        true,
-                        null,
-                        false
-                ));
-
-        Stream<BookedReviewDTO> streamWithBooked = reviewRequestRepository
-                .findAllByBookedDateTimeBetween(nowInMoscow.minus(2, ChronoUnit.HOURS), nowInMoscow.plus(2, ChronoUnit.DAYS))
-                .stream()
-                .map(x -> new BookedReviewDTO(
-                        x.getStudentUserName(),
-                        "https://t.me/" + x.getStudentUserName(),
-                        x.getMentorUserName(),
-                        x.getTitle().replace("Тема:", ""),
-                        x.getBookedDateTime().toString().replace("T", " "),
-                        nowInMoscow.isAfter(x.getBookedDateTime()),
-                        mentorRepository.findMentorByUserName(x.getMentorUserName()).getRoomUrl(),
-                        nowInMoscow.plus(20, ChronoUnit.HOURS).isBefore(x.getBookedDateTime())
-                ))
-                .sorted(Comparator.comparing(BookedReviewDTO::getBookedDateTime));
-
-        return Stream.concat(streamWithNotBooked, streamWithBooked).collect(Collectors.toList());
-    }
-
     @GetMapping("/incoming-review-with-period")
     public List<BookedReviewDTO> getIncomingReviewWithPeriod(@RequestParam String mentor) {
         Long startTime = schedulePeriodService.getStart();

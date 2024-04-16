@@ -64,6 +64,8 @@ jobs:
             
             echo LIFE_PAY_LOGIN = ${{ secrets.LIFE_PAY_LOGIN }} >> review-bot-env.txt
             echo LIFE_PAY_KEY = ${{ secrets.LIFE_PAY_KEY }} >> review-bot-env.txt
+            echo TELEGRAM_BOT_NAME = MentoringReviewBot >> review-bot-env.txt
+            
             
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker stop review-bot
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rm review-bot

@@ -7,8 +7,8 @@ services:
     restart: always
     environment:
       POSTGRES_DB: review_bot
-      POSTGRES_USER: ${REVIEW_BOT_DB_USER}
-      POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}
+      POSTGRES_USER: ${REVIEW_BOT_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD:-postgres}
     ports:
       - "5436:5432"
     logging:
@@ -25,7 +25,7 @@ services:
       POSTGRES_DB: review_bot
       POSTGRES_USER: ${REVIEW_BOT_DB_USER}
       POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}
-      TELEGRAM_BOT_NAME: MentoringReviewBot
+      TELEGRAM_BOT_NAME: ${TELEGRAM_BOT_NAME:-MentoringReviewBot}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
 
       LIFE_PAY_LOGIN: ${LIFE_PAY_LOGIN}

@@ -22,9 +22,9 @@ spring:
   application:
     name: review-bot
   datasource:
-    password: ${POSTGRES_PASSWORD:root}
-    username: ${POSTGRES_USER:root}
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${TELEGRAM_BOT_DB_PORT:5432}/review_bot
+    password: ${POSTGRES_PASSWORD:postgres}
+    username: ${POSTGRES_USER:postgres}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${TELEGRAM_BOT_DB_PORT:5436}/review_bot
     driver-class-name: org.postgresql.Driver
   servlet:
     multipart:
