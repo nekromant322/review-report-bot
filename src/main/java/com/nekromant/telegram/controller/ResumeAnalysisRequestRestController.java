@@ -15,13 +15,13 @@ public class ResumeAnalysisRequestRestController {
     @Autowired
     private ResumeAnalysisRequestService resumeAnalysisRequestService;
 
-    @PostMapping("/submit_blob")
+    @PostMapping("/resume/submit/cv_blob")
     @Modifying
     public void submitNewResumeAnalysisRequest(@RequestParam("blob") MultipartFile pdfBlob, @RequestHeader("tg_name") String tgName) throws Exception {
         Blob blob = new SerialBlob(pdfBlob.getBytes());
         ResumeAnalysisRequest resumeAnalysisRequest = new ResumeAnalysisRequest();
         resumeAnalysisRequest.setCVPdf(blob.getBinaryStream().readAllBytes());
         resumeAnalysisRequest.setTgName(tgName);
-        resumeAnalysisRequestService.saveNewBlob(resumeAnalysisRequest);
+        resumeAnalysisRequestService.save(resumeAnalysisRequest);
     }
 }

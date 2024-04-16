@@ -1,13 +1,17 @@
 package com.nekromant.telegram.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class ResumeAnalysisRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,20 +23,4 @@ public class ResumeAnalysisRequest {
 
     @Column(name = "tg_name")
     private String tgName;
-
-    public byte[] getCVPdf() {
-        return CVPdf;
-    }
-
-    public void setCVPdf(byte[] CVPdf) {
-        this.CVPdf = CVPdf;
-    }
-
-    public String getTgName() {
-        return tgName;
-    }
-
-    public void setTgName(String tgName) {
-        this.tgName = tgName;
-    }
 }

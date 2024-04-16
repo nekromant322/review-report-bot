@@ -10,7 +10,7 @@ public class ResumeAnalysisRequestService {
     @Autowired
     private ResumeAnalysisRequestRepository resumeAnalysisRequestRepository;
 
-    public void saveNewBlob(ResumeAnalysisRequest resumeAnalysisRequest) {
+    public void save(ResumeAnalysisRequest resumeAnalysisRequest) {
         resumeAnalysisRequestRepository.save(resumeAnalysisRequest);
     }
 
