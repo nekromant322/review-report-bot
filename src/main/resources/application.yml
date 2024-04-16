@@ -1,5 +1,5 @@
 bot:
-  name: ${TELEGRAM_BOT_NAME}
+  name: ${TELEGRAM_BOT_NAME:MentoringReviewBot}
   token: ${TELEGRAM_BOT_TOKEN}
 
 owner:
