@@ -23,6 +23,7 @@ services:
     environment:
       POSTGRES_HOST: review-bot-db
       POSTGRES_DB: review_bot
+      TELEGRAM_BOT_DB_PORT: 5432
       POSTGRES_USER: ${REVIEW_BOT_DB_USER}
       POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD}
       TELEGRAM_BOT_NAME: ${TELEGRAM_BOT_NAME:-MentoringReviewBot}
