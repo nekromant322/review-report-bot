@@ -8,7 +8,7 @@ owner:
 
 server:
   port: 8080
-  host: "https://overridetech.ru/review-report-bot"
+  host: "https://overridetech.ru/review-bot"
 
 reminders:
   maxDaysWithoutReport: 3
