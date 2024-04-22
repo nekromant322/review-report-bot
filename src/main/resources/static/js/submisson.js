@@ -13,7 +13,7 @@ async function submit_new_client() {
     const blob = new FormData();
     blob.append("blob", file);
 
-    await fetch("/resume/submit", {
+    await fetch("../pricing", {
         method: "POST",
         body: blob,
         headers: {

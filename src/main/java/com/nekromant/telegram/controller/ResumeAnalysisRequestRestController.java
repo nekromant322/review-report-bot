@@ -16,7 +16,7 @@ public class ResumeAnalysisRequestRestController {
     @Autowired
     private ResumeAnalysisRequestService resumeAnalysisRequestService;
 
-    @PostMapping("/resume/submit")
+    @PostMapping("/pricing")
     @Modifying
     public void submitNewResumeAnalysisRequest(@RequestParam("blob") MultipartFile pdfBlob, @RequestHeader("tg_name") String tgName) throws Exception {
         Blob blob = new SerialBlob(pdfBlob.getBytes());
