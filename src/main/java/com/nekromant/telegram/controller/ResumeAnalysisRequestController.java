@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ResumeAnalysisRequestController {
     @GetMapping("/pricing")
     public String getResumeAnalysisRequestPage() {
-        return "submission";
+        return "pricing";
     }
 }

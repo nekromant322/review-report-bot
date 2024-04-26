@@ -1,0 +1,10 @@
+.no-space-break{
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    overflow: hidden;
+}
+
+.offer_checkbox{
+
+    padding: 0%;
+}
