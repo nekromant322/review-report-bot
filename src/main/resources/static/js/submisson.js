@@ -22,11 +22,3 @@ async function submit_new_client() {
     });
 
 }
-
-async function show_public_offer() {
-    await fetch("../getoffer").then(res => res.blob())
-        .then(blob => {
-            var file = window.URL.createObjectURL(blob);
-            window.location.assign(file);
-        })
-}

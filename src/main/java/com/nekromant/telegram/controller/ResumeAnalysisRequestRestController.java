@@ -2,18 +2,13 @@ package com.nekromant.telegram.controller;
 
 import com.nekromant.telegram.model.ResumeAnalysisRequest;
 import com.nekromant.telegram.service.ResumeAnalysisRequestService;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 @RestController
 public class ResumeAnalysisRequestRestController {
@@ -28,15 +23,5 @@ public class ResumeAnalysisRequestRestController {
 
         resumeAnalysisRequest.setTgName(tgName);
         resumeAnalysisRequestService.save(resumeAnalysisRequest);
-    }
-
-    @GetMapping("/getoffer")
-    public ResponseEntity<byte[]> getOffer() throws IOException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("static/others/resume_review_pferta.pdf");
-        byte[] bytes = IOUtils.toByteArray(inputStream);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
     }
 }
