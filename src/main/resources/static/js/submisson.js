@@ -10,16 +10,15 @@ async function submit_new_client() {
         return;
     }
 
-    const blob = new FormData();
-    blob.append("blob", file);
+    const form_data = new FormData();
+    form_data.append("form_data", file);
 
-    await fetch("/resume/submit", {
+    await fetch("../pricing", {
         method: "POST",
-        body: blob,
+        body: form_data,
         headers: {
             tg_name: tgName
         }
     });
 
 }
-
