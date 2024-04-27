@@ -1,8 +1,8 @@
 package com.nekromant.telegram.controller;
 
 import com.nekromant.telegram.model.ResumeAnalysisRequest;
-import com.nekromant.telegram.repository.PublicOfferRepository;
 import com.nekromant.telegram.service.ResumeAnalysisRequestService;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpHeaders;
@@ -12,12 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 @RestController
 public class ResumeAnalysisRequestRestController {
     @Autowired
     private ResumeAnalysisRequestService resumeAnalysisRequestService;
-    @Autowired
-    private PublicOfferRepository offerRepository;
 
     @PostMapping("/pricing")
     @Modifying
@@ -30,8 +31,9 @@ public class ResumeAnalysisRequestRestController {
     }
 
     @GetMapping("/getoffer")
-    public ResponseEntity<byte[]> getOffer() {
-        byte[] bytes = offerRepository.findById(1L).get().getOfferPdf();
+    public ResponseEntity<byte[]> getOffer() throws IOException {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("static/others/resume_review_pferta.pdf");
+        byte[] bytes = IOUtils.toByteArray(inputStream);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
