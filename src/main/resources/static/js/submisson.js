@@ -13,7 +13,7 @@ async function submit_new_client() {
     const form_data = new FormData();
     form_data.append("form_data", file);
 
-    await fetch("../pricing", {
+    await fetch("./pricing", {
         method: "POST",
         body: form_data,
         headers: {
