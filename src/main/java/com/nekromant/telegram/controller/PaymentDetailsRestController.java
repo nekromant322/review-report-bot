@@ -6,6 +6,7 @@ import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
 import com.nekromant.telegram.model.*;
 import com.nekromant.telegram.service.PaymentDetailsService;
+import com.nekromant.telegram.service.ResumeAnalysisRequestService;
 import com.nekromant.telegram.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -29,12 +30,22 @@ public class PaymentDetailsRestController {
     private ModelMapper modelMapper;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    ResumeAnalysisRequestService resumeAnalysisRequestService;
 
     @PostMapping(value = "/paymentCallback")
+
     public void paymentCallback(@RequestParam("data") String json) throws JsonProcessingException {
         PaymentDetailsDTO paymentDetailsDTO = objectMapper.readValue(json, PaymentDetailsDTO.class);
         PaymentDetails paymentDetails = modelMapper.map(paymentDetailsDTO, PaymentDetails.class);
         sendMessage(paymentDetails);
+
+        var pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
+        if (pendingPay!= null && pendingPay.getStatus().equals("unredeemed")) {
+            resumeAnalysisRequestService.sendCVToMentorForAnalysis(paymentDetails);
+            return;
+        }
+
         paymentDetailsService.save(paymentDetails);
     }
 

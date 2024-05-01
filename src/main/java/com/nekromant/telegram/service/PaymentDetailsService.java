@@ -16,4 +16,8 @@ public class PaymentDetailsService {
         log.info(paymentDetails.toString());
         paymentDetailsRepository.save(paymentDetails);
     }
+
+    public PaymentDetails findByNumber(String number) {
+        return paymentDetailsRepository.findByNumber(number);
+    }
 }

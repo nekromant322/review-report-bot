@@ -17,6 +17,7 @@ pay-info:
   login: ${LIFE_PAY_LOGIN:root}
   apikey: ${LIFE_PAY_KEY:root}
   method: sbp
+  amount: 5
 
 spring:
   application:
