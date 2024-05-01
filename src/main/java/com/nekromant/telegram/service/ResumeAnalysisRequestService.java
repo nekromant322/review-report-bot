@@ -6,6 +6,8 @@ import com.nekromant.telegram.commands.dto.ChequeDTO;
 import com.nekromant.telegram.commands.dto.LifePayResponseDTO;
 import com.nekromant.telegram.commands.feign.LifePayFeign;
 import com.nekromant.telegram.commands.feign.TelegramFeign;
+import com.nekromant.telegram.config.CVAnalProp;
+import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.ResumeAnalysisRequest;
 import com.nekromant.telegram.repository.PaymentDetailsRepository;
@@ -34,16 +36,9 @@ public class ResumeAnalysisRequestService {
     private LifePayFeign lifePayFeign;
     @Autowired
     private TelegramFeign telegramFeign;
-    @Value("${pay-info.login}")
-    private String login;
-    @Value("${pay-info.apikey}")
-    private String apikey;
-    @Value("${pay-info.method}")
-    private String method;
-    @Value("${pay-info.amount}")
-    private String amount;
-    @Value("${owner.userName}")
-    private String receiverName;
+    @Autowired
+    private CVAnalProp props;
+
 
     public void save(byte[] bytes, String tgName, String phone) {
         ResumeAnalysisRequest resumeAnalysisRequest = new ResumeAnalysisRequest();
@@ -52,7 +47,7 @@ public class ResumeAnalysisRequestService {
         resumeAnalysisRequest.setPhone(phone);
 
         String description = "Оплата за разбор резюме по договору публичной оферты";
-        ChequeDTO chequeDTO = new ChequeDTO(login, apikey, amount, description, phone, method);
+        ChequeDTO chequeDTO = new ChequeDTO(props.getLogin(), props.getApikey(), props.getAmount(), description, phone, props.getMethod());
 
         log.info("Sending request to LifePay" + chequeDTO);
         LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
@@ -60,7 +55,7 @@ public class ResumeAnalysisRequestService {
 
         PaymentDetails paymentDetails = new PaymentDetails();
         paymentDetails.setNumber(lifePayResponse.getData().getNumber());
-        paymentDetails.setStatus("unredeemed");
+        paymentDetails.setStatus(PayStatus.UNREDEEMED.get());
         paymentDetailsRepository.save(paymentDetails);
         log.info("Unredeemed payment created: " + paymentDetails);
 
@@ -69,14 +64,21 @@ public class ResumeAnalysisRequestService {
         log.info("New resume analysis request created: " + resumeAnalysisRequest);
     }
 
-    public void sendCVToMentorForAnalysis(PaymentDetails paymentDetails) {
+    public void sendCVToMentorForAnalysisOrReject(PaymentDetails paymentDetails) {
         paymentDetailsRepository.deleteByNumber(paymentDetails.getNumber());
         paymentDetailsRepository.save(paymentDetails);
+
+        if (paymentDetails.getStatus().equals(PayStatus.FAIL.get())) {
+            log.info("Payment failed: " + paymentDetails);
+            resumeAnalysisRequestRepository.deleteByLifePayNumber(paymentDetails.getNumber());
+            return;
+        }
+
         log.info("Payment details have been redeemed:" + paymentDetails);
 
         byte[] CV_bytes = resumeAnalysisRequestRepository.findByLifePayNumber(paymentDetails.getNumber()).getCVPdf();
         FormData formData = new FormData(MediaType.MULTIPART_FORM_DATA, "document", CV_bytes);
-        String receiverId = userInfoService.getUserInfo(receiverName).getChatId().toString();
+        String receiverId = userInfoService.getUserInfo(props.getReceiverName()).getChatId().toString();
         telegramFeign.sendDocument(formData, receiverId);
 
         String text = "Зарегистрирован и оплачен заказ на разбор резюме " +

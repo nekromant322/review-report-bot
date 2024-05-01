@@ -24,9 +24,7 @@ public class ResumeAnalysisRequest {
     @Column(name = "tg_name")
     private String tgName;
 
-    @Column
     private String phone;
 
-    @Column
     private String lifePayNumber;
 }

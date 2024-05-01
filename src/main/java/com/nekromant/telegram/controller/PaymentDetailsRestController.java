@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
+import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.model.*;
 import com.nekromant.telegram.service.PaymentDetailsService;
 import com.nekromant.telegram.service.ResumeAnalysisRequestService;
@@ -41,8 +42,8 @@ public class PaymentDetailsRestController {
         sendMessage(paymentDetails);
 
         var pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
-        if (pendingPay!= null && pendingPay.getStatus().equals("unredeemed")) {
-            resumeAnalysisRequestService.sendCVToMentorForAnalysis(paymentDetails);
+        if (pendingPay!= null && pendingPay.getStatus().equals(PayStatus.UNREDEEMED.get())) {
+            resumeAnalysisRequestService.sendCVToMentorForAnalysisOrReject(paymentDetails);
             return;
         }
 

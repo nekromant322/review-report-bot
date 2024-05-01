@@ -10,4 +10,8 @@ import javax.transaction.Transactional;
 public interface ResumeAnalysisRequestRepository extends CrudRepository<ResumeAnalysisRequest, Long> {
     @Transactional
     ResumeAnalysisRequest findByLifePayNumber(String number);
+
+    @Transactional
+    void deleteByLifePayNumber(String number);
+
 }
