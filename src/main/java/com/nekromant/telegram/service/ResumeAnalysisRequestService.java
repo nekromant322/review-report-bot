@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.MediaType;
 
+import static java.rmi.server.LogStream.log;
+
 
 @Slf4j
 @Service
@@ -49,19 +51,22 @@ public class ResumeAnalysisRequestService {
         String description = "Оплата за разбор резюме по договору публичной оферты";
         ChequeDTO chequeDTO = new ChequeDTO(props.getLogin(), props.getApikey(), props.getAmount(), description, phone, props.getMethod());
 
-        log.info("Sending request to LifePay" + chequeDTO);
-        LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
-        log.info("LifePay response: " + lifePayResponse);
+        try {
+            ResumeAnalysisRequestService.log.info("Sending request to LifePay" + chequeDTO);
+            LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
+            ResumeAnalysisRequestService.log.info("LifePay response: " + lifePayResponse);
+            PaymentDetails paymentDetails = new PaymentDetails();
+            paymentDetails.setNumber(lifePayResponse.getData().getNumber());
+            paymentDetails.setStatus(PayStatus.UNREDEEMED.get());
+            paymentDetailsRepository.save(paymentDetails);
+            ResumeAnalysisRequestService.log.info("Unredeemed payment created: " + paymentDetails);
 
-        PaymentDetails paymentDetails = new PaymentDetails();
-        paymentDetails.setNumber(lifePayResponse.getData().getNumber());
-        paymentDetails.setStatus(PayStatus.UNREDEEMED.get());
-        paymentDetailsRepository.save(paymentDetails);
-        log.info("Unredeemed payment created: " + paymentDetails);
-
-        resumeAnalysisRequest.setLifePayNumber(lifePayResponse.getData().getNumber());
-        resumeAnalysisRequestRepository.save(resumeAnalysisRequest);
-        log.info("New resume analysis request created: " + resumeAnalysisRequest);
+            resumeAnalysisRequest.setLifePayNumber(lifePayResponse.getData().getNumber());
+            resumeAnalysisRequestRepository.save(resumeAnalysisRequest);
+            ResumeAnalysisRequestService.log.info("New resume analysis request created: " + resumeAnalysisRequest);
+        } catch (Exception e) {
+            log(e.getMessage());
+        }
     }
 
     public void sendCVToMentorForAnalysisOrReject(PaymentDetails paymentDetails) {
@@ -69,12 +74,11 @@ public class ResumeAnalysisRequestService {
         paymentDetailsRepository.save(paymentDetails);
 
         if (paymentDetails.getStatus().equals(PayStatus.FAIL.get())) {
-            log.info("Payment failed: " + paymentDetails);
-            resumeAnalysisRequestRepository.deleteByLifePayNumber(paymentDetails.getNumber());
+            ResumeAnalysisRequestService.log.info("Payment failed: " + paymentDetails);
             return;
         }
 
-        log.info("Payment details have been redeemed:" + paymentDetails);
+        ResumeAnalysisRequestService.log.info("Payment details have been redeemed:" + paymentDetails);
 
         byte[] CV_bytes = resumeAnalysisRequestRepository.findByLifePayNumber(paymentDetails.getNumber()).getCVPdf();
         FormData formData = new FormData(MediaType.MULTIPART_FORM_DATA, "document", CV_bytes);
@@ -86,6 +90,6 @@ public class ResumeAnalysisRequestService {
                 "\n телефон: " + paymentDetails.getPhone() +
                 "\n Telegram nickname: " + resumeAnalysisRequestRepository.findByLifePayNumber(paymentDetails.getNumber()).getTgName();
         mentoringReviewBot.sendMessage(receiverId, text);
-        log.info(text);
+        ResumeAnalysisRequestService.log.info(text);
     }
 }

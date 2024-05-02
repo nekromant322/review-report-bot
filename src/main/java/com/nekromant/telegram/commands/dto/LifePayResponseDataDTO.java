@@ -7,9 +7,9 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class DataDTO {
+public class LifePayResponseDataDTO {
     private String status;
-    private String  number;
+    private String number;
     private String created;
     private int interval;
     private String paymentUrl;

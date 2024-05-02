@@ -18,7 +18,7 @@ public class CVAnalProp {
     @Value("${pay-info.method}")
     private String method;
 
-    @Value("${pay-info.amount}")
+    @Value("${price.resume-review}")
     private String amount;
 
     @Value("${owner.userName}")

@@ -10,5 +10,5 @@ import lombok.*;
 public class LifePayResponseDTO {
     private String code;
     private String message;
-    private DataDTO data;
+    private LifePayResponseDataDTO data;
 }

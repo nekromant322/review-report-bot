@@ -32,7 +32,7 @@ public class PaymentDetailsRestController {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    ResumeAnalysisRequestService resumeAnalysisRequestService;
+    private ResumeAnalysisRequestService resumeAnalysisRequestService;
 
     @PostMapping(value = "/paymentCallback")
 
@@ -41,8 +41,8 @@ public class PaymentDetailsRestController {
         PaymentDetails paymentDetails = modelMapper.map(paymentDetailsDTO, PaymentDetails.class);
         sendMessage(paymentDetails);
 
-        var pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
-        if (pendingPay!= null && pendingPay.getStatus().equals(PayStatus.UNREDEEMED.get())) {
+        PaymentDetails pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
+        if (pendingPay != null && pendingPay.getStatus().equals(PayStatus.UNREDEEMED.get())) {
             resumeAnalysisRequestService.sendCVToMentorForAnalysisOrReject(paymentDetails);
             return;
         }

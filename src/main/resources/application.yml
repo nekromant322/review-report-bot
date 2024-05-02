@@ -17,7 +17,9 @@ pay-info:
   login: ${LIFE_PAY_LOGIN:root}
   apikey: ${LIFE_PAY_KEY:root}
   method: sbp
-  amount: 5
+price:
+  resume-review: 5
+  mentoring-subscription: 30000
 
 spring:
   application:
