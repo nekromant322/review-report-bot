@@ -1,12 +1,12 @@
 package com.nekromant.telegram.commands.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@ToString
+@Data
 public class LifePayResponseDTO {
     private String code;
     private String message;

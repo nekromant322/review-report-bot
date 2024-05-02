@@ -43,7 +43,11 @@ public class PaymentDetailsRestController {
 
         PaymentDetails pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
         if (pendingPay != null && pendingPay.getStatus().equals(PayStatus.UNREDEEMED.get())) {
-            resumeAnalysisRequestService.sendCVToMentorForAnalysisOrReject(paymentDetails);
+            if (paymentDetails.getStatus().equals(PayStatus.FAIL.get())) {
+                resumeAnalysisRequestService.RejectApplication(paymentDetails);
+                return;
+            }
+            resumeAnalysisRequestService.sendCVToMentorForAnalysis(paymentDetails);
             return;
         }
 

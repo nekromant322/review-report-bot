@@ -3,7 +3,7 @@ bot:
   token: ${TELEGRAM_BOT_TOKEN}
 
 owner:
-  userName: Marandyuk_Anatolii
+  userName: ${OWNER_USER_NAME:Marandyuk_Anatolii}
 
 
 server:

@@ -27,4 +27,12 @@ public class ResumeAnalysisRequest {
     private String phone;
 
     private String lifePayNumber;
+
+    @Override
+    public String toString() {
+        return "ResumeAnalysisRequest (tgName=" + this.getTgName()
+                + ", phone=" + this.getPhone()
+                + ", lifePayNumber=" + this.getLifePayNumber()
+                + ", CVPdf.length=" + getCVPdf().length + ")";
+    }
 }
