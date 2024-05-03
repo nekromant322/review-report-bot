@@ -23,4 +23,16 @@ public class ResumeAnalysisRequest {
 
     @Column(name = "tg_name")
     private String tgName;
+
+    private String phone;
+
+    private String lifePayNumber;
+
+    @Override
+    public String toString() {
+        return "ResumeAnalysisRequest (tgName=" + this.getTgName()
+                + ", phone=" + this.getPhone()
+                + ", lifePayNumber=" + this.getLifePayNumber()
+                + ", CVPdf.length=" + getCVPdf().length + ")";
+    }
 }
