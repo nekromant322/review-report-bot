@@ -19,7 +19,7 @@ pay-info:
   method: sbp
 price:
   resume-review: 5
-  mentoring-subscription: 30000
+  mentoring-subscription: 6
 
 spring:
   application:

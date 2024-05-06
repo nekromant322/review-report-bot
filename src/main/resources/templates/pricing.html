@@ -43,42 +43,42 @@
             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
                  aria-labelledby="offcanvasNavbarLabel">
                 <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+                    <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Меню</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
                     <ul id="bsb-tpl-navbar" class="navbar-nav justify-content-end flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link active" href="#scrollspyHero" aria-current="page"
-                               data-bs-dismiss="offcanvas" data-bs-target="#offcanvasNavbar">Home</a>
+                               data-bs-dismiss="offcanvas" data-bs-target="#offcanvasNavbar">В начало</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#scrollSubmissionForm" data-bs-dismiss="offcanvas"
-                               data-bs-target="#offcanvasNavbar">Submit CV & TG name</a>
+                               data-bs-target="#offcanvasNavbar">Отправить заявку</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#scrollspyPortfolio" data-bs-dismiss="offcanvas"
-                               data-bs-target="#offcanvasNavbar">Portfolio</a>
+                               data-bs-target="#offcanvasNavbar">Портфолио</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#scrollspyAbout" data-bs-dismiss="offcanvas"
-                               data-bs-target="#offcanvasNavbar">About</a>
+                               data-bs-target="#offcanvasNavbar">О проекте</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#scrollspyTeam" data-bs-dismiss="offcanvas"
-                               data-bs-target="#offcanvasNavbar">Team</a>
+                               data-bs-target="#offcanvasNavbar">Команда</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#scrollspyPricing" data-bs-dismiss="offcanvas"
-                               data-bs-target="#offcanvasNavbar">Pricing</a>
+                               data-bs-target="#offcanvasNavbar">Цены</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#scrollspyBlog" data-bs-dismiss="offcanvas"
-                               data-bs-target="#offcanvasNavbar">Blog</a>
+                               data-bs-target="#offcanvasNavbar">Блог</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#scrollspyContact" data-bs-dismiss="offcanvas"
-                               data-bs-target="#offcanvasNavbar">Contact</a>
+                               data-bs-target="#offcanvasNavbar">Контакты</a>
                         </li>
                     </ul>
                 </div>
@@ -93,19 +93,17 @@
     <div class="container overflow-hidden">
         <div class="row gy-3 gy-lg-0 align-items-lg-center justify-content-lg-between">
             <div class="col-12 col-lg-6 order-1 order-lg-0">
-                <h1 class="display-3 fw-bolder mb-3">I provide easy <br>
+                <h1 class="display-3 fw-bolder mb-3">Я предоставляю простые <br>
                     <mark class="bsb-tpl-highlight bsb-tpl-highlight-blue"><span
-                            class="bsb-tpl-font-hw display-2 text-accent fw-normal">solutions</span></mark>
-                    for everyone at affordable rates.
+                            class="bsb-tpl-font-hw display-2 text-accent fw-normal">решения</span></mark>
+                    для каждого по доступным ценам.
                 </h1>
-                <p class="fs-4 mb-5">My methods are straight, strong, and established to ensure evolution and
-                    acceleration.</p>
+                <p class="fs-4 mb-5">Мои методы выверены, целенаправленны и поэтому обеспечивают устойчивый
+                    прогресс.</p>
                 <div class="d-grid gap-2 d-sm-flex">
-                    <button type="button" class="btn btn-primary bsb-btn-3xl rounded-pill"
-                            onclick="location.href='#scrollSubmissionForm';">CV
-                        Roasting
+                    <button type="button" class="btn btn-primary bsb-btn-3xl rounded-pill" onclick="location.href='#cvRoasting';">Прожарка резюме
                     </button>
-                    <button type="button" class="btn btn-primary bsb-btn-3xl rounded-pill">Mentoring Subscription
+                    <button type="button" class="btn btn-primary bsb-btn-3xl rounded-pill" onclick="location.href='#mentoringSubscription';">Подписка на менторинг
                     </button>
                 </div>
             </div>
@@ -126,57 +124,112 @@
         <div class="container mb-5 mb-md-6 mb-xl-10">
             <div class="row justify-content-md-center">
                 <div class="col-12 col-md-10 col-lg-9 col-xl-8 col-xxl-7 text-center">
-                    <h2 class="display-3 fw-bolder mb-4">You should provide <br>
+                    <h2 class="display-3 fw-bolder mb-4">Предоставьте <br>
                         <mark class="bsb-tpl-highlight bsb-tpl-highlight-yellow"><span
-                                class="bsb-tpl-font-hw display-1 text-accent fw-normal">Telegram Username and upload your CV</span>
+                                class="bsb-tpl-font-hw display-1 text-accent fw-normal">Телеграм ник, телефон (и) загрузите резюме</span>
                         </mark>
-                        to our services.
+                        для доступа к нашим сервисам.
                     </h2>
                 </div>
             </div>
         </div>
-
+    </section>
+    <section id="cvRoasting" class="py-2 py-xl-8 bsb-section-py-xxl-1">
         <div class="container overflow-hidden">
-            <div class="row  gx-md-4 gy-lg-0 gx-xxl-5 justify-content-center">
-                <div class="col-11 col-sm-6 col-lg-3">
-                    <div class="badge bsb-tpl-bg-yellow text-primary p-3 mb-4">
-                        <img src="./images/others/cv_logo.png" width="26" height="26" class="bi bi-pie-chart"
-                             viewBox="0 0 16 16"/>
-                    </div>
-                    <h4 class="mb-3">Upload CV in pdf format</h4>
+            <div class="row align-items-baseline">
+                <div class="badge bsb-tpl-bg-yellow text-primary p-3 mb-4 col-auto">
+                    <img src="./images/others/cv_logo.png" width="26" height="26" class="bi bi-pie-chart"
+                         viewBox="0 0 16 16"/>
+                </div>
+                <div class="col-auto">
+                    <h4 class="mb-3">Загрузите резюме в PDF формате</h4>
+                </div>
+                <div class="col-auto">
                     <input type="file" id="pdf_input_form"/>
                 </div>
-
-                <div class="col-11 col-sm-6 col-lg-3">
-                    <div class="badge bsb-tpl-bg-green text-primary p-3 mb-4">
-                        <img src="./images/others/tg_logo.png" width="26" height="26">
-                    </div>
-                    <h4 class="mb-3">Enter Your Telegram Nickname</h4>
-                    <input type="text" id="tg_name_input_form"/>
+            </div>
+            <div class="row align-items-baseline">
+                <div class="badge bsb-tpl-bg-green text-primary p-3 mb-4 col-auto">
+                    <img src="./images/others/tg_logo.png" width="26" height="26">
                 </div>
-                <div class="col-11 col-sm-6 col-lg-3">
-                    <div class="badge bsb-tpl-bg-green text-primary p-3 mb-4">
-                        <img src="./images/others/ph_logo.png" width="26" height="26">
-                    </div>
-                    <h4 class="mb-3">Enter Your Phone Number</h4>
-                    <input type="text" id="phone_input_form"/>
+                <div class="col-auto">
+                    <h4 class="mb-3">Введите свой ник в Телеграм</h4>
                 </div>
-
-                <div class="row gx-md-4 gy-lg-0 gx-xxl-5 justify-content-center ">
-                    <div class="col-11 col-sm-6 col-lg-5 offer_checkbox">
-                        <input type="checkbox" id="offer_checkbox"
-                               onchange="document.getElementById('submit_button').disabled = !this.checked;"/>
-                        <label  class="no-space-break" for="offer_checkbox"><a href="./others/resume_review_pferta.pdf">Согласен с договором публичной оферты</a></label>
-                    </div>
-                    <div class="gy-2 col-lg-1 col-offset-6 centered">
-                        <button class="btn btn-accent bsb-btn-3xl rounded mb-0 text-nowrap"
-                                onclick="submit_new_client()" id="submit_button" disabled="disabled">
-                            Payment
-                        </button>
-                    </div>
+                <div class="col-auto">
+                    <input class="col-sm-auto" type="text" id="tg_name_input_form"/>
+                </div>
+            </div>
+            <div class="row align-items-baseline">
+                <div class="badge bsb-tpl-bg-green text-primary p-3 mb-4 col-auto">
+                    <img src="./images/others/ph_logo.png" width="26" height="26">
+                </div>
+                <div class="col-auto">
+                    <h4 class="mb-3">Введите телефон</h4>
+                </div>
+                <div class="col-auto">
+                    <input class="col-sm-auto" type="text" id="phone_input_form"/>
+                </div>
+            </div>
+            <div class="row align-items-baseline">
+                <div class="col-auto offer_checkbox">
+                    <input type="checkbox" id="offer_checkbox" onchange="document.getElementById('submit_button').disabled = !this.checked;"/>
+                    <label class="no-space-break" for="offer_checkbox"><a href="./others/resume_review_pferta.pdf">Согласен с договором публичной оферты</a></label>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-accent bsb-btn-3xl rounded mb-0 text-nowrap" onclick="submit_new_client()" id="submit_button" disabled="disabled">
+                    </button>
                 </div>
             </div>
         </div>
+    </section>
+    <br>
+    <br>
+    <br>
+    <br>
+    <section id="mentoringSubscription" class="py-2 py-xl-8 bsb-section-py-xxl-1">
+        <div class="container overflow-hidden">
+            <div class="row align-items-baseline">
+                <div class="badge bsb-tpl-bg-green text-primary p-3 mb-4 col-auto">
+                    <img src="./images/others/tg_logo.png" width="26" height="26">
+                </div>
+                <div class="col-auto">
+                    <h4 class="mb-3">Введите свой ник в Телеграм</h4>
+                </div>
+                <div class="col-auto">
+                    <input class="col-sm-auto" type="text" id="tg_name_input_form_mentoring"/>
+                </div>
+            </div>
+            <div class="row align-items-baseline">
+                <div class="badge bsb-tpl-bg-green text-primary p-3 mb-4 col-auto">
+                    <img src="./images/others/ph_logo.png" width="26" height="26">
+                </div>
+                <div class="col-auto">
+                    <h4 class="mb-3">Введите телефон</h4>
+                </div>
+                <div class="col-auto">
+                    <input class="col-sm-auto" type="text" id="phone_input_form_mentoring"/>
+                </div>
+            </div>
+            <div class="row align-items-baseline">
+                <div class="col-auto offer_checkbox">
+                    <input type="checkbox" id="offer_checkbox_mentoring"
+                           onchange="document.getElementById('submit_button_mentoring').disabled = !this.checked;"/>
+                    <label class="no-space-break" for="offer_checkbox"><a href="./others/mentoring_subscription_pferta.pdf">Согласен с договором публичной оферты</a></label>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-accent bsb-btn-3xl rounded mb-0 text-nowrap" onclick="submit_new_client_mentoringSubscription()" id="submit_button_mentoring"
+                            disabled="disabled">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <br>
+    <br>
+    <br>
+    <br>
+    <section>
+
     </section>
 </body>
 </html>

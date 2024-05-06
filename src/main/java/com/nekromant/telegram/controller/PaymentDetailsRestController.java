@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
 import com.nekromant.telegram.contants.PayStatus;
+import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.model.*;
+import com.nekromant.telegram.service.MentoringSubscriptionRequestService;
 import com.nekromant.telegram.service.PaymentDetailsService;
 import com.nekromant.telegram.service.ResumeAnalysisRequestService;
 import com.nekromant.telegram.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,21 +36,38 @@ public class PaymentDetailsRestController {
     private ObjectMapper objectMapper;
     @Autowired
     private ResumeAnalysisRequestService resumeAnalysisRequestService;
+    @Autowired
+    private MentoringSubscriptionRequestService mentoringSubscriptionRequestService;
 
     @PostMapping(value = "/paymentCallback")
 
     public void paymentCallback(@RequestParam("data") String json) throws JsonProcessingException {
         PaymentDetailsDTO paymentDetailsDTO = objectMapper.readValue(json, PaymentDetailsDTO.class);
         PaymentDetails paymentDetails = modelMapper.map(paymentDetailsDTO, PaymentDetails.class);
-        sendMessage(paymentDetails);
+//        sendMessage(paymentDetails);
 
         PaymentDetails pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
         if (pendingPay != null && pendingPay.getStatus().equals(PayStatus.UNREDEEMED.get())) {
+            paymentDetails.setServiceType(pendingPay.getServiceType());
             if (paymentDetails.getStatus().equals(PayStatus.FAIL.get())) {
-                resumeAnalysisRequestService.RejectApplication(paymentDetails);
+                switch (ServiceType.getServiceByAlias(pendingPay.getServiceType())) {
+                    case RESUME:
+                        resumeAnalysisRequestService.RejectApplication(paymentDetails);
+                        break;
+                    case MENTORING:
+                        mentoringSubscriptionRequestService.RejectApplication(paymentDetails);
+                        break;
+                }
                 return;
             }
-            resumeAnalysisRequestService.sendCVToMentorForAnalysis(paymentDetails);
+            switch (ServiceType.getServiceByAlias(pendingPay.getServiceType())) {
+                case RESUME:
+                    resumeAnalysisRequestService.sendCVToMentorForAnalysis(paymentDetails);
+                    break;
+                case MENTORING:
+                    mentoringSubscriptionRequestService.sendClientToMentorForSubscription(paymentDetails);
+                    break;
+            }
             return;
         }
 

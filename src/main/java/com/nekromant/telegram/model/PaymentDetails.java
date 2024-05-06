@@ -87,6 +87,9 @@ public class PaymentDetails {
     @Column
     private String created;
 
+    @Column
+    private String serviceType;
+
     @Convert(disableConversion = true)
     @Type(type = "PurchaseJsonType")
     @Column(columnDefinition = "jsonb")
