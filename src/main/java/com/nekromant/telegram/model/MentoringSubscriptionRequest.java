@@ -1,34 +1,23 @@
 package com.nekromant.telegram.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.zalando.logbook.Strategy;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
+@Builder
 public class MentoringSubscriptionRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ToString.Exclude
     private Long id;
 
-    @Column(name = "tg_name")
     private String tgName;
 
-    private String phone;
+    private String customerPhone;
 
-    private String lifePayNumber;
-
-    @Override
-    public String toString() {
-        return "ResumeAnalysisRequest (tgName=" + this.getTgName()
-                + ", phone=" + this.getPhone()
-                + ", lifePayNumber=" + this.getLifePayNumber() + ")";
-    }
+    private String lifePayTransactionNumber;
 }

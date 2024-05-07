@@ -5,18 +5,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
 import com.nekromant.telegram.contants.PayStatus;
-import com.nekromant.telegram.contants.ServiceType;
-import com.nekromant.telegram.model.*;
+import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.service.MentoringSubscriptionRequestService;
 import com.nekromant.telegram.service.PaymentDetailsService;
 import com.nekromant.telegram.service.ResumeAnalysisRequestService;
 import com.nekromant.telegram.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
+import org.modelmapper.AbstractConverter;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
@@ -42,15 +44,23 @@ public class PaymentDetailsRestController {
     @PostMapping(value = "/paymentCallback")
 
     public void paymentCallback(@RequestParam("data") String json) throws JsonProcessingException {
+        Converter<String, PayStatus> stringPayStatusConverter = new AbstractConverter<String, PayStatus>() {
+            @Override
+            public PayStatus convert(String status) {
+                return PayStatus.valueOf(status.toUpperCase());
+            }
+        };
+        modelMapper.addConverter(stringPayStatusConverter);
+
         PaymentDetailsDTO paymentDetailsDTO = objectMapper.readValue(json, PaymentDetailsDTO.class);
         PaymentDetails paymentDetails = modelMapper.map(paymentDetailsDTO, PaymentDetails.class);
-//        sendMessage(paymentDetails);
+        sendMessage(paymentDetails);
 
         PaymentDetails pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
-        if (pendingPay != null && pendingPay.getStatus().equals(PayStatus.UNREDEEMED.get())) {
+        if (pendingPay != null && pendingPay.getStatus() == PayStatus.UNREDEEMED) {
             paymentDetails.setServiceType(pendingPay.getServiceType());
-            if (paymentDetails.getStatus().equals(PayStatus.FAIL.get())) {
-                switch (ServiceType.getServiceByAlias(pendingPay.getServiceType())) {
+            if (paymentDetails.getStatus() == PayStatus.FAIL) {
+                switch (pendingPay.getServiceType()) {
                     case RESUME:
                         resumeAnalysisRequestService.RejectApplication(paymentDetails);
                         break;
@@ -60,7 +70,7 @@ public class PaymentDetailsRestController {
                 }
                 return;
             }
-            switch (ServiceType.getServiceByAlias(pendingPay.getServiceType())) {
+            switch (pendingPay.getServiceType()) {
                 case RESUME:
                     resumeAnalysisRequestService.sendCVToMentorForAnalysis(paymentDetails);
                     break;

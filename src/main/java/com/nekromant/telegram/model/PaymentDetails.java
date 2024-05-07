@@ -1,9 +1,12 @@
 package com.nekromant.telegram.model;
 
 import com.nekromant.telegram.commands.dto.*;
+import com.nekromant.telegram.contants.PayStatus;
+import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.converter.OrderJsonType;
 import com.nekromant.telegram.converter.PurchaseJsonType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
@@ -16,6 +19,7 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @TypeDefs(
         {
                 @TypeDef(name = "PurchaseJsonType", typeClass = PurchaseJsonType.class),
@@ -34,7 +38,7 @@ public class PaymentDetails {
     private String type;
 
     @Column
-    private String status;
+    private PayStatus status;
 
     @Column
     private String method;
@@ -88,7 +92,7 @@ public class PaymentDetails {
     private String created;
 
     @Column
-    private String serviceType;
+    private ServiceType serviceType;
 
     @Convert(disableConversion = true)
     @Type(type = "PurchaseJsonType")

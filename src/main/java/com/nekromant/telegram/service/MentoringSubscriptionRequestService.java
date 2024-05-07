@@ -24,13 +24,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+import static com.nekromant.telegram.contants.MessageContants.MENTORING_OFFER_DESCRIPTION;
+import static com.nekromant.telegram.contants.MessageContants.RESPONSE_FOR_MENTORING_SUBSCRIPTION;
 import static java.rmi.server.LogStream.log;
 
 @Slf4j
 @Service
 public class MentoringSubscriptionRequestService {
     @Autowired
-    MentoringSubscriptionRequestRepository mentoringSubscriptionRequestRepository;
+    private MentoringSubscriptionRequestRepository mentoringSubscriptionRequestRepository;
     @Autowired
     private PaymentDetailsRepository paymentDetailsRepository;
     @Autowired
@@ -47,27 +49,34 @@ public class MentoringSubscriptionRequestService {
     private String ownerUserName;
 
     public ResponseEntity save(Map mentoringData) {
-        MentoringSubscriptionRequest mentoringSubscriptionRequest = new MentoringSubscriptionRequest();
-        mentoringSubscriptionRequest.setTgName(mentoringData.get("TG-NAME").toString());
-        mentoringSubscriptionRequest.setPhone(mentoringData.get("PHONE").toString());
+        MentoringSubscriptionRequest mentoringSubscriptionRequest = MentoringSubscriptionRequest.builder()
+                .tgName(mentoringData.get("TG-NAME").toString())
+                .customerPhone(mentoringData.get("PHONE").toString())
+                .build();
+
         ResponseEntity responseEntity = new ResponseEntity(HttpStatus.OK);
 
-        String description = "Оплата за подписку на менторинг по договору публичной оферты";
-        String customerPhone = mentoringData.get("PHONE").toString();
-        ChequeDTO chequeDTO = new ChequeDTO(lifePayProperties.getLogin(), lifePayProperties.getApikey(), priceProperties.getMentoringSubscription(), description, customerPhone, lifePayProperties.getMethod());
+        ChequeDTO chequeDTO = new ChequeDTO(lifePayProperties.getLogin(),
+                lifePayProperties.getApikey(),
+                priceProperties.getMentoringSubscription(),
+                MENTORING_OFFER_DESCRIPTION,
+                mentoringData.get("PHONE").toString(),
+                lifePayProperties.getMethod());
 
         try {
             MentoringSubscriptionRequestService.log.info("Sending request to LifePay" + chequeDTO);
             LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
             MentoringSubscriptionRequestService.log.info("LifePay response: " + lifePayResponse);
-            PaymentDetails paymentDetails = new PaymentDetails();
-            paymentDetails.setNumber(lifePayResponse.getData().getNumber());
-            paymentDetails.setStatus(PayStatus.UNREDEEMED.get());
-            paymentDetails.setServiceType(ServiceType.MENTORING.get());
+
+            PaymentDetails paymentDetails = PaymentDetails.builder()
+                    .number(lifePayResponse.getData().getNumber())
+                    .status(PayStatus.UNREDEEMED)
+                    .serviceType(ServiceType.MENTORING)
+                    .build();
             paymentDetailsRepository.save(paymentDetails);
             MentoringSubscriptionRequestService.log.info("Unredeemed payment created: " + paymentDetails);
 
-            mentoringSubscriptionRequest.setLifePayNumber(lifePayResponse.getData().getNumber());
+            mentoringSubscriptionRequest.setLifePayTransactionNumber(lifePayResponse.getData().getNumber());
             mentoringSubscriptionRequestRepository.save(mentoringSubscriptionRequest);
             MentoringSubscriptionRequestService.log.info("New mentoring subscription request created: " + mentoringSubscriptionRequest);
         } catch (JsonParseException jsonParseException) {
@@ -87,11 +96,10 @@ public class MentoringSubscriptionRequestService {
 
         String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
 
-        final String RESPONSE_FOR_MENTORING_SUBSCRIPTION = "Зарегистрирован и оплачен заказ %s на подписку на менторинг: \nтелефон: %s \nTelegram nickname: @%s";
         String text = String.format(RESPONSE_FOR_MENTORING_SUBSCRIPTION,
                 paymentDetails.getNumber(),
                 paymentDetails.getPhone(),
-                mentoringSubscriptionRequestRepository.findByLifePayNumber(paymentDetails.getNumber()).getTgName());
+                mentoringSubscriptionRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getTgName());
 
         mentoringReviewBot.sendMessage(receiverId, text);
         MentoringSubscriptionRequestService.log.info(text);

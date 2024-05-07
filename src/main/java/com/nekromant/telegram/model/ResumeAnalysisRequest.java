@@ -1,38 +1,33 @@
 package com.nekromant.telegram.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
+@Builder
 public class ResumeAnalysisRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ToString.Exclude
     private Long id;
 
     @Column(name = "cv_pdf")
     @Lob
+    @ToString.Exclude
     private byte[] CVPdf;
 
-    @Column(name = "tg_name")
     private String tgName;
 
-    private String phone;
+    private String customerPhone;
 
-    private String lifePayNumber;
+    private String lifePayTransactionNumber;
 
-    @Override
-    public String toString() {
-        return "ResumeAnalysisRequest (tgName=" + this.getTgName()
-                + ", phone=" + this.getPhone()
-                + ", lifePayNumber=" + this.getLifePayNumber()
-                + ", CVPdf.length=" + getCVPdf().length + ")";
+    @ToString.Include
+    int CVPdfLength() {
+        return this.CVPdf == null ? 0 : getCVPdf().length;
     }
 }

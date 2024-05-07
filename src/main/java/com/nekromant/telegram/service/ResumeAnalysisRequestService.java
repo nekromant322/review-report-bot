@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.MediaType;
 
+import static com.nekromant.telegram.contants.MessageContants.RESPONSE_FOR_RESUME_PROJARKA;
+import static com.nekromant.telegram.contants.MessageContants.RESUME_OFFER_DESCRIPTION;
 import static java.rmi.server.LogStream.log;
 
 
@@ -52,27 +54,34 @@ public class ResumeAnalysisRequestService {
     private String ownerUserName;
 
     public ResponseEntity save(byte[] CVPdf, String tgName, String phone) {
-        ResumeAnalysisRequest resumeAnalysisRequest = new ResumeAnalysisRequest();
-        resumeAnalysisRequest.setCVPdf(CVPdf);
-        resumeAnalysisRequest.setTgName(tgName);
-        resumeAnalysisRequest.setPhone(phone);
+        ResumeAnalysisRequest resumeAnalysisRequest = ResumeAnalysisRequest.builder()
+                .CVPdf(CVPdf)
+                .tgName(tgName)
+                .customerPhone(phone)
+                .build();
+
         ResponseEntity responseEntity = new ResponseEntity(HttpStatus.OK);
 
-        String description = "Оплата за разбор резюме по договору публичной оферты";
-        ChequeDTO chequeDTO = new ChequeDTO(lifePayProperties.getLogin(), lifePayProperties.getApikey(), priceProperties.getResumeReview(), description, phone, lifePayProperties.getMethod());
+        ChequeDTO chequeDTO = new ChequeDTO(lifePayProperties.getLogin(),
+                lifePayProperties.getApikey(),
+                priceProperties.getResumeReview(),
+                RESUME_OFFER_DESCRIPTION,
+                phone,
+                lifePayProperties.getMethod());
 
         try {
             ResumeAnalysisRequestService.log.info("Sending request to LifePay" + chequeDTO);
             LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
             ResumeAnalysisRequestService.log.info("LifePay response: " + lifePayResponse);
-            PaymentDetails paymentDetails = new PaymentDetails();
-            paymentDetails.setNumber(lifePayResponse.getData().getNumber());
-            paymentDetails.setStatus(PayStatus.UNREDEEMED.get());
-            paymentDetails.setServiceType(ServiceType.RESUME.get());
+            PaymentDetails paymentDetails = PaymentDetails.builder()
+                    .number(lifePayResponse.getData().getNumber())
+                    .status(PayStatus.UNREDEEMED)
+                    .serviceType(ServiceType.RESUME)
+                    .build();
             paymentDetailsRepository.save(paymentDetails);
             ResumeAnalysisRequestService.log.info("Unredeemed payment created: " + paymentDetails);
 
-            resumeAnalysisRequest.setLifePayNumber(lifePayResponse.getData().getNumber());
+            resumeAnalysisRequest.setLifePayTransactionNumber(lifePayResponse.getData().getNumber());
             resumeAnalysisRequestRepository.save(resumeAnalysisRequest);
             ResumeAnalysisRequestService.log.info("New resume analysis request created: " + resumeAnalysisRequest);
         } catch (JsonParseException jsonParseException) {
@@ -89,16 +98,15 @@ public class ResumeAnalysisRequestService {
         paymentDetailsRepository.save(paymentDetails);
         ResumeAnalysisRequestService.log.info("Payment details have been redeemed:" + paymentDetails);
 
-        byte[] CV_bytes = resumeAnalysisRequestRepository.findByLifePayNumber(paymentDetails.getNumber()).getCVPdf();
+        byte[] CV_bytes = resumeAnalysisRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getCVPdf();
         FormData formData = new FormData(MediaType.MULTIPART_FORM_DATA, "document", CV_bytes);
         String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
         telegramFeign.sendDocument(formData, receiverId);
 
-        final String RESPONSE_FOR_RESUME_PROJARKA = "Зарегистрирован и оплачен заказ %s на разбор резюме: \nтелефон: %s \nTelegram nickname: @%s";
         String text = String.format(RESPONSE_FOR_RESUME_PROJARKA,
                 paymentDetails.getNumber(),
                 paymentDetails.getPhone(),
-                resumeAnalysisRequestRepository.findByLifePayNumber(paymentDetails.getNumber()).getTgName());
+                resumeAnalysisRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getTgName());
 
         mentoringReviewBot.sendMessage(receiverId, text);
         ResumeAnalysisRequestService.log.info(text);
