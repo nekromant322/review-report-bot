@@ -9,9 +9,5 @@ import javax.transaction.Transactional;
 @Repository
 public interface ResumeAnalysisRequestRepository extends CrudRepository<ResumeAnalysisRequest, Long> {
     @Transactional
-    ResumeAnalysisRequest findByLifePayNumber(String number);
-
-    @Transactional
-    void deleteByLifePayNumber(String number);
-
+    ResumeAnalysisRequest findByLifePayTransactionNumber(String number);
 }
