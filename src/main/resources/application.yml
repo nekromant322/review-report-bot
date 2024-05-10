@@ -18,8 +18,8 @@ pay-info:
   apikey: ${LIFE_PAY_KEY:root}
   method: sbp
 price:
-  resume-review: 5
-  mentoring-subscription: 6
+  resume-review: 5000
+  mentoring-subscription: 30000
 
 spring:
   application:
