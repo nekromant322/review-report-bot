@@ -3,21 +3,33 @@ getMentoringPrice();
 
 async function submit_new_client() {
     let file = document.getElementById("pdf_input_form").files[0];
-    let tgName = document.getElementById("tg_name_input_form").value;
-    let phone = document.getElementById("phone_input_form").value;
+    let tgNameInput = document.getElementById("tg_name_input_form");
+    let tgName = tgNameInput.value;
+    let phoneInput = document.getElementById("phone_input_form");
+    let phone = phoneInput.value;
+
+
     if (file === null || typeof file == 'undefined') {
-        alert('Choose pdf file!');
+        alert('Выберите pdf файл!');
         return;
     }
     if (tgName == null || tgName.valueOf() == "") {
-        alert('Enter Nickname!');
+        alert('Введите имя пользователя!');
         return;
     }
 
-    if (phone == null || phone.valueOf() == "") {
-        alert('Enter Phone!');
+    if (phoneInput.validity.valueMissing) {
+        phoneInput.setCustomValidity('Введите телефон!');
+        phoneInput.reportValidity();
         return;
     }
+    if (phoneInput.validity.patternMismatch) {
+        phoneInput.setCustomValidity("Чет не похоже на телефон.. \n Уж не ошибся ли ты часом?");
+        phoneInput.reportValidity();
+        return;
+    }
+    phone = phone.replace(/\D/g, '');
+    phone = '7' + phone.substr(phone.length - 10);
 
     const form_data = new FormData();
     form_data.append("form_data", file);
@@ -34,16 +46,28 @@ async function submit_new_client() {
 
 
 async function submit_new_client_mentoringSubscription() {
-    let tgName = document.getElementById("tg_name_input_form_mentoring").value;
-    let phone = document.getElementById("phone_input_form_mentoring").value;
+    let tgNameInput = document.getElementById("tg_name_input_form_mentoring");
+    let tgName = tgNameInput.value;
+    let phoneInput = document.getElementById("phone_input_form_mentoring");
+    let phone = phoneInput.value;
+
     if (tgName == null || tgName.valueOf() == "") {
-        alert('Enter Nickname!');
+        alert('Введите имя пользователя!');
         return;
     }
-    if (phone == null || phone.valueOf() == "") {
-        alert('Enter Phone!');
+
+    if (phoneInput.validity.valueMissing) {
+        phoneInput.setCustomValidity('Введите телефон!');
+        phoneInput.reportValidity();
         return;
     }
+    if (phoneInput.validity.patternMismatch) {
+        phoneInput.setCustomValidity("Чет не похоже на телефон.. \n Уж не ошибся ли ты часом?");
+        phoneInput.reportValidity();
+        return;
+    }
+    phone = phone.replace(/\D/g, '');
+    phone = '7' + phone.substr(phone.length - 10);
 
     let mentoring_data = {
         'TG-NAME': tgName,
@@ -61,12 +85,12 @@ async function submit_new_client_mentoringSubscription() {
 async function getCVRoastingPrice() {
     let response = await fetch("./pricing/cv/price");
     let cv_price = await response.text();
-    document.getElementById("submit_button").innerHTML += `С тебя ${cv_price} тыщ`;
+    document.getElementById("submit_button").innerHTML += `К оплате ${cv_price} р.`;
 }
 
 async function getMentoringPrice() {
     let response = await fetch("./pricing/mentoring/price");
     let mentoring_price = await response.text();
-    document.getElementById("submit_button_mentoring").innerHTML += `С тебя ${mentoring_price} тыщ`;
+    document.getElementById("submit_button_mentoring").innerHTML += `К оплате ${mentoring_price} р.`;
 }
 
