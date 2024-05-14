@@ -66,6 +66,7 @@ public class MentoringSubscriptionRequestService {
         try {
             MentoringSubscriptionRequestService.log.info("Sending request to LifePay" + chequeDTO);
             LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
+            responseEntity = ResponseEntity.status(HttpStatus.OK).body(lifePayResponse.getData().getPaymentUrlWeb());
             MentoringSubscriptionRequestService.log.info("LifePay response: " + lifePayResponse);
 
             PaymentDetails paymentDetails = PaymentDetails.builder()
