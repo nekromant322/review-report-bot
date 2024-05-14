@@ -8,14 +8,23 @@ async function submit_new_client() {
     let phoneInput = document.getElementById("phone_input_form");
     let phone = phoneInput.value;
 
-
     if (file === null || typeof file == 'undefined') {
         alert('Выберите pdf файл!');
         return;
     }
-    if (tgName == null || tgName.valueOf() == "") {
-        alert('Введите имя пользователя!');
+
+    if (tgNameInput.validity.valueMissing) {
+        tgNameInput.setCustomValidity('Введите имя пользователя!')
+        tgNameInput.reportValidity();
         return;
+    }
+    if (tgNameInput.validity.patternMismatch) {
+        tgNameInput.setCustomValidity('Сомнительно, но окэй');
+        tgNameInput.reportValidity();
+
+        const toRemove = ["t.me", "https"];
+        tgName = toRemove.reduce((acc, substr) => acc.replace(new RegExp(substr, 'g'), ''), tgName);
+        tgName = tgName.replace(/[^\w]/g, '');
     }
 
     if (phoneInput.validity.valueMissing) {
@@ -51,9 +60,18 @@ async function submit_new_client_mentoringSubscription() {
     let phoneInput = document.getElementById("phone_input_form_mentoring");
     let phone = phoneInput.value;
 
-    if (tgName == null || tgName.valueOf() == "") {
-        alert('Введите имя пользователя!');
+    if (tgNameInput.validity.valueMissing) {
+        tgNameInput.setCustomValidity('Введите имя пользователя!')
+        tgNameInput.reportValidity();
         return;
+    }
+    if (tgNameInput.validity.patternMismatch) {
+        const toRemove = ["t.me", "https"];
+        tgName = toRemove.reduce((acc, substr) => acc.replace(new RegExp(substr, 'g'), ''), tgName);
+        tgName = tgName.replace(/[^\w]/g, '');
+
+        tgNameInput.setCustomValidity('Сомнительно, но окэй');
+        tgNameInput.reportValidity();
     }
 
     if (phoneInput.validity.valueMissing) {
