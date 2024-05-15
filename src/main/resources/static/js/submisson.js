@@ -50,7 +50,17 @@ async function submit_new_client() {
             'TG-NAME': tgName,
             'PHONE': phone
         }
-    });
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error('Что-то пошло не так :(');
+        })
+        .then(text => window.open(text).focus())
+        .catch((error => {
+            alert(error)
+        }));
 }
 
 
@@ -97,7 +107,17 @@ async function submit_new_client_mentoringSubscription() {
         headers: {
             "Content-Type": "application/json; charset=UTF-8"
         }
-    });
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error('Что-то пошло не так :(');
+        })
+        .then(text => window.open(text).focus())
+        .catch((error => {
+            alert(error)
+        }));
 }
 
 async function getCVRoastingPrice() {
