@@ -1,8 +1,11 @@
 package com.nekromant.telegram.model;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
 
 @Entity
 @AllArgsConstructor
@@ -10,23 +13,12 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
-@Builder
-public class ResumeAnalysisRequest {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ToString.Exclude
-    private Long id;
-
+@SuperBuilder
+public class ResumeAnalysisRequest extends ClientRequest {
     @Column(name = "cv_pdf")
     @Lob
     @ToString.Exclude
     private byte[] CVPdf;
-
-    private String tgName;
-
-    private String customerPhone;
-
-    private String lifePayTransactionNumber;
 
     @ToString.Include
     int CVPdfLength() {
