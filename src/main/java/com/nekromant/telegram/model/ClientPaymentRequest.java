@@ -15,7 +15,7 @@ import javax.persistence.MappedSuperclass;
 @Setter
 @ToString
 @SuperBuilder
-public class ClientRequest {
+public class ClientPaymentRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ToString.Exclude

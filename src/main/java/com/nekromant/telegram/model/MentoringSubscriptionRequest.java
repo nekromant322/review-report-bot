@@ -14,6 +14,6 @@ import javax.persistence.Entity;
 @Setter
 @ToString
 @SuperBuilder
-public class MentoringSubscriptionRequest extends ClientRequest {
+public class MentoringSubscriptionRequest extends ClientPaymentRequest {
 
 }

@@ -14,7 +14,7 @@ import javax.persistence.Lob;
 @Setter
 @ToString
 @SuperBuilder
-public class ResumeAnalysisRequest extends ClientRequest {
+public class ResumeAnalysisRequest extends ClientPaymentRequest {
     @Column(name = "cv_pdf")
     @Lob
     @ToString.Exclude
