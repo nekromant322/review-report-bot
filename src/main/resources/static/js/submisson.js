@@ -129,6 +129,7 @@ async function getCVRoastingPrice() {
 async function getMentoringPrice() {
     let response = await fetch("./pricing/mentoring/price");
     let mentoring_price = await response.text();
-    document.getElementById("submit_button_mentoring").innerHTML += `К оплате ${mentoring_price} р.`;
+    let discount_price = mentoring_price*0.5;
+    document.getElementById("submit_button_mentoring").innerHTML += `К оплате <s>${mentoring_price}</s> ${discount_price} р.`;
 }
 
