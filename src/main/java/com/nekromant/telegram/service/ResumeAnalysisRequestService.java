@@ -74,6 +74,7 @@ public class ResumeAnalysisRequestService {
             LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
             responseEntity = ResponseEntity.status(HttpStatus.OK).body(lifePayResponse.getData().getPaymentUrlWeb());
             ResumeAnalysisRequestService.log.info("LifePay response: " + lifePayResponse);
+
             PaymentDetails paymentDetails = PaymentDetails.builder()
                     .number(lifePayResponse.getData().getNumber())
                     .status(PayStatus.UNREDEEMED)
