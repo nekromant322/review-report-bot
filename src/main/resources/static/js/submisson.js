@@ -1,12 +1,12 @@
-getCVRoastingPrice();
 getMentoringPrice();
 
-async function submit_new_client() {
+async function submit_new_client_cv_roasting() {
     let file = document.getElementById("pdf_input_form").files[0];
     let tgNameInput = document.getElementById("tg_name_input_form");
     let tgName = tgNameInput.value;
     let phoneInput = document.getElementById("phone_input_form");
     let phone = phoneInput.value;
+    let cv_promocode_id = JSON.parse(localStorage.getItem("cv_promocode")).id;
 
     if (file === null || typeof file == 'undefined') {
         alert('Выберите pdf файл!');
@@ -48,7 +48,8 @@ async function submit_new_client() {
         body: form_data,
         headers: {
             'TG-NAME': tgName,
-            'PHONE': phone
+            'PHONE': phone,
+            'CV-PROMOCODE-ID': cv_promocode_id
         }
     })
         .then(response => {
@@ -120,16 +121,38 @@ async function submit_new_client_mentoringSubscription() {
         }));
 }
 
-async function getCVRoastingPrice() {
-    let response = await fetch("./pricing/cv/price");
-    let cv_price = await response.text();
-    document.getElementById("submit_button").innerHTML += `К оплате ${cv_price} р.`;
-}
 
 async function getMentoringPrice() {
     let response = await fetch("./pricing/mentoring/price");
     let mentoring_price = await response.text();
-    let discount_price = mentoring_price*0.5;
+    let discount_price = mentoring_price * 0.5;
     document.getElementById("submit_button_mentoring").innerHTML += `К оплате <s>${mentoring_price}</s> ${discount_price} р.`;
 }
 
+async function roastingPromocodePricing() {
+    let response = await fetch("./promocode/roasting/discount", {
+        method: "POST",
+        body: JSON.stringify({
+            promocodeText: document.getElementById("roasting_promocode_input").value
+        }),
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        }
+    });
+    let cv_promocode = await response.json();
+    if (!cv_promocode.active || cv_promocode.maxUsesNumber <= cv_promocode.counterUsed) {
+        alert("Этот промокод недоступен! \n Попробуйте другой...");
+        return;
+    }
+
+
+    localStorage.setItem("cv_promocode", JSON.stringify(cv_promocode));
+    let discountPercent = cv_promocode.discountPercent;
+
+    response = await fetch("./pricing/cv/price");
+    let cv_price = await response.text();
+    let discount_price = Math.round(cv_price * (1 - discountPercent / 100));
+    document.getElementById("CVRoastingBlock").style.visibility = "visible";
+    document.getElementById("submit_button").innerHTML = `К оплате <s>${cv_price}</s> ${discount_price} р.`;
+    document.getElementById("roasting_promocode_input_block").style.visibility = "collapse";
+}

@@ -5,11 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.util.Date;
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -19,14 +17,20 @@ import java.util.Date;
 public class Promocode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    private String promocode;
+    private String promocodeText;
+
+    private double discountPercent;
+
+    private LocalDateTime created;
+
+    private int counterUsed;
+
+    private int maxUsesNumber;
 
     private boolean isActive;
 
-    private Date created;
-
-    private int counter;
-
+    @OneToMany(fetch = FetchType.EAGER)
+    private Set<PaymentDetails> paymentDetailsSet;
 }

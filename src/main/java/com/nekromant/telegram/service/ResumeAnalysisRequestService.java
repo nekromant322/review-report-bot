@@ -12,6 +12,7 @@ import com.nekromant.telegram.config.PriceProperties;
 import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.model.PaymentDetails;
+import com.nekromant.telegram.model.Promocode;
 import com.nekromant.telegram.model.ResumeAnalysisRequest;
 import com.nekromant.telegram.repository.PaymentDetailsRepository;
 import com.nekromant.telegram.repository.ResumeAnalysisRequestRepository;
@@ -26,6 +27,8 @@ import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.MediaType;
 
+import java.util.Set;
+
 import static com.nekromant.telegram.contants.MessageContants.RESPONSE_FOR_RESUME_PROJARKA;
 import static com.nekromant.telegram.contants.MessageContants.RESUME_OFFER_DESCRIPTION;
 import static java.rmi.server.LogStream.log;
@@ -38,6 +41,8 @@ public class ResumeAnalysisRequestService {
     private ResumeAnalysisRequestRepository resumeAnalysisRequestRepository;
     @Autowired
     private PaymentDetailsRepository paymentDetailsRepository;
+    @Autowired
+    private PromocodeService promocodeService;
     @Autowired
     private UserInfoService userInfoService;
     @Autowired
@@ -53,7 +58,7 @@ public class ResumeAnalysisRequestService {
     @Value("${owner.userName}")
     private String ownerUserName;
 
-    public ResponseEntity save(byte[] CVPdf, String tgName, String phone) {
+    public ResponseEntity save(byte[] CVPdf, String tgName, String phone, String CVPromocodeId) {
         ResumeAnalysisRequest resumeAnalysisRequest = ResumeAnalysisRequest.builder()
                 .CVPdf(CVPdf)
                 .tgName(tgName)
@@ -61,10 +66,11 @@ public class ResumeAnalysisRequestService {
                 .build();
 
         ResponseEntity responseEntity = new ResponseEntity(HttpStatus.OK);
+        Promocode promocode = promocodeService.findById(CVPromocodeId);
 
         ChequeDTO chequeDTO = new ChequeDTO(lifePayProperties.getLogin(),
                 lifePayProperties.getApikey(),
-                priceProperties.getResumeReview(),
+                calculatePriceWithDiscount(promocode),
                 RESUME_OFFER_DESCRIPTION,
                 phone,
                 lifePayProperties.getMethod());
@@ -86,6 +92,11 @@ public class ResumeAnalysisRequestService {
             resumeAnalysisRequest.setLifePayTransactionNumber(lifePayResponse.getData().getNumber());
             resumeAnalysisRequestRepository.save(resumeAnalysisRequest);
             ResumeAnalysisRequestService.log.info("New resume analysis request created: " + resumeAnalysisRequest);
+
+            Set<PaymentDetails> promocodePaymentDetailsSet = promocode.getPaymentDetailsSet();
+            promocodePaymentDetailsSet.add(paymentDetails);
+            promocode.setPaymentDetailsSet(promocodePaymentDetailsSet);
+            promocodeService.save(promocode);
         } catch (JsonParseException jsonParseException) {
             log("Erorr while parsing Json: " + jsonParseException.getMessage());
             responseEntity = new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -97,6 +108,17 @@ public class ResumeAnalysisRequestService {
     }
 
     public void sendCVToMentorForAnalysis(PaymentDetails paymentDetails) {
+        Promocode promocode = promocodeService.findByPaymentDetailsSetNumber(paymentDetails.getNumber());
+        Set<PaymentDetails> promocodePaymentDetailsSet = promocode.getPaymentDetailsSet();
+        promocodePaymentDetailsSet.add(paymentDetails);
+        promocode.setPaymentDetailsSet(promocodePaymentDetailsSet);
+
+        promocode.setCounterUsed(promocode.getCounterUsed() + 1);
+        if (promocode.getMaxUsesNumber() <= promocode.getCounterUsed()) {
+            promocode.setActive(false);
+        }
+        promocodeService.save(promocode);
+
         paymentDetailsRepository.save(paymentDetails);
         ResumeAnalysisRequestService.log.info("Payment details have been redeemed:" + paymentDetails);
 
@@ -115,7 +137,18 @@ public class ResumeAnalysisRequestService {
     }
 
     public void RejectApplication(PaymentDetails paymentDetails) {
+        Promocode promocode = promocodeService.findByPaymentDetailsSetNumber(paymentDetails.getNumber());
+        Set<PaymentDetails> promocodePaymentDetailsSet = promocode.getPaymentDetailsSet();
+        promocodePaymentDetailsSet.add(paymentDetails);
+        promocode.setPaymentDetailsSet(promocodePaymentDetailsSet);
+        promocodeService.save(promocode);
+
         paymentDetailsRepository.save(paymentDetails);
         ResumeAnalysisRequestService.log.info("Payment failed: " + paymentDetails);
+    }
+
+    public String calculatePriceWithDiscount(Promocode promocode) {
+        double basicPrice = Double.parseDouble(priceProperties.getResumeReview());
+        return String.valueOf(Math.round(basicPrice * (1 - promocode.getDiscountPercent() / 100)));
     }
 }
