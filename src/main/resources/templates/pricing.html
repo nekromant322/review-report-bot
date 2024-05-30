@@ -154,7 +154,7 @@
                 <div class="row align-items-baseline" id="roasting_promocode_input_block">
                     <div class="col-auto">
                         <input class="col-sm-auto" type="text" id="roasting_promocode_input"/>
-                        <label for="roasting_promocode_input">Ввести промокод</label>
+                        <label for="roasting_promocode_input"></label>
                     </div>
                     <div class="col-auto">
                         <button class="btn btn-accent bsb-btn-3xl rounded mb-0 text-nowrap" onclick="roastingPromocodePricing()">Рассчитать стоимость с учетом промокода</button>
@@ -162,7 +162,7 @@
                 </div>
 
             </div>
-            <div id="CVRoastingBlock" style="visibility: collapse">
+            <div id="CVRoastingBlock">
                 <div class="row align-items-baseline">
                     <div class="badge bsb-tpl-bg-yellow text-primary p-3 mb-4 col-auto">
                         <img src="./images/others/cv_logo.png" width="26" height="26" class="bi bi-pie-chart"
@@ -201,11 +201,11 @@
                 </div>
                 <div class="row align-items-baseline">
                     <div class="col-auto offer_checkbox">
-                        <input type="checkbox" id="offer_checkbox" onchange="document.getElementById('submit_button').disabled = !this.checked;"/>
+                        <input type="checkbox" id="offer_checkbox" onchange="document.getElementById('submit_button_roasting').disabled = !this.checked;"/>
                         <label class="no-space-break" for="offer_checkbox"><a href="./others/resume_review_pferta.pdf">Согласен с договором публичной оферты</a></label>
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-accent bsb-btn-3xl rounded mb-0 text-nowrap" onclick="submit_new_client_cv_roasting()" id="submit_button" disabled="disabled">
+                        <button class="btn btn-accent bsb-btn-3xl rounded mb-0 text-nowrap" onclick="submit_new_client_cv_roasting()" id="submit_button_roasting" disabled="disabled">
                         </button>
                     </div>
                 </div>

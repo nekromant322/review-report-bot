@@ -1,37 +1,7 @@
 getPromocodeList();
 
-async function savePromocode() {
-    let promocodeList = JSON.parse(localStorage.getItem('promocodeList'));
-    let promocodeText = document.getElementById("promocodeText").value;
-    for (let i = 0; i < promocodeList.length; i++) {
-        text = promocodeList[i].promocodeText;
-        if (promocodeText === text) {
-            alert("Текст промокода должен быть уникальным!");
-            return;
-        }
-    }
-
-    let discountPercent = document.getElementById("discountPercent").value;
-    let maxUsesNumber = document.getElementById("maxUsesNumber").value;
-    let isActive = document.getElementById("isActive").checked;
-    let newPromoCode = {
-        promocodeText: promocodeText,
-        discountPercent: discountPercent,
-        maxUsesNumber: maxUsesNumber,
-        isActive: isActive
-    };
-    await fetch("./promocode/add", {
-        method: "POST",
-        body: JSON.stringify(newPromoCode),
-        headers: {
-            "Content-Type": "application/json; charset=UTF-8"
-        }
-    });
-    getPromocodeList();
-}
-
 async function getPromocodeList() {
-    await fetch("./promocode/list")
+    await fetch("./promocode")
         .then(response => response.json())
         .then(promocodeList => {
             let table = document.getElementById("promocode-table-body");
@@ -57,8 +27,55 @@ async function getPromocodeList() {
         })
 }
 
+async function savePromocode() {
+    let promocodeList = JSON.parse(localStorage.getItem('promocodeList'));
+    let promocodeText = document.getElementById("promocodeText").value;
+    if (promocodeText.length === 0) {
+        alert('должен быть текст');
+        return;
+    }
+
+    let response = await fetch("promocode?text=" + promocodeText)
+    if (response.status != 404) {
+        alert("Текст промокода должен быть уникальным!");
+        return;
+    }
+
+    let discountPercent = document.getElementById("discountPercent").value;
+    if (discountPercent >= 100) {
+        alert('Кто кому платить собирается??');
+        return;
+    }
+    if (discountPercent < 0) {
+        alert('Чет странное');
+        return;
+    }
+
+    let maxUsesNumber = document.getElementById("maxUsesNumber").value;
+    if (maxUsesNumber <= 0) {
+        alert('И зачем такой код нужен?');
+        return;
+    }
+
+    let isActive = document.getElementById("isActive").checked;
+    let newPromoCode = {
+        promocodeText: promocodeText,
+        discountPercent: discountPercent,
+        maxUsesNumber: maxUsesNumber,
+        isActive: isActive
+    };
+    await fetch("./promocode", {
+        method: "POST",
+        body: JSON.stringify(newPromoCode),
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        }
+    });
+    getPromocodeList();
+}
+
 async function deletePromocode(promocode_id) {
-    await fetch("./promocode/delete", {
+    await fetch("./promocode", {
         method: "DELETE",
         body: JSON.stringify({
             promocode_id: promocode_id
@@ -72,7 +89,7 @@ async function deletePromocode(promocode_id) {
 
 async function updateSingleIsActive(promocode_id) {
     let isActive = document.getElementById(promocode_id + "_isActive").checked;
-    await fetch("./promocode/patch/single", {
+    await fetch("./promocode/isactive", {
         method: "PATCH",
         body: JSON.stringify({
             promocode_id: promocode_id,

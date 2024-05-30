@@ -44,4 +44,9 @@ public class PricingRestController {
     public String getMentoringPrice() {
         return priceProperties.getMentoringSubscription();
     }
+
+    @GetMapping("/roasting/price")
+    public String getRoastingPrice() {
+        return priceProperties.getResumeReview();
+    }
 }

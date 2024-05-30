@@ -4,55 +4,45 @@ import com.nekromant.telegram.model.Promocode;
 import com.nekromant.telegram.service.PromocodeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/promocode")
 public class PromocodeRestController {
     @Autowired
     private PromocodeService promocodeService;
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping("/promocode/list")
-    public ResponseEntity<List<Promocode>> getPromocode() {
-        List<Promocode> promocodeList = promocodeService.findAll();
-        return new ResponseEntity<>(promocodeList, HttpStatus.OK);
+    @GetMapping
+    public ResponseEntity getAllPromocodes(@RequestParam(required = false, name = "text") String text) {
+        return text == null || text.isEmpty() ?
+                promocodeService.findAll() :
+                promocodeService.getPromocodeByText(text);
     }
 
-    @PostMapping("/promocode/add")
+    @PostMapping
     public ResponseEntity addPromocode(@RequestBody Map promocodeDto) {
         Promocode promocode = modelMapper.map(promocodeDto, Promocode.class);
         promocode.setCreated(LocalDateTime.now().withNano(0));
         promocodeService.save(promocode);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/promocode/delete")
+    @DeleteMapping
     public ResponseEntity deletePromocode(@RequestBody Map map) {
         promocodeService.deleteById(map);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(value = "/promocode/patch")
-    public ResponseEntity updateIsActive(@RequestBody Map isActiveMap) {
-        promocodeService.updateIsActive(isActiveMap);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PatchMapping("/promocode/patch/single")
+    @PatchMapping("/isactive")
     public ResponseEntity updateSingleIsActive(@RequestBody Map map) {
         promocodeService.updateSingleIsActive(map);
-        return new ResponseEntity(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/promocode/roasting/discount")
-    public ResponseEntity discountPromocode(@RequestBody Map map) {
-       return new ResponseEntity(promocodeService.getPromocodeByText(map), HttpStatus.OK);
-    }
 }

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class PromocodePanelController {
-    @GetMapping("/promocode")
+    @GetMapping("/promocodepanel")
     public String getPromocodePanelPage() {
         return "promocode_panel";
     }

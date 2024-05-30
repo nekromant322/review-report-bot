@@ -9,6 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface PaymentDetailsRepository extends CrudRepository<PaymentDetails, Long> {
     PaymentDetails findByNumber(String number);
 
-    @Transactional
-    void deleteByNumber(String number);
+//    @Transactional
+//    void deleteByNumber(String number);
 }

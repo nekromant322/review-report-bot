@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -54,8 +53,6 @@ public class MentoringSubscriptionRequestService {
                 .customerPhone(mentoringData.get("PHONE").toString())
                 .build();
 
-        ResponseEntity responseEntity = new ResponseEntity(HttpStatus.OK);
-
         ChequeDTO chequeDTO = new ChequeDTO(lifePayProperties.getLogin(),
                 lifePayProperties.getApikey(),
                 priceProperties.getMentoringSubscription(),
@@ -66,7 +63,7 @@ public class MentoringSubscriptionRequestService {
         try {
             MentoringSubscriptionRequestService.log.info("Sending request to LifePay" + chequeDTO);
             LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
-            responseEntity = ResponseEntity.status(HttpStatus.OK).body(lifePayResponse.getData().getPaymentUrlWeb());
+
             MentoringSubscriptionRequestService.log.info("LifePay response: " + lifePayResponse);
 
             PaymentDetails paymentDetails = PaymentDetails.builder()
@@ -80,14 +77,14 @@ public class MentoringSubscriptionRequestService {
             mentoringSubscriptionRequest.setLifePayTransactionNumber(lifePayResponse.getData().getNumber());
             mentoringSubscriptionRequestRepository.save(mentoringSubscriptionRequest);
             MentoringSubscriptionRequestService.log.info("New mentoring subscription request created: " + mentoringSubscriptionRequest);
+            return ResponseEntity.ok(lifePayResponse.getData().getPaymentUrlWeb());
         } catch (JsonParseException jsonParseException) {
             log("Erorr while parsing Json: " + jsonParseException.getMessage());
-            responseEntity = new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } catch (DataAccessException dataAccessException) {
             log("Error while accessing database: " + dataAccessException.getMessage());
-            responseEntity = new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
-        return responseEntity;
     }
 
 
