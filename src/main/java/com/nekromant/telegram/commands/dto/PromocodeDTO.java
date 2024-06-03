@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PromocodeDTO {
+    private Long id;
 
     private String promocodeText;
 

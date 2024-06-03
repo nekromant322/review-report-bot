@@ -5,6 +5,9 @@ import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.UserInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -13,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class UserInfoService {
+public class UserInfoService implements UserDetailsService {
 
     @Autowired
     private UserInfoRepository userInfoRepository;
@@ -59,5 +62,10 @@ public class UserInfoService {
 
     public List<UserInfo> getAllUsersReportNotificationsEnabled() {
         return userInfoRepository.findAllByNotifyAboutReportsIsTrue();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        return userInfoRepository.findUserInfoByUserName(userName);
     }
 }

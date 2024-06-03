@@ -1,8 +1,10 @@
 package com.nekromant.telegram.service;
 
+import com.nekromant.telegram.commands.dto.PromocodeDTO;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.Promocode;
 import com.nekromant.telegram.repository.PromocodeRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -12,16 +14,18 @@ import java.util.Map;
 @Service
 public class PromocodeService {
     @Autowired
-    PromocodeRepository promocodeRepository;
+    private PromocodeRepository promocodeRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     public ResponseEntity findAll() {
         return ResponseEntity.ok(promocodeRepository.findAllByOrderByIdAsc());
     }
 
-    public ResponseEntity getPromocodeByText(String text) {
-        return promocodeRepository.findByPromocodeText(text).isEmpty() ?
-                ResponseEntity.notFound().build() :
-                ResponseEntity.ok(promocodeRepository.findByPromocodeText(text).get());
+    public ResponseEntity doesExistByText(String text) {
+        return promocodeRepository.findByPromocodeText(text).isPresent() ?
+                ResponseEntity.ok(modelMapper.map(promocodeRepository.findByPromocodeText(text).get(), PromocodeDTO.class)):
+                ResponseEntity.notFound().build();
     }
 
     public void save(Promocode promocode) {

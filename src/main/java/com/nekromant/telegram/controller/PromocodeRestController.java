@@ -22,7 +22,7 @@ public class PromocodeRestController {
     public ResponseEntity getAllPromocodes(@RequestParam(required = false, name = "text") String text) {
         return text == null || text.isEmpty() ?
                 promocodeService.findAll() :
-                promocodeService.getPromocodeByText(text);
+                promocodeService.doesExistByText(text);
     }
 
     @PostMapping

@@ -51,7 +51,7 @@ async function submit_new_client_cv_roasting() {
         headers: {
             'TG-NAME': tgName,
             'PHONE': phone,
-            'CV-PROMOCODE-ID': cvPromocodeId,
+            'CV-PROMOCODE-ID': cvPromocodeId
         }
     })
         .then(response => {
@@ -144,7 +144,7 @@ async function roastingPromocodePricing() {
         return;
     }
 
-    let response = await fetch("./promocode/?text=" + promocodeInput);
+    let response = await fetch("./promocode?text=" + promocodeInput);
 
     if (response.status == 404) {
         alert("Промокода с таким текстом не существует!");
@@ -152,7 +152,7 @@ async function roastingPromocodePricing() {
     }
     let cv_promocode = await response.json();
     if (!cv_promocode.active || cv_promocode.maxUsesNumber <= cv_promocode.counterUsed) {
-        alert("Этот промокод недоступен! \n Попробуйте другой...");
+        alert("Этот промокод недоступен!\nПопробуйте другой...");
         return;
     }
 
@@ -162,6 +162,11 @@ async function roastingPromocodePricing() {
     response = await fetch("./pricing/cv/price");
     let cv_price = await response.text();
     let discount_price = Math.round(cv_price * (1 - discountPercent / 100));
+    if (discount_price == 0) {
+        alert("Сумма к оплате - 0 р.\nТак не должно быть. Выберите другой промокод.\nИли без него");
+        window.location.reload();
+        return;
+    }
     document.getElementById("submit_button_roasting").innerHTML = `К оплате <s>${cv_price}</s> ${discount_price} р.`;
     document.getElementById("roasting_promocode_input_block").innerHTML = ``;
 }

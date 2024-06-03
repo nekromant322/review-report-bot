@@ -28,7 +28,7 @@ async function getPromocodeList() {
 }
 
 async function savePromocode() {
-    let promocodeList = JSON.parse(localStorage.getItem('promocodeList'));
+    // let promocodeList = JSON.parse(localStorage.getItem('promocodeList'));
     let promocodeText = document.getElementById("promocodeText").value;
     if (promocodeText.length === 0) {
         alert('должен быть текст');
@@ -36,7 +36,7 @@ async function savePromocode() {
     }
 
     let response = await fetch("promocode?text=" + promocodeText)
-    if (response.status != 404) {
+    if (await response.status != 404) {
         alert("Текст промокода должен быть уникальным!");
         return;
     }
@@ -53,7 +53,7 @@ async function savePromocode() {
 
     let maxUsesNumber = document.getElementById("maxUsesNumber").value;
     if (maxUsesNumber <= 0) {
-        alert('И зачем такой код нужен?');
+        alert('И зачем такой промокод нужен?');
         return;
     }
 

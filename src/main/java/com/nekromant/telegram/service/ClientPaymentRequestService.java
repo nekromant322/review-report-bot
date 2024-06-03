@@ -1,8 +1,9 @@
-package com.nekromant.telegram.model;
+package com.nekromant.telegram.service;
 
 import com.nekromant.telegram.config.PriceProperties;
-import com.nekromant.telegram.service.PromocodeService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +30,9 @@ public class ClientPaymentRequestService {
         return String.valueOf(Math.round(Double.parseDouble(basePrice) * (1 - promocodeService.findById(CVPromocodeId).getDiscountPercent() / 100)));
     }
 
-    public void repeatedSuccessPayment() {
+    protected Logger logger = LoggerFactory.getLogger(ResumeAnalysisRequestService.class);
 
+    public void smth(String s) {
+        logger.info(s);
     }
-
 }

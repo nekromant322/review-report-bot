@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
 import com.nekromant.telegram.contants.PayStatus;
-import com.nekromant.telegram.model.ClientPaymentRequestService;
+import com.nekromant.telegram.service.ClientPaymentRequestService;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.service.MentoringSubscriptionRequestService;
 import com.nekromant.telegram.service.PaymentDetailsService;

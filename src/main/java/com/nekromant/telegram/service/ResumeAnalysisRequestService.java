@@ -10,7 +10,6 @@ import com.nekromant.telegram.commands.feign.TelegramFeign;
 import com.nekromant.telegram.config.LifePayProperties;
 import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.contants.ServiceType;
-import com.nekromant.telegram.model.ClientPaymentRequestService;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.Promocode;
 import com.nekromant.telegram.model.ResumeAnalysisRequest;
@@ -23,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.core.MediaType;
 import java.util.Set;
@@ -102,6 +102,7 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestService {
         }
     }
 
+    @Transactional
     public void sendCVToMentorForAnalysis(PaymentDetails paymentDetails) {
         promocodeService.incrementCounterUsed(paymentDetails);
         paymentDetailsRepository.save(paymentDetails);
@@ -123,7 +124,8 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestService {
 
     public void rejectApplication(PaymentDetails paymentDetails) {
         paymentDetailsRepository.save(paymentDetails);
-        ResumeAnalysisRequestService.log.info("Payment failed: " + paymentDetails);
+        super.smth("Payment failed: " + paymentDetails);
+//        ResumeAnalysisRequestService.log.info("Payment failed: " + paymentDetails);
     }
 
 }
