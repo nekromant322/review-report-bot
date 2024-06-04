@@ -124,8 +124,7 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestService {
 
     public void rejectApplication(PaymentDetails paymentDetails) {
         paymentDetailsRepository.save(paymentDetails);
-        super.smth("Payment failed: " + paymentDetails);
-//        ResumeAnalysisRequestService.log.info("Payment failed: " + paymentDetails);
+        ResumeAnalysisRequestService.log.info("Payment failed: " + paymentDetails);
     }
 
 }

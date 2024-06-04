@@ -24,7 +24,7 @@ public class PromocodeService {
 
     public ResponseEntity doesExistByText(String text) {
         return promocodeRepository.findByPromocodeText(text).isPresent() ?
-                ResponseEntity.ok(modelMapper.map(promocodeRepository.findByPromocodeText(text).get(), PromocodeDTO.class)):
+                ResponseEntity.ok(modelMapper.map(promocodeRepository.findByPromocodeText(text).get(), PromocodeDTO.class)) :
                 ResponseEntity.notFound().build();
     }
 

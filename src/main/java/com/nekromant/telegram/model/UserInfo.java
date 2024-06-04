@@ -1,17 +1,12 @@
 package com.nekromant.telegram.model;
 
 import com.nekromant.telegram.contants.UserType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -21,7 +16,6 @@ import java.util.Set;
 @ToString
 @Builder
 public class UserInfo implements UserDetails {
-
     @Id
     private String userName;
 
@@ -34,10 +28,10 @@ public class UserInfo implements UserDetails {
     @Column
     private Boolean notifyAboutReports;
 
-
+    @Transient
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @Transient
     private Set<Role> roles;
 
     @Override
