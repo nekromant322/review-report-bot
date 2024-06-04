@@ -1,40 +1,25 @@
 package com.nekromant.telegram.service;
 
 import com.nekromant.telegram.contants.UserType;
-import com.nekromant.telegram.model.Role;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.UserInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserInfoService implements UserDetailsService {
+public class UserInfoService {
 
     @Autowired
     private UserInfoRepository userInfoRepository;
 
     @Autowired
     private MentorRepository mentorRepository;
-
-    @Value("${owner.userName}")
-    private String ownerUserName;
-
-    @Value("${owner.password}")
-    private String ownerPassword;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     public void initializeUserInfo(Chat chat, User user) {
         if (chat.getType().equalsIgnoreCase("private")
@@ -76,15 +61,5 @@ public class UserInfoService implements UserDetailsService {
         return userInfoRepository.findAllByNotifyAboutReportsIsTrue();
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        Role adminRole = new Role();
-        adminRole.setTitle("ROLE_admin");
-        Set<Role> roles = new HashSet<>();
-        roles.add(adminRole);
-        return UserInfo.builder().
-                userName(ownerUserName).
-                password(passwordEncoder.encode(ownerPassword)).
-                roles(roles).build();
-    }
+
 }
