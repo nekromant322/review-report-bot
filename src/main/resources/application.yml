@@ -10,6 +10,8 @@ owner:
 server:
   port: 8080
   host: "https://overridetech.ru/review-bot"
+  tomcat:
+    use-relative-redirects: true
 
 reminders:
   maxDaysWithoutReport: 3
