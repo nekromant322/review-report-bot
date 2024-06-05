@@ -99,7 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .regexMatchers("/.*promocode\\?text=.*").permitAll()
                 .antMatchers("/promocodepanel", "/promocode").hasRole("admin")
                 .anyRequest().permitAll()
-                .and().formLogin()
+                .and().formLogin().loginPage("/login")
                 .successHandler(successUserHandler)
                 .and().logout();
     }
