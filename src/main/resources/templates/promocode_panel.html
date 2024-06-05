@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Promocode Panel</title>
+    <script src="./js/promocode_panel.js"></script>
+</head>
+<body>
+<div>
+    <form method="POST" action="/logout">
+        <input type="submit" value="LOGOUT"/>
+    </form>
+</div>
+<div>
+    <p>Список всех промокодов</p>
+    <table>
+        <thead>
+        <tr>
+            <th>Текст</th>
+            <th>Размер скидки в %</th>
+            <th>Использован раз</th>
+            <th>Осталось <br> использований</th>
+            <th>Создан</th>
+            <th>Список транзакций LifePay</th>
+            <th>Активен</th>
+            <th>Удалить</th>
+        </tr>
+        </thead>
+        <tbody id="promocode-table-body"></tbody>
+    </table>
+</div>
+<br>
+<div>
+    <p>Создать промокод:</p>
+    <table>
+        <thead>
+        <tr>
+            <th>Текст</th>
+            <th>Размер скидки в %</th>
+            <th>Количество использований</th>
+            <th>Активен</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><input type="text" required="required" id="promocodeText"></td>
+            <td><input type="number" required="required" id="discountPercent"></td>
+            <td><input type="number" required="required" id="maxUsesNumber"></td>
+            <td><input type="checkbox" id="isActive"></td>
+        </tr>
+        </tbody>
+    </table>
+    <button onclick="savePromocode()">Сохранить промокод</button>
+</div>
+</body>
+</html>

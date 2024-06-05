@@ -1,17 +1,9 @@
 package com.nekromant.telegram.model;
 
 import com.nekromant.telegram.contants.UserType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -20,7 +12,6 @@ import javax.persistence.Id;
 @ToString
 @Builder
 public class UserInfo {
-
     @Id
     private String userName;
 

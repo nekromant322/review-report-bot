@@ -4,6 +4,7 @@ bot:
 
 owner:
   userName: ${OWNER_USER_NAME:Marandyuk_Anatolii}
+  password: ${OWNER_PASSWORD}
 
 
 server:

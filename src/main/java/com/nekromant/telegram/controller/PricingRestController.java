@@ -25,8 +25,9 @@ public class PricingRestController {
     @Modifying
     public ResponseEntity submitNewResumeAnalysisRequest(@RequestParam("form_data") MultipartFile formData,
                                                          @RequestHeader("TG-NAME") String tgName,
-                                                         @RequestHeader("PHONE") String phone) throws Exception {
-        return resumeAnalysisRequestService.save(formData.getBytes(), tgName, phone);
+                                                         @RequestHeader("PHONE") String phone,
+                                                         @RequestHeader("CV-PROMOCODE-ID") String CVPromocodeId) throws Exception {
+        return resumeAnalysisRequestService.save(formData.getBytes(), tgName, phone, CVPromocodeId);
     }
 
     @PostMapping("/mentoring")
@@ -42,5 +43,10 @@ public class PricingRestController {
     @GetMapping("/mentoring/price")
     public String getMentoringPrice() {
         return priceProperties.getMentoringSubscription();
+    }
+
+    @GetMapping("/roasting/price")
+    public String getRoastingPrice() {
+        return priceProperties.getResumeReview();
     }
 }

@@ -28,9 +28,9 @@ services:
       POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD:-postgres}
       TELEGRAM_BOT_NAME: ${TELEGRAM_BOT_NAME:-MentoringReviewBot}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
-
       LIFE_PAY_LOGIN: ${LIFE_PAY_LOGIN}
       LIFE_PAY_KEY: ${LIFE_PAY_KEY}
+      OWNER_PASSWORD: ${OWNER_PASSWORD}
     ports:
       - "9100:8080"
     logging:
