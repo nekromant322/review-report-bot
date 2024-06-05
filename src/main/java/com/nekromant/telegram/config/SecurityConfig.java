@@ -27,8 +27,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${owner.password}")
     private String ownerPassword;
-    private UserDetailsService userDetailsService = new UserDetailsService() {
 
+    private UserDetailsService userDetailsService = new UserDetailsService() {
 
         @Override
         public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
