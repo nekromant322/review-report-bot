@@ -54,19 +54,14 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            
             echo REVIEW_BOT_DB_USER = ${{ secrets.REVIEW_BOT_DB_USER }} >> review-bot-env.txt
             echo REVIEW_BOT_DB_PASSWORD = ${{ secrets.REVIEW_BOT_DB_PASSWORD }} >> review-bot-env.txt
-            
-            
-            
             echo TELEGRAM_BOT_TOKEN = ${{ secrets.TELEGRAM_BOT_TOKEN }} >> review-bot-env.txt
-            
+            echo TELEGRAM_BOT_NAME = MentoringReviewBot >> review-bot-env.txt
             echo LIFE_PAY_LOGIN = ${{ secrets.LIFE_PAY_LOGIN }} >> review-bot-env.txt
             echo LIFE_PAY_KEY = ${{ secrets.LIFE_PAY_KEY }} >> review-bot-env.txt
-            echo TELEGRAM_BOT_NAME = MentoringReviewBot >> review-bot-env.txt
-            
-            
+            echo OWNER_PASSWORD = ${{secrets.OWNER_PASSWORD}} >> review-bot-env.txt
+                       
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker stop review-bot
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rm review-bot
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rmi nekromant322/review-bot
