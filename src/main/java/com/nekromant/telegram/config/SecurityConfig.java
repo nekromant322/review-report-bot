@@ -32,15 +32,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         @Override
         public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-
+            if (!userName.equals(ownerUserName)) {
+                throw new UsernameNotFoundException(userName + "not found");
+            }
             UserDetails userDetails = new UserDetails() {
 
                 @Override
                 public Collection<? extends GrantedAuthority> getAuthorities() {
-
                     GrantedAuthority role = new GrantedAuthority() {
                         private String title = "ROLE_admin";
-
                         @Override
                         public String getAuthority() {
                             return title;
@@ -56,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 @Override
                 public String getUsername() {
-                    return ownerUserName;
+                    return userName;
                 }
 
                 @Override
