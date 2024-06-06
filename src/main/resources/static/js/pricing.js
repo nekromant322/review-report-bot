@@ -144,7 +144,7 @@ async function roastingPromocodePricing() {
         return;
     }
 
-    let response = await fetch("./promocode?text=" + promocodeInput);
+    let response = await fetch("./promocodes?text=" + promocodeInput);
 
     if (response.status == 404) {
         alert("Промокода с таким текстом не существует!");
@@ -153,6 +153,10 @@ async function roastingPromocodePricing() {
     let cv_promocode = await response.json();
     if (!cv_promocode.active || cv_promocode.maxUsesNumber <= cv_promocode.counterUsed) {
         alert("Этот промокод недоступен!\nПопробуйте другой...");
+        return;
+    }
+    if (cv_promocode.serviceType != "RESUME") {
+        alert('Промокод не соответствует желаемой услуге!');
         return;
     }
 

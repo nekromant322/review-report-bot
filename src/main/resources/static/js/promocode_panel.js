@@ -1,7 +1,21 @@
 getPromocodeList();
+getServiceTypeSet();
+
+async function getServiceTypeSet() {
+    await fetch("./servicetypes")
+        .then(response => response.json())
+        .then(values => {
+            let serviceTypes = document.getElementById("serviceType");
+            for (let i = 0; i < values.length; i++) {
+                serviceTypes.innerHTML += `
+                    <option value="${values[i]}">${values[i]}</option>
+                `
+            }
+        })
+}
 
 async function getPromocodeList() {
-    await fetch("./promocode")
+    await fetch("./promocodes")
         .then(response => response.json())
         .then(promocodeList => {
             let table = document.getElementById("promocode-table-body");
@@ -16,6 +30,7 @@ async function getPromocodeList() {
             <td>${promocodeList[i].created}</td>
             <td><a href="" onclick="getLifePayTransactionsSet(${i})">Посмотреть</a></td>
             <td><input type="checkbox" id="${promocodeList[i].id}_isActive" onclick="updateSingleIsActive(${promocodeList[i].id})"></td>
+            <td>${promocodeList[i].serviceType}</td>
             <td><button onclick="deletePromocode(${promocodeList[i].id})">Удалить</button></td>
             `;
             }
@@ -28,14 +43,13 @@ async function getPromocodeList() {
 }
 
 async function savePromocode() {
-    // let promocodeList = JSON.parse(localStorage.getItem('promocodeList'));
     let promocodeText = document.getElementById("promocodeText").value;
     if (promocodeText.length === 0) {
         alert('должен быть текст');
         return;
     }
 
-    let response = await fetch("promocode?text=" + promocodeText)
+    let response = await fetch("promocodes?text=" + promocodeText)
     if (await response.status != 404) {
         alert("Текст промокода должен быть уникальным!");
         return;
@@ -58,13 +72,15 @@ async function savePromocode() {
     }
 
     let isActive = document.getElementById("isActive").checked;
+    let serviceType = document.getElementById("serviceType").value;
     let newPromoCode = {
         promocodeText: promocodeText,
         discountPercent: discountPercent,
         maxUsesNumber: maxUsesNumber,
-        isActive: isActive
+        isActive: isActive,
+        serviceType: serviceType
     };
-    await fetch("./promocode", {
+    await fetch("./promocodes", {
         method: "POST",
         body: JSON.stringify(newPromoCode),
         headers: {
@@ -75,7 +91,7 @@ async function savePromocode() {
 }
 
 async function deletePromocode(promocode_id) {
-    await fetch("./promocode", {
+    await fetch("./promocodes", {
         method: "DELETE",
         body: JSON.stringify({
             promocode_id: promocode_id
@@ -89,7 +105,7 @@ async function deletePromocode(promocode_id) {
 
 async function updateSingleIsActive(promocode_id) {
     let isActive = document.getElementById(promocode_id + "_isActive").checked;
-    await fetch("./promocode/isactive", {
+    await fetch("./promocodes/isactive", {
         method: "PATCH",
         body: JSON.stringify({
             promocode_id: promocode_id,
