@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/promocode")
+@RequestMapping("/promocodes")
 public class PromocodeRestController {
     @Autowired
     private PromocodeService promocodeService;

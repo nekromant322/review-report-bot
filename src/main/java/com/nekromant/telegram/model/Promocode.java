@@ -1,5 +1,6 @@
 package com.nekromant.telegram.model;
 
+import com.nekromant.telegram.contants.ServiceType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,8 @@ public class Promocode {
     private int maxUsesNumber;
 
     private boolean isActive;
+
+    private ServiceType serviceType;
 
     @OneToMany(fetch = FetchType.EAGER)
     private Set<PaymentDetails> paymentDetailsSet;

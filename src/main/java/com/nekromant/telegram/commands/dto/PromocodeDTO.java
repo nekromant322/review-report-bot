@@ -1,5 +1,6 @@
 package com.nekromant.telegram.commands.dto;
 
+import com.nekromant.telegram.contants.ServiceType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,4 +18,6 @@ public class PromocodeDTO {
     private int maxUsesNumber;
 
     private boolean isActive;
+
+    private ServiceType serviceType;
 }
