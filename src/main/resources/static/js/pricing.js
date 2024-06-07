@@ -155,7 +155,8 @@ async function roastingPromocodePricing() {
         alert("Этот промокод недоступен!\nПопробуйте другой...");
         return;
     }
-    if (cv_promocode.serviceType != "RESUME") {
+
+    if (!await checkPromocodeCompatibility("RESUME", cv_promocode.id)) {
         alert('Промокод не соответствует желаемой услуге!');
         return;
     }
@@ -173,4 +174,10 @@ async function roastingPromocodePricing() {
     }
     document.getElementById("submit_button_roasting").innerHTML = `К оплате <s>${cv_price}</s> ${discount_price} р.`;
     document.getElementById("roasting_promocode_input_block").innerHTML = ``;
+}
+
+async function checkPromocodeCompatibility(serviceType, promocodeId) {
+    return fetch("./servicetypes/checkpromocode?promocode_id=" + promocodeId + "&service_type=" + serviceType)
+        .then(response => response.text())
+        .then(text => JSON.parse(text));
 }
