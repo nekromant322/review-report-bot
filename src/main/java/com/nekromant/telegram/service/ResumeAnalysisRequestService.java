@@ -2,11 +2,9 @@ package com.nekromant.telegram.service;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.ChequeDTO;
 import com.nekromant.telegram.commands.dto.LifePayResponseDTO;
 import com.nekromant.telegram.commands.feign.LifePayFeign;
-import com.nekromant.telegram.commands.feign.TelegramFeign;
 import com.nekromant.telegram.config.LifePayProperties;
 import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.contants.ServiceType;
@@ -15,19 +13,14 @@ import com.nekromant.telegram.model.Promocode;
 import com.nekromant.telegram.model.ResumeAnalysisRequest;
 import com.nekromant.telegram.repository.PaymentDetailsRepository;
 import com.nekromant.telegram.repository.ResumeAnalysisRequestRepository;
-import feign.form.FormData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.ws.rs.core.MediaType;
 import java.util.Set;
 
-import static com.nekromant.telegram.contants.MessageContants.RESPONSE_FOR_RESUME_PROJARKA;
 import static com.nekromant.telegram.contants.MessageContants.RESUME_OFFER_DESCRIPTION;
 import static java.rmi.server.LogStream.log;
 
@@ -42,17 +35,9 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestService {
     @Autowired
     private PromocodeService promocodeService;
     @Autowired
-    private UserInfoService userInfoService;
-    @Autowired
-    private MentoringReviewBot mentoringReviewBot;
-    @Autowired
     private LifePayFeign lifePayFeign;
     @Autowired
-    private TelegramFeign telegramFeign;
-    @Autowired
     private LifePayProperties lifePayProperties;
-    @Value("${owner.userName}")
-    private String ownerUserName;
 
     public ResponseEntity save(byte[] CVPdf, String tgName, String phone, String CVPromocodeId) {
         ResumeAnalysisRequest resumeAnalysisRequest = ResumeAnalysisRequest.builder()
@@ -101,30 +86,4 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestService {
             return ResponseEntity.internalServerError().build();
         }
     }
-
-    @Transactional
-    public void sendCVToMentorForAnalysis(PaymentDetails paymentDetails) {
-        promocodeService.incrementCounterUsed(paymentDetails);
-        paymentDetailsRepository.save(paymentDetails);
-        ResumeAnalysisRequestService.log.info("Payment details have been redeemed:" + paymentDetails);
-
-        byte[] CV_bytes = resumeAnalysisRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getCVPdf();
-        FormData formData = new FormData(MediaType.MULTIPART_FORM_DATA, "document", CV_bytes);
-        String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
-        telegramFeign.sendDocument(formData, receiverId);
-
-        String text = String.format(RESPONSE_FOR_RESUME_PROJARKA,
-                paymentDetails.getNumber(),
-                paymentDetails.getPhone(),
-                resumeAnalysisRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getTgName());
-
-        mentoringReviewBot.sendMessage(receiverId, text);
-        ResumeAnalysisRequestService.log.info(text);
-    }
-
-    public void rejectApplication(PaymentDetails paymentDetails) {
-        paymentDetailsRepository.save(paymentDetails);
-        ResumeAnalysisRequestService.log.info("Payment failed: " + paymentDetails);
-    }
-
 }

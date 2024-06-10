@@ -38,10 +38,6 @@ public class PaymentDetailsRestController {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private ResumeAnalysisRequestService resumeAnalysisRequestService;
-    @Autowired
-    private MentoringSubscriptionRequestService mentoringSubscriptionRequestService;
-    @Autowired
     private ClientPaymentRequestService clientPaymentRequestService;
 
     @PostMapping(value = "/paymentCallback")
@@ -63,24 +59,10 @@ public class PaymentDetailsRestController {
         if (pendingPay != null && pendingPay.getStatus() != PayStatus.SUCCESS) {
             paymentDetails.setServiceType(pendingPay.getServiceType());
             if (paymentDetails.getStatus() == PayStatus.FAIL) {
-                switch (pendingPay.getServiceType()) {
-                    case RESUME:
-                        resumeAnalysisRequestService.rejectApplication(paymentDetails);
-                        break;
-                    case MENTORING:
-                        mentoringSubscriptionRequestService.RejectApplication(paymentDetails);
-                        break;
-                }
+                clientPaymentRequestService.rejectApplication(paymentDetails);
                 return;
             }
-            switch (pendingPay.getServiceType()) {
-                case RESUME:
-                    resumeAnalysisRequestService.sendCVToMentorForAnalysis(paymentDetails);
-                    break;
-                case MENTORING:
-                    mentoringSubscriptionRequestService.sendClientToMentorForSubscription(paymentDetails);
-                    break;
-            }
+            clientPaymentRequestService.notifyMentor(paymentDetails);
             return;
         }
 

@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 import static com.nekromant.telegram.contants.MessageContants.MENTORING_OFFER_DESCRIPTION;
-import static com.nekromant.telegram.contants.MessageContants.RESPONSE_FOR_MENTORING_SUBSCRIPTION;
 import static java.rmi.server.LogStream.log;
 
 @Slf4j
@@ -44,8 +43,6 @@ public class MentoringSubscriptionRequestService {
     private LifePayProperties lifePayProperties;
     @Autowired
     private PriceProperties priceProperties;
-    @Value("${owner.userName}")
-    private String ownerUserName;
 
     public ResponseEntity save(Map mentoringData) {
         MentoringSubscriptionRequest mentoringSubscriptionRequest = MentoringSubscriptionRequest.builder()
@@ -85,26 +82,5 @@ public class MentoringSubscriptionRequestService {
             log("Error while accessing database: " + dataAccessException.getMessage());
             return ResponseEntity.internalServerError().build();
         }
-    }
-
-
-    public void sendClientToMentorForSubscription(PaymentDetails paymentDetails) {
-        paymentDetailsRepository.save(paymentDetails);
-        MentoringSubscriptionRequestService.log.info("Payment details have been redeemed:" + paymentDetails);
-
-        String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
-
-        String text = String.format(RESPONSE_FOR_MENTORING_SUBSCRIPTION,
-                paymentDetails.getNumber(),
-                paymentDetails.getPhone(),
-                mentoringSubscriptionRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getTgName());
-
-        mentoringReviewBot.sendMessage(receiverId, text);
-        MentoringSubscriptionRequestService.log.info(text);
-    }
-
-    public void RejectApplication(PaymentDetails paymentDetails) {
-        paymentDetailsRepository.save(paymentDetails);
-        MentoringSubscriptionRequestService.log.info("Payment failed: " + paymentDetails);
     }
 }
