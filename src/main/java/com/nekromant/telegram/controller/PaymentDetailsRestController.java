@@ -5,12 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
 import com.nekromant.telegram.contants.PayStatus;
-import com.nekromant.telegram.service.ClientPaymentRequestService;
+import com.nekromant.telegram.service.*;
 import com.nekromant.telegram.model.PaymentDetails;
-import com.nekromant.telegram.service.MentoringSubscriptionRequestService;
-import com.nekromant.telegram.service.PaymentDetailsService;
-import com.nekromant.telegram.service.ResumeAnalysisRequestService;
-import com.nekromant.telegram.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.AbstractConverter;
 import org.modelmapper.Converter;
@@ -38,6 +34,8 @@ public class PaymentDetailsRestController {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
+    ClientPaymentRequestServiceProvider paymentRequestServiceProvider;
+
     private ClientPaymentRequestService clientPaymentRequestService;
 
     @PostMapping(value = "/paymentCallback")
@@ -58,6 +56,7 @@ public class PaymentDetailsRestController {
         PaymentDetails pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
         if (pendingPay != null && pendingPay.getStatus() != PayStatus.SUCCESS) {
             paymentDetails.setServiceType(pendingPay.getServiceType());
+            clientPaymentRequestService = paymentRequestServiceProvider.getClientPaymentRequestService(pendingPay.getServiceType());
             if (paymentDetails.getStatus() == PayStatus.FAIL) {
                 clientPaymentRequestService.rejectApplication(paymentDetails);
                 return;

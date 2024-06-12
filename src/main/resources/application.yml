@@ -23,6 +23,8 @@ price:
   mentoring-subscription: ${MENTORING_PRICE:30000}
 
 spring:
+#  main:
+#    allow-circular-references: true
   application:
     name: review-bot
   datasource:
