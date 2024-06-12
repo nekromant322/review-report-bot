@@ -35,7 +35,7 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
 
         ChequeDTO chequeDTO = new ChequeDTO(lifePayProperties.getLogin(),
                 lifePayProperties.getApikey(),
-                priceProperties.getMentoringSubscription(),
+                calculatePriceWithOptionalDiscount(priceProperties.getMentoringSubscription(), null),
                 MENTORING_OFFER_DESCRIPTION,
                 mentoringData.get("PHONE").toString(),
                 lifePayProperties.getMethod());

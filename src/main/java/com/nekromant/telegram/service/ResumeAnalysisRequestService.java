@@ -1,13 +1,12 @@
 package com.nekromant.telegram.service;
 
 import com.nekromant.telegram.commands.dto.ChequeDTO;
-import com.nekromant.telegram.commands.feign.LifePayFeign;
 import com.nekromant.telegram.commands.feign.TelegramFeign;
 import com.nekromant.telegram.config.LifePayProperties;
+import com.nekromant.telegram.config.PriceProperties;
 import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.ResumeAnalysisRequest;
-import com.nekromant.telegram.repository.PaymentDetailsRepository;
 import com.nekromant.telegram.repository.ResumeAnalysisRequestRepository;
 import feign.form.FormData;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +36,10 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestServiceCom
     private TelegramFeign telegramFeign;
     @Autowired
     private LifePayProperties lifePayProperties;
+    @Autowired
+    private PriceProperties priceProperties;
 
-    public ResponseEntity save(byte[] CVPdf, String tgName, String phone, String CVPromocodeId) {
+    public ResponseEntity save(byte[] CVPdf, String tgName, String phone, String promocodeId) {
         ResumeAnalysisRequest resumeAnalysisRequest = ResumeAnalysisRequest.builder()
                 .CVPdf(CVPdf)
                 .tgName(tgName)
@@ -47,12 +48,12 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestServiceCom
 
         ChequeDTO chequeDTO = new ChequeDTO(lifePayProperties.getLogin(),
                 lifePayProperties.getApikey(),
-                calculatePriceWithOptionalDiscount(CVPromocodeId, this.getClass().getSimpleName()),
+                calculatePriceWithOptionalDiscount(priceProperties.getResumeReview(), promocodeId),
                 RESUME_OFFER_DESCRIPTION,
                 phone,
                 lifePayProperties.getMethod());
 
-        return save(ServiceType.RESUME, chequeDTO, resumeAnalysisRequest, resumeAnalysisRequestRepository, CVPromocodeId);
+        return save(ServiceType.RESUME, chequeDTO, resumeAnalysisRequest, resumeAnalysisRequestRepository, promocodeId);
     }
 
     public void notifyMentor(PaymentDetails paymentDetails) {

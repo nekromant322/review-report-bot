@@ -12,7 +12,7 @@ import javax.persistence.Lob;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @SuperBuilder
 public class ResumeAnalysisRequest extends ClientPaymentRequest {
     @Column(name = "cv_pdf")
@@ -24,4 +24,11 @@ public class ResumeAnalysisRequest extends ClientPaymentRequest {
     int CVPdfLength() {
         return this.CVPdf == null ? 0 : getCVPdf().length;
     }
+
+//    public String toString() {
+//        return this.getClass().getSimpleName() + "(" + "tgName=" + tgName
+//                + ", customerPhone=" + customerPhone
+//                + ", lifePayTransactionNumber=" + lifePayTransactionNumber
+//                + ", CVPdf.length=" + (CVPdf == null ? 0 : getCVPdf().length) + ")";
+//    }
 }

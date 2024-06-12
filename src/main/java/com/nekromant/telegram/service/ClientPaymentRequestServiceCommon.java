@@ -6,7 +6,6 @@ import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.ChequeDTO;
 import com.nekromant.telegram.commands.dto.LifePayResponseDTO;
 import com.nekromant.telegram.commands.feign.LifePayFeign;
-import com.nekromant.telegram.config.PriceProperties;
 import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.model.ClientPaymentRequest;
@@ -33,8 +32,6 @@ public class ClientPaymentRequestServiceCommon {
 
     @Autowired
     private PromocodeService promocodeService;
-    @Autowired
-    private PriceProperties priceProperties;
     @Autowired
     private PaymentDetailsService paymentDetailsService;
     @Autowired
@@ -68,7 +65,7 @@ public class ClientPaymentRequestServiceCommon {
 
             paymentRequest.setLifePayTransactionNumber(lifePayResponse.getData().getNumber());
             repository.save(paymentRequest);
-            logInfoByRequestServiceType(serviceType, "New resume analysis request created: " + paymentRequest);
+            logInfoByRequestServiceType(serviceType, "New client payment request created: " + paymentRequest);
 
             Promocode promocode = promocodeService.findById(promocodeId);
             if (promocode != null) {
@@ -88,23 +85,6 @@ public class ClientPaymentRequestServiceCommon {
 
     }
 
-
-    public String calculatePriceWithOptionalDiscount(String CVPromocodeId, String clientPaymentRequestService) {
-        String basePrice = "";
-        switch (clientPaymentRequestService) {
-            case "ResumeAnalysisRequestService":
-                basePrice = priceProperties.getResumeReview();
-                break;
-            case "MentoringSubscriptionRequest":
-                basePrice = priceProperties.getMentoringSubscription();
-                break;
-        }
-
-        if (CVPromocodeId.equals("null")) return basePrice;
-        return String.valueOf(Math.round(Double.parseDouble(basePrice) * (1 - promocodeService.findById(CVPromocodeId).getDiscountPercent() / 100)));
-    }
-
-
     public void notifyMentor(PaymentDetails paymentDetails, String text) {
         paymentDetailsService.save(paymentDetails);
         logInfoByRequestServiceType(paymentDetails.getServiceType(), "Payment details have been redeemed:" + paymentDetails);
@@ -118,6 +98,11 @@ public class ClientPaymentRequestServiceCommon {
         logInfoByRequestServiceType(paymentDetails.getServiceType(), "Payment failed: " + paymentDetails);
     }
 
+    public String calculatePriceWithOptionalDiscount(String basePrice, String promocodeId) {
+        Promocode promocode = promocodeService.findById(promocodeId);
+        if (promocode == null) return basePrice;
+        return String.valueOf(Math.round(Double.parseDouble(basePrice) * (1 - promocode.getDiscountPercent() / 100)));
+    }
 
     public void logInfoByRequestServiceType(ServiceType serviceType, String logMessage) {
         Class serviceClass = null;
