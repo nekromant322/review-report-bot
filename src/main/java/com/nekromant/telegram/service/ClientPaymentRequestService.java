@@ -1,31 +1,12 @@
 package com.nekromant.telegram.service;
 
-import com.nekromant.telegram.config.PriceProperties;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.nekromant.telegram.contants.ServiceType;
+import com.nekromant.telegram.model.PaymentDetails;
 
-@Slf4j
-@Service
-public class ClientPaymentRequestService {
-    @Autowired
-    private PromocodeService promocodeService;
-    @Autowired
-    private PriceProperties priceProperties;
+public interface ClientPaymentRequestService {
+    public void notifyMentor(PaymentDetails paymentDetails);
 
-    public String calculatePriceWithOptionalDiscount(String CVPromocodeId, String clientPaymentRequestService) {
-        String basePrice = "";
-        switch (clientPaymentRequestService) {
-            case "ResumeAnalysisRequestService":
-                basePrice = priceProperties.getResumeReview();
-                break;
-            case "MentoringSubscriptionRequest":
-                basePrice = priceProperties.getMentoringSubscription();
-                break;
-        }
+    public void rejectApplication(PaymentDetails paymentDetails);
 
-        if (CVPromocodeId.equals("null")) return basePrice;
-        return String.valueOf(Math.round(Double.parseDouble(basePrice) * (1 - promocodeService.findById(CVPromocodeId).getDiscountPercent() / 100)));
-    }
-
+    public ServiceType getType();
 }

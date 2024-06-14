@@ -12,7 +12,7 @@ import javax.persistence.Lob;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @SuperBuilder
 public class ResumeAnalysisRequest extends ClientPaymentRequest {
     @Column(name = "cv_pdf")

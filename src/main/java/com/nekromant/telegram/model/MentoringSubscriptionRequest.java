@@ -12,7 +12,7 @@ import javax.persistence.Entity;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @SuperBuilder
 public class MentoringSubscriptionRequest extends ClientPaymentRequest {
 

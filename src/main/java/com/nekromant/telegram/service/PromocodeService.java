@@ -42,8 +42,8 @@ public class PromocodeService {
         promocodeRepository.save(promocode);
     }
 
-    public Promocode findById(String cvPromocodeId) {
-        return !cvPromocodeId.equals("null") ? promocodeRepository.findById(Long.parseLong(cvPromocodeId)).get() : null;
+    public Promocode findById(String promocodeId) {
+        return promocodeId != null && !promocodeId.equals("null") ? promocodeRepository.findById(Long.parseLong(promocodeId)).get() : null;
     }
 
     public Promocode findByPaymentDetailsSetNumber(String number) {
