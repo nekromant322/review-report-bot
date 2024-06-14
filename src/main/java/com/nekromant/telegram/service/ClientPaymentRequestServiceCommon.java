@@ -44,16 +44,15 @@ public class ClientPaymentRequestServiceCommon {
     private LifePayFeign lifePayFeign;
     @Autowired
     private MentoringReviewBot mentoringReviewBot;
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     public ResponseEntity save(ServiceType serviceType, ChequeDTO chequeDTO, ClientPaymentRequest paymentRequest, CrudRepository repository, String promocodeId) {
 
         try {
-            logInfoByRequestServiceType(serviceType, "Sending request to LifePay" + chequeDTO);
-
+            logger.info("Sending request to LifePay: {}", chequeDTO);
             LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
-            logInfoByRequestServiceType(serviceType, "LifePay response: " + lifePayResponse);
+            logger.info("Life pay response: {}", lifePayResponse);
 
             PaymentDetails paymentDetails = PaymentDetails.builder()
                     .number(lifePayResponse.getData().getNumber())
@@ -61,11 +60,11 @@ public class ClientPaymentRequestServiceCommon {
                     .serviceType(serviceType)
                     .build();
             paymentDetailsRepository.save(paymentDetails);
-            logInfoByRequestServiceType(serviceType, "Unredeemed payment created: " + paymentDetails);
+            logger.info("Unredeemed payment created: {}", paymentDetails);
 
             paymentRequest.setLifePayTransactionNumber(lifePayResponse.getData().getNumber());
             repository.save(paymentRequest);
-            logInfoByRequestServiceType(serviceType, "New client payment request created: " + paymentRequest);
+            logger.info("New client payment request created: {}", paymentRequest);
 
             Promocode promocode = promocodeService.findById(promocodeId);
             if (promocode != null) {
@@ -76,7 +75,7 @@ public class ClientPaymentRequestServiceCommon {
             }
             return ResponseEntity.ok(lifePayResponse.getData().getPaymentUrlWeb());
         } catch (JsonParseException jsonParseException) {
-            log("Erorr while parsing Json: " + jsonParseException.getMessage());
+            log("Error while parsing Json: " + jsonParseException.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (DataAccessException dataAccessException) {
             log("Error while accessing database: " + dataAccessException.getMessage());
@@ -87,35 +86,21 @@ public class ClientPaymentRequestServiceCommon {
 
     public void notifyMentor(PaymentDetails paymentDetails, String text) {
         paymentDetailsService.save(paymentDetails);
-        logInfoByRequestServiceType(paymentDetails.getServiceType(), "Payment details have been redeemed:" + paymentDetails);
+        logger.info("Payment details have been redeemed: {}", paymentDetails);
         String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
         mentoringReviewBot.sendMessage(receiverId, text);
-        logInfoByRequestServiceType(paymentDetails.getServiceType(), text);
+        logger.info(text);
     }
 
     public void rejectApplication(PaymentDetails paymentDetails) {
         paymentDetailsService.save(paymentDetails);
-        logInfoByRequestServiceType(paymentDetails.getServiceType(), "Payment failed: " + paymentDetails);
+        logger.info("Payment failed: {}", paymentDetails);
     }
 
     public String calculatePriceWithOptionalDiscount(String basePrice, String promocodeId) {
         Promocode promocode = promocodeService.findById(promocodeId);
         if (promocode == null) return basePrice;
         return String.valueOf(Math.round(Double.parseDouble(basePrice) * (1 - promocode.getDiscountPercent() / 100)));
-    }
-
-    public void logInfoByRequestServiceType(ServiceType serviceType, String logMessage) {
-        Class serviceClass = null;
-        switch (serviceType) {
-            case RESUME:
-                serviceClass = ResumeAnalysisRequestService.class;
-                break;
-            case MENTORING:
-                serviceClass = MentoringSubscriptionRequestService.class;
-                break;
-        }
-        logger = LoggerFactory.getLogger(serviceClass);
-        logger.info(logMessage);
     }
 
     public String generateTextForMentoringBotNotification(PaymentDetails paymentDetails, String response, String tgName) {

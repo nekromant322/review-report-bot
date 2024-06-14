@@ -24,11 +24,4 @@ public class ResumeAnalysisRequest extends ClientPaymentRequest {
     int CVPdfLength() {
         return this.CVPdf == null ? 0 : getCVPdf().length;
     }
-
-//    public String toString() {
-//        return this.getClass().getSimpleName() + "(" + "tgName=" + tgName
-//                + ", customerPhone=" + customerPhone
-//                + ", lifePayTransactionNumber=" + lifePayTransactionNumber
-//                + ", CVPdf.length=" + (CVPdf == null ? 0 : getCVPdf().length) + ")";
-//    }
 }
