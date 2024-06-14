@@ -49,4 +49,8 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
                 mentoringSubscriptionRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getTgName());
         notifyMentor(paymentDetails, text);
     }
+
+    public ServiceType getType(){
+        return ServiceType.MENTORING;
+    }
 }

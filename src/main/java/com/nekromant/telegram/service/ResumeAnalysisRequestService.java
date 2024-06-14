@@ -69,4 +69,8 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestServiceCom
         FormData formData = new FormData(MediaType.MULTIPART_FORM_DATA, "document", CV_bytes);
         telegramFeign.sendDocument(formData, receiverId);
     }
+
+    public ServiceType getType(){
+        return ServiceType.RESUME;
+    }
 }
