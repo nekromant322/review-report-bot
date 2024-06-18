@@ -32,15 +32,15 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
                 .tgName(mentoringData.get("TG-NAME").toString())
                 .customerPhone(mentoringData.get("PHONE").toString())
                 .build();
-
+        String promocodeId = mentoringData.get("MENTORING-PROMOCODE-ID") == null ? null: mentoringData.get("MENTORING-PROMOCODE-ID").toString();
         ChequeDTO chequeDTO = new ChequeDTO(lifePayProperties.getLogin(),
                 lifePayProperties.getApikey(),
-                calculatePriceWithOptionalDiscount(priceProperties.getMentoringSubscription(), null),
+                calculatePriceWithOptionalDiscount(priceProperties.getMentoringSubscription(), promocodeId),
                 MENTORING_OFFER_DESCRIPTION,
                 mentoringData.get("PHONE").toString(),
                 lifePayProperties.getMethod());
 
-        return save(ServiceType.MENTORING, chequeDTO, mentoringSubscriptionRequest, mentoringSubscriptionRequestRepository, null);
+        return save(ServiceType.MENTORING, chequeDTO, mentoringSubscriptionRequest, mentoringSubscriptionRequestRepository, promocodeId);
     }
 
     public void notifyMentor(PaymentDetails paymentDetails) {
@@ -50,7 +50,7 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
         notifyMentor(paymentDetails, text);
     }
 
-    public ServiceType getType(){
+    public ServiceType getType() {
         return ServiceType.MENTORING;
     }
 }
