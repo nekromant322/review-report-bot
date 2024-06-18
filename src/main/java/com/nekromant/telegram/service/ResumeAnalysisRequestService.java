@@ -57,8 +57,6 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestServiceCom
     }
 
     public void notifyMentor(PaymentDetails paymentDetails) {
-        promocodeService.incrementCounterUsed(paymentDetails);
-
         String text = generateTextForMentoringBotNotification(paymentDetails,
                 RESPONSE_FOR_RESUME_PROJARKA,
                 resumeAnalysisRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getTgName());

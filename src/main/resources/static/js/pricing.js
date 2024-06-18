@@ -72,6 +72,7 @@ async function submit_new_client_mentoringSubscription() {
     let tgName = tgNameInput.value;
     let phoneInput = document.getElementById("phone_input_form_mentoring");
     let phone = phoneInput.value;
+    let mentoringPromocodeId = localStorage.getItem("mentoring_promocode_id");
 
     if (tgNameInput.validity.valueMissing) {
         tgNameInput.setCustomValidity('Введите имя пользователя!')
@@ -102,7 +103,8 @@ async function submit_new_client_mentoringSubscription() {
 
     let mentoring_data = {
         'TG-NAME': tgName,
-        'PHONE': phone
+        'PHONE': phone,
+        'MENTORING-PROMOCODE-ID': mentoringPromocodeId
     }
     await fetch("./pricing/mentoring", {
         method: "POST",
@@ -174,6 +176,45 @@ async function roastingPromocodePricing() {
     }
     document.getElementById("submit_button_roasting").innerHTML = `К оплате <s>${cv_price}</s> ${discount_price} р.`;
     document.getElementById("roasting_promocode_input_block").innerHTML = ``;
+}
+
+async function mentoringPromocodePricing() {
+    let promocodeInput = document.getElementById("mentoring_promocode_input").value;
+    if (promocodeInput.length === 0) {
+        alert('Что-то надо ввести');
+        return;
+    }
+
+    let response = await fetch("./promocodes?text=" + promocodeInput);
+
+    if (response.status == 404) {
+        alert("Промокода с таким текстом не существует!");
+        return;
+    }
+    let mentoring_promocode = await response.json();
+    if (!mentoring_promocode.active || mentoring_promocode.maxUsesNumber <= mentoring_promocode.counterUsed) {
+        alert("Этот промокод недоступен!\nПопробуйте другой...");
+        return;
+    }
+
+    if (!await checkPromocodeCompatibility("MENTORING", mentoring_promocode.id)) {
+        alert('Промокод не соответствует желаемой услуге!');
+        return;
+    }
+
+    localStorage.setItem("mentoring_promocode_id", mentoring_promocode.id);
+    let discountPercent = mentoring_promocode.discountPercent;
+
+    response = await fetch("./pricing/mentoring/price");
+    let mentoring_price = await response.text();
+    let discount_price = Math.round(mentoring_price * (1 - discountPercent / 100));
+    if (discount_price == 0) {
+        alert("Сумма к оплате - 0 р.\nТак не должно быть. Выберите другой промокод.\nИли без него");
+        window.location.reload();
+        return;
+    }
+    document.getElementById("submit_button_mentoring").innerHTML = `К оплате <s>${mentoring_price}</s> ${discount_price} р.`;
+    document.getElementById("mentoring_promocode_input_block").innerHTML = ``;
 }
 
 async function checkPromocodeCompatibility(serviceType, promocodeId) {

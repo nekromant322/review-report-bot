@@ -85,6 +85,7 @@ public class ClientPaymentRequestServiceCommon {
     }
 
     public void notifyMentor(PaymentDetails paymentDetails, String text) {
+        promocodeService.incrementCounterUsed(paymentDetails);
         paymentDetailsService.save(paymentDetails);
         logger.info("Payment details have been redeemed: {}", paymentDetails);
         String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
