@@ -14,7 +14,7 @@ jobs:
       - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@master
         with:
-          host: "194.87.237.176"
+          host: "195.133.147.161"
           username: "github-review-bot"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
@@ -49,7 +49,7 @@ jobs:
       - name: Connect with SSH and Deploy
         uses: appleboy/ssh-action@master
         with:
-          host: "194.87.237.176"
+          host: "195.133.147.161"
           username: "github-review-bot"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
