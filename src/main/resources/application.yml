@@ -20,7 +20,7 @@ pay-info:
   method: sbp
 price:
   resume-review: ${REVIEW_PRICE:5000}
-  mentoring-subscription: ${MENTORING_PRICE:30000}
+  mentoring-subscription: ${MENTORING_PRICE:50000}
 
 spring:
   application:
