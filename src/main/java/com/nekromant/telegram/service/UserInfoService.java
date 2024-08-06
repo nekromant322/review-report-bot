@@ -41,6 +41,14 @@ public class UserInfoService {
         }
     }
 
+    public void demoteMentorToUser(String userName) {
+        UserInfo userInfo = userInfoRepository.findUserInfoByUserName(userName);
+        if (userInfo.getUserType() == UserType.MENTOR) {
+            userInfo.setUserType(UserType.DEV);
+            userInfoRepository.save(userInfo);
+        }
+    }
+
     public List<String> getAllStudentUsernames() {
         return userInfoRepository.findAll().stream()
                 .filter(userInfo -> userInfo.getUserType() == UserType.STUDENT)

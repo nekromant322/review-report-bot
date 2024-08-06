@@ -8,6 +8,7 @@ public enum Command {
     REVIEW("review", "Попросить о ревью"),
     GET_MENTORS("get_mentors", "Узнать список менторов"),
     ADD_MENTOR("add_mentor", "Добавить ментора"),
+    DELETE_MENTOR("delete_mentor", "Удалить ментора"),
     REPORT("report", "Отправить отчет"),
     MY_STAT("mystat", "Посмотреть свою статистику"),
     ALL_STAT("allstat", "Посмотреть статистику по всем"),
