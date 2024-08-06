@@ -1,7 +1,6 @@
 package com.nekromant.telegram.commands.mentors;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
-import com.nekromant.telegram.model.Mentor;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
@@ -14,13 +13,12 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import static com.nekromant.telegram.contants.Command.DELETE_MENTOR;
-import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
-import static com.nekromant.telegram.contants.MessageContants.MENTORS_LIST_CHANGED;
+import static com.nekromant.telegram.contants.MessageContants.*;
 
 @Component
 public class DeleteMentorCommand extends MentoringReviewCommand {
 
-    @Value("${OWNER_USER_NAME:Marandyuk_Anatolii}")
+    @Value("${OWNER_USER_NAME}")
     private String ownerUserName;
 
     @Autowired
@@ -49,8 +47,6 @@ public class DeleteMentorCommand extends MentoringReviewCommand {
         try {
             ValidationUtils.validateArguments(arguments);
             String deleteMentorUserName = arguments[0].replaceAll("@", "");
-            Mentor deleteMentor = mentorRepository.findMentorByUserName(deleteMentorUserName);
-            mentorRepository.delete(deleteMentor);
             userInfoService.demoteMentorToUser(deleteMentorUserName);
         } catch (Exception e) {
             message.setText(e.getMessage() + "\n" + "Пример: /delete_mentor @Mentor_Telegram_UserName");

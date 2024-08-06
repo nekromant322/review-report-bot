@@ -1,6 +1,7 @@
 package com.nekromant.telegram.service;
 
 import com.nekromant.telegram.contants.UserType;
+import com.nekromant.telegram.model.Mentor;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.UserInfoRepository;
@@ -10,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,11 +43,12 @@ public class UserInfoService {
         }
     }
 
-    public void demoteMentorToUser(String userName) {
+    public void demoteMentorToUser(String userName) throws Exception {
         UserInfo userInfo = userInfoRepository.findUserInfoByUserName(userName);
         if (userInfo.getUserType() == UserType.MENTOR) {
             userInfo.setUserType(UserType.DEV);
             userInfoRepository.save(userInfo);
+            mentorRepository.delete(mentorRepository.findMentorByUserName(userInfo.getUserName()));
         }
     }
 
@@ -68,6 +71,4 @@ public class UserInfoService {
     public List<UserInfo> getAllUsersReportNotificationsEnabled() {
         return userInfoRepository.findAllByNotifyAboutReportsIsTrue();
     }
-
-
 }
