@@ -20,7 +20,7 @@ import static com.nekromant.telegram.contants.MessageContants.MENTORS_LIST_CHANG
 @Component
 public class DeleteMentorCommand extends MentoringReviewCommand {
 
-    @Value("${OWNER_USER_NAME}")
+    @Value("${owner.userName}")
     private String ownerUserName;
 
     @Autowired
