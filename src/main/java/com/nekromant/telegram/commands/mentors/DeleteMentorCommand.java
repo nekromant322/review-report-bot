@@ -1,7 +1,6 @@
 package com.nekromant.telegram.commands.mentors;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
-import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
