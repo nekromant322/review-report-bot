@@ -24,9 +24,6 @@ public class DeleteMentorCommand extends MentoringReviewCommand {
     private String ownerUserName;
 
     @Autowired
-    private MentorRepository mentorRepository;
-
-    @Autowired
     private UserInfoService userInfoService;
 
     @Autowired
