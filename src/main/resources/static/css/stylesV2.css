@@ -162,6 +162,7 @@ html:has(.popup:not(.popup_hidden)) {
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     cursor: pointer;
 }
 
@@ -217,6 +218,7 @@ html:has(.popup:not(.popup_hidden)) {
     font-size: 24rem;
     font-weight: 700;
     list-style-type: " — ";
+    margin: 0 1vw;
 }
 
 .info .info__block .info__block__list .info__block__list__item {
@@ -233,7 +235,7 @@ html:has(.popup:not(.popup_hidden)) {
 }
 
 .info .info__block .info__block__footer .info__block__footer__price {
-    max-width: 487px;
+    max-width: 30vw;
     font-family: "Roboto Mono", monospace;
     font-size: 47rem;
     font-weight: 700;
@@ -631,6 +633,10 @@ a {
         gap: 20px;
     }
 
+    .info .info__block .info__block__list {
+        margin: initial;
+    }
+
     .info .info__block .info__block__list .info__block__list__item {
         margin: 10px 0;
     }
@@ -641,6 +647,7 @@ a {
 
     .info .info__block .info__block__footer .info__block__footer__price {
         font-size: 35rem;
+        max-width: 50vw;
     }
 
     .button {
