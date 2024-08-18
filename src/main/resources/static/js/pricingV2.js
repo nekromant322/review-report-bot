@@ -19,6 +19,8 @@ const pdfInput = document.getElementById('pdf'),
     form = document.getElementById('form'),
     pdfField = form.querySelector('.field_pdf');
 
+const contractLink = document.querySelector('.field_checkbox a');
+
 clearInput.addEventListener('click', () => {
     try {
         pdfInput.value = null;
@@ -58,6 +60,7 @@ showUpgradeButton.addEventListener('click', () => {
     popupTitle.innerText = 'Апгрейд резюме';
     pdfField.style.display = 'flex';
     pdfInput.required = true;
+    contractLink.href = './others/resume_review_pferta.pdf';
 });
 
 showCallButton.addEventListener('click', () => {
@@ -72,6 +75,7 @@ showMentoringButton.addEventListener('click', () => {
     popupTitle.innerText = 'Менторинг';
     pdfField.style.display = 'none';
     pdfInput.required = false;
+    contractLink.href = './others/mentoring_subscription_pferta.pdf';
 });
 
 popupClose.addEventListener('click', () => {
@@ -81,12 +85,79 @@ popupClose.addEventListener('click', () => {
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (popupTitle.innerText === 'Менторинг') {
+    if (popupTitle.innerText === 'Апгрейд резюме') {
+        submit_new_client_cv_roasting();
+    } else if (popupTitle.innerText === 'Менторинг') {
         submit_new_client_mentoringSubscription();
     }
     popup.classList.add('popup_hidden');
     form.reset();
 });
+
+async function submit_new_client_cv_roasting() {
+    if (popupTitle.innerText !== 'Апгрейд резюме') return;
+    let file = document.getElementById("pdf").files[0];
+    let tgNameInput = document.getElementById("tg");
+    let tgName = tgNameInput.value;
+    let phoneInput = document.getElementById("phone");
+    let phone = phoneInput.value;
+    let cvPromocodeId = localStorage.getItem("cv_promocode_id");
+
+    if (file === null || typeof file == 'undefined') {
+        alert('Выберите pdf файл!');
+        return;
+    }
+
+    if (tgNameInput.validity.valueMissing) {
+        tgNameInput.setCustomValidity('Введите имя пользователя!')
+        tgNameInput.reportValidity();
+        return;
+    }
+    if (tgNameInput.validity.patternMismatch) {
+        tgNameInput.setCustomValidity('Сомнительно, но окэй');
+        tgNameInput.reportValidity();
+
+        const toRemove = ["t.me", "https"];
+        tgName = toRemove.reduce((acc, substr) => acc.replace(new RegExp(substr, 'g'), ''), tgName);
+        tgName = tgName.replace(/[^\w]/g, '');
+    }
+
+    if (phoneInput.validity.valueMissing) {
+        phoneInput.setCustomValidity('Введите телефон!');
+        phoneInput.reportValidity();
+        return;
+    }
+    if (phoneInput.validity.patternMismatch) {
+        phoneInput.setCustomValidity("Чет не похоже на телефон.. \n Уж не ошибся ли ты часом?");
+        phoneInput.reportValidity();
+        return;
+    }
+    phone = phone.replace(/\D/g, '');
+    phone = '7' + phone.substr(phone.length - 10);
+
+    const form_data = new FormData();
+    form_data.append("form_data", file);
+
+    await fetch("./pricing/cv", {
+        method: "POST",
+        body: form_data,
+        headers: {
+            'TG-NAME': tgName,
+            'PHONE': phone,
+            'CV-PROMOCODE-ID': cvPromocodeId
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error('Что-то пошло не так :(');
+        })
+        .then(text => window.open(text).focus())
+        .catch((error => {
+            alert(error)
+        }));
+}
 
 async function submit_new_client_mentoringSubscription() {
     if (popupTitle.innerText !== 'Менторинг') return;
@@ -159,6 +230,45 @@ async function getRoastingPrice() {
     let response = await fetch("./pricing/roasting/price");
     let roasting_price = await response.text();
     document.getElementById("roasting_price").innerHTML += `${roasting_price} руб`;
+}
+
+async function roastingPromocodePricing() {
+    let promocodeInput = document.getElementById("promo").value;
+    if (promocodeInput.length === 0) {
+        alert('Что-то надо ввести');
+        return;
+    }
+
+    let response = await fetch("./promocodes?text=" + promocodeInput);
+
+    if (response.status == 404) {
+        alert("Промокода с таким текстом не существует!");
+        return;
+    }
+    let cv_promocode = await response.json();
+    if (!cv_promocode.active || cv_promocode.maxUsesNumber <= cv_promocode.counterUsed) {
+        alert("Этот промокод недоступен!\nПопробуйте другой...");
+        return;
+    }
+
+    if (!await checkPromocodeCompatibility("RESUME", cv_promocode.id)) {
+        alert('Промокод не соответствует желаемой услуге!');
+        return;
+    }
+
+    localStorage.setItem("cv_promocode_id", cv_promocode.id);
+    let discountPercent = cv_promocode.discountPercent;
+
+    response = await fetch("./pricing/cv/price");
+    let cv_price = await response.text();
+    let discount_price = Math.round(cv_price * (1 - discountPercent / 100));
+    if (discount_price == 0) {
+        alert("Сумма к оплате - 0 р.\nТак не должно быть. Выберите другой промокод.\nИли без него");
+        window.location.reload();
+        return;
+    }
+    document.getElementById("show-upgrade-button").innerHTML = `К оплате <s>${cv_price}</s> ${discount_price} р.`;
+    document.getElementById("promo").disabled = true;
 }
 
 async function mentoringPromocodePricing() {
