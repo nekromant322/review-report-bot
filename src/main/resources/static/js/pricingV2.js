@@ -224,12 +224,14 @@ async function getMentoringPrice() {
     let response = await fetch("./pricing/mentoring/price");
     let mentoring_price = await response.text();
     document.getElementById("mentoring_price").innerHTML += `${mentoring_price} руб/мес`;
+    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${mentoring_price}  р.`;
 }
 
 async function getRoastingPrice() {
     let response = await fetch("./pricing/roasting/price");
     let roasting_price = await response.text();
     document.getElementById("roasting_price").innerHTML += `${roasting_price} руб`;
+    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${roasting_price}  р.`;
 }
 
 async function roastingPromocodePricing() {
@@ -267,7 +269,8 @@ async function roastingPromocodePricing() {
         window.location.reload();
         return;
     }
-    document.getElementById("show-upgrade-button").innerHTML = `К оплате <s>${cv_price}</s> ${discount_price} р.`;
+
+    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${discount_price}  р.`;
     document.getElementById("promo").disabled = true;
 }
 
@@ -306,7 +309,8 @@ async function mentoringPromocodePricing() {
         window.location.reload();
         return;
     }
-    document.getElementById("show-mentoring-button").innerHTML = `К оплате <s>${mentoring_price}</s> ${discount_price} р.`;
+
+    document.getElementById("pay-button").innerHTML = `К оплате ${discount_price} р.`;
     document.getElementById("promo").disabled = true;
 }
 
