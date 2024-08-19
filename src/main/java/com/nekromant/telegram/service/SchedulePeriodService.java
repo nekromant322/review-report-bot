@@ -1,14 +1,24 @@
 package com.nekromant.telegram.service;
 
+import com.nekromant.telegram.dto.BookedReviewDTO;
 import com.nekromant.telegram.model.SchedulePeriod;
+import com.nekromant.telegram.repository.MentorRepository;
+import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.repository.SchedulePeriodRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class SchedulePeriodService {
@@ -19,6 +29,10 @@ public class SchedulePeriodService {
 
     @Autowired
     private SchedulePeriodRepository schedulePeriodRepository;
+    @Autowired
+    private ReviewRequestRepository reviewRequestRepository;
+    @Autowired
+    private MentorRepository mentorRepository;
 
     private Map<String, Long> period = new HashMap<>();
 
@@ -40,11 +54,36 @@ public class SchedulePeriodService {
         period.put("end", end);
     }
 
-    public Long getStart() {
+    public List<BookedReviewDTO> getBookedReviewList(String mentor) {
+        Long startTime = getStart();
+        Long endTime = getEnd();
+        LocalDateTime startDateTime = LocalDate.now(ZoneId.of("Europe/Moscow")).atStartOfDay().plusHours(startTime);
+        LocalDateTime endDateTime = startDateTime.plusHours(endTime <= 12 ? (24 + endTime - startTime) : (endTime - startTime));
+
+        Stream<BookedReviewDTO> streamReviews = reviewRequestRepository
+                .findAllByBookedDateTimeBetween(startDateTime, endDateTime)
+                .stream()
+                .filter(x -> x.getMentorUserName().equals(mentor))
+                .map(x -> new BookedReviewDTO(
+                        x.getStudentUserName(),
+                        "https://t.me/" + x.getStudentUserName(),
+                        x.getMentorUserName(),
+                        x.getTitle().replace("Тема:", ""),
+                        x.getBookedDateTime().toString().replace("T", " "),
+                        false,
+                        mentorRepository.findMentorByUserName(x.getMentorUserName()).getRoomUrl(),
+                        true
+                ))
+                .sorted(Comparator.comparing(BookedReviewDTO::getBookedDateTime));
+
+        return streamReviews.collect(Collectors.toList());
+    }
+
+    private Long getStart() {
         return period.get("start");
     }
 
-    public Long getEnd() {
+    private Long getEnd() {
         return period.get("end");
     }
 
