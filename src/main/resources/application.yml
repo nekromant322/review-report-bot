@@ -29,7 +29,7 @@ spring:
   datasource:
     password: ${POSTGRES_PASSWORD:postgres}
     username: ${POSTGRES_USER:postgres}
-    url: jdbc:postgresql://${POSTGRES_HOST:host.docker.internal}:${TELEGRAM_BOT_DB_PORT:5436}/review_bot
+    url: jdbc:postgresql://${DB_HOST:host.docker.internal}:${DB_PORT:5436}/review_bot
     driver-class-name: org.postgresql.Driver
   servlet:
     multipart:

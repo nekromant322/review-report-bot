@@ -14,7 +14,7 @@ jobs:
       - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@master
         with:
-          host: "195.133.147.161"
+          host: "194.87.96.29"
           username: "github-review-bot"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
@@ -49,10 +49,12 @@ jobs:
       - name: Connect with SSH and Deploy
         uses: appleboy/ssh-action@master
         with:
-          host: "195.133.147.161"
+          host: "194.87.96.29"
           username: "github-review-bot"
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_ZURICH }}
           script: |
+            echo DB_HOST = 195.133.147.161 >> review-bot-env.txt
+            echo DB_PORT = 5436 >> review-bot-env.txt
             echo REVIEW_BOT_DB_USER = ${{ secrets.REVIEW_BOT_DB_USER }} >> review-bot-env.txt
             echo REVIEW_BOT_DB_PASSWORD = ${{ secrets.REVIEW_BOT_DB_PASSWORD }} >> review-bot-env.txt
             echo TELEGRAM_BOT_TOKEN = ${{ secrets.TELEGRAM_BOT_TOKEN }} >> review-bot-env.txt
@@ -72,4 +74,4 @@ jobs:
             sudo -S docker compose -f docker-compose.yml --env-file=review-bot-env.txt up -d
             sudo -S docker ps -a  
             
-            rm review-bot-env.txt
+#            rm review-bot-env.txt
