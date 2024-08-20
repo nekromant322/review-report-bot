@@ -17,9 +17,8 @@ const pdfInput = document.getElementById('pdf'),
     showCallButton = document.getElementById('show-call-button'),
     popupClose = document.getElementById('popup-close'),
     form = document.getElementById('form'),
-    pdfField = form.querySelector('.field_pdf');
-
-const contractLink = document.querySelector('.field_checkbox a');
+    pdfField = form.querySelector('.field_pdf'),
+    contractLink = document.querySelector('.field_checkbox a');
 
 clearInput.addEventListener('click', () => {
     try {
@@ -55,12 +54,16 @@ callButton.addEventListener('click', () => {
     call.scrollIntoView({behavior: 'smooth'});
 });
 
-showUpgradeButton.addEventListener('click', () => {
+showUpgradeButton.addEventListener('click', async () => {
     popup.classList.remove('popup_hidden');
     popupTitle.innerText = 'Апгрейд резюме';
     pdfField.style.display = 'flex';
     pdfInput.required = true;
     contractLink.href = './others/resume_review_pferta.pdf';
+
+    let response = await fetch("./pricing/roasting/price");
+    let roasting_price = await response.text();
+    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${roasting_price}  р.`;
 });
 
 showCallButton.addEventListener('click', () => {
@@ -70,12 +73,16 @@ showCallButton.addEventListener('click', () => {
     pdfInput.required = false;
 });
 
-showMentoringButton.addEventListener('click', () => {
+showMentoringButton.addEventListener('click', async () => {
     popup.classList.remove('popup_hidden');
     popupTitle.innerText = 'Менторинг';
     pdfField.style.display = 'none';
     pdfInput.required = false;
     contractLink.href = './others/mentoring_subscription_pferta.pdf';
+
+    let response = await fetch("./pricing/mentoring/price");
+    let mentoring_price = await response.text();
+    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${mentoring_price}  р.`;
 });
 
 popupClose.addEventListener('click', () => {
@@ -224,14 +231,12 @@ async function getMentoringPrice() {
     let response = await fetch("./pricing/mentoring/price");
     let mentoring_price = await response.text();
     document.getElementById("mentoring_price").innerHTML += `${mentoring_price} руб/мес`;
-    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${mentoring_price}  р.`;
 }
 
 async function getRoastingPrice() {
     let response = await fetch("./pricing/roasting/price");
     let roasting_price = await response.text();
     document.getElementById("roasting_price").innerHTML += `${roasting_price} руб`;
-    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${roasting_price}  р.`;
 }
 
 async function roastingPromocodePricing() {
@@ -310,7 +315,7 @@ async function mentoringPromocodePricing() {
         return;
     }
 
-    document.getElementById("pay-button").innerHTML = `К оплате ${discount_price} р.`;
+    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${discount_price} р.`;
     document.getElementById("promo").disabled = true;
 }
 
