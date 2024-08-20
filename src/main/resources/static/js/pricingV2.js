@@ -102,13 +102,14 @@ form.addEventListener('submit', async (event) => {
 });
 
 async function submit_new_client_cv_roasting() {
-    if (popupTitle.innerText !== 'Апгрейд резюме') return;
+    if (popupTitle.innerText!== 'Апгрейд резюме') return;
+    let cvPromocodeId = localStorage.getItem("cv_promocode_id");
+    localStorage.removeItem("cv_promocode_id");
     let file = document.getElementById("pdf").files[0];
     let tgNameInput = document.getElementById("tg");
     let tgName = tgNameInput.value;
     let phoneInput = document.getElementById("phone");
     let phone = phoneInput.value;
-    let cvPromocodeId = localStorage.getItem("cv_promocode_id");
 
     if (file === null || typeof file == 'undefined') {
         alert('Выберите pdf файл!');
@@ -145,14 +146,21 @@ async function submit_new_client_cv_roasting() {
     const form_data = new FormData();
     form_data.append("form_data", file);
 
+    const headers = {
+        'TG-NAME': tgName,
+        'PHONE': phone
+    };
+
+    if (cvPromocodeId!== null) {
+        headers['CV-PROMOCODE-ID'] = cvPromocodeId;
+    } else {
+        headers['CV-PROMOCODE-ID'] = null;
+    }
+
     await fetch("./pricing/cv", {
         method: "POST",
         body: form_data,
-        headers: {
-            'TG-NAME': tgName,
-            'PHONE': phone,
-            'CV-PROMOCODE-ID': cvPromocodeId
-        }
+        headers: headers
     })
         .then(response => {
             if (response.ok) {
@@ -167,12 +175,13 @@ async function submit_new_client_cv_roasting() {
 }
 
 async function submit_new_client_mentoringSubscription() {
-    if (popupTitle.innerText !== 'Менторинг') return;
+    if (popupTitle.innerText!== 'Менторинг') return;
+    let mentoringPromocodeId = localStorage.getItem("mentoring_promocode_id");
+    localStorage.removeItem("mentoring_promocode_id");
     let tgNameInput = document.getElementById("tg");
     let tgName = tgNameInput.value;
     let phoneInput = document.getElementById("phone");
     let phone = phoneInput.value;
-    let mentoringPromocodeId = localStorage.getItem("mentoring_promocode_id");
 
     if (tgNameInput.validity.valueMissing) {
         tgNameInput.setCustomValidity('Введите имя пользователя!')
@@ -203,8 +212,12 @@ async function submit_new_client_mentoringSubscription() {
 
     let mentoring_data = {
         'TG-NAME': tgName,
-        'PHONE': phone,
-        'MENTORING-PROMOCODE-ID': mentoringPromocodeId
+        'PHONE': phone
+    }
+    if (mentoringPromocodeId!== null) {
+        mentoring_data['MENTORING-PROMOCODE-ID'] = mentoringPromocodeId;
+    } else {
+        mentoring_data['MENTORING-PROMOCODE-ID'] = null;
     }
 
     await fetch("./pricing/mentoring", {
