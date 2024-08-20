@@ -20,6 +20,10 @@ const pdfInput = document.getElementById('pdf'),
     pdfField = form.querySelector('.field_pdf'),
     contractLink = document.querySelector('.field_checkbox a');
 
+const CV_TITLE = 'Апгрейд резюме',
+    MENTORING_TITLE = 'Менторинг',
+    CALL_TITLE = 'Созвон';
+
 clearInput.addEventListener('click', () => {
     try {
         pdfInput.value = null;
@@ -56,7 +60,7 @@ callButton.addEventListener('click', () => {
 
 showUpgradeButton.addEventListener('click', async () => {
     popup.classList.remove('popup_hidden');
-    popupTitle.innerText = 'Апгрейд резюме';
+    popupTitle.innerText = CV_TITLE;
     pdfField.style.display = 'flex';
     pdfInput.required = true;
     contractLink.href = './others/resume_review_pferta.pdf';
@@ -68,14 +72,14 @@ showUpgradeButton.addEventListener('click', async () => {
 
 showCallButton.addEventListener('click', () => {
     popup.classList.remove('popup_hidden');
-    popupTitle.innerText = 'Созвон';
+    popupTitle.innerText = CALL_TITLE;
     pdfField.style.display = 'none';
     pdfInput.required = false;
 });
 
 showMentoringButton.addEventListener('click', async () => {
     popup.classList.remove('popup_hidden');
-    popupTitle.innerText = 'Менторинг';
+    popupTitle.innerText = MENTORING_TITLE;
     pdfField.style.display = 'none';
     pdfInput.required = false;
     contractLink.href = './others/mentoring_subscription_pferta.pdf';
@@ -92,9 +96,9 @@ popupClose.addEventListener('click', () => {
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (popupTitle.innerText === 'Апгрейд резюме') {
+    if (popupTitle.innerText === CV_TITLE) {
         submit_new_client_cv_roasting();
-    } else if (popupTitle.innerText === 'Менторинг') {
+    } else if (popupTitle.innerText === MENTORING_TITLE) {
         submit_new_client_mentoringSubscription();
     }
     popup.classList.add('popup_hidden');
@@ -102,7 +106,9 @@ form.addEventListener('submit', async (event) => {
 });
 
 async function submit_new_client_cv_roasting() {
-    if (popupTitle.innerText!== 'Апгрейд резюме') return;
+    if (popupTitle.innerText !== CV_TITLE) {
+        return;
+    }
     let cvPromocodeId = localStorage.getItem("cv_promocode_id");
     localStorage.removeItem("cv_promocode_id");
     let file = document.getElementById("pdf").files[0];
@@ -175,7 +181,9 @@ async function submit_new_client_cv_roasting() {
 }
 
 async function submit_new_client_mentoringSubscription() {
-    if (popupTitle.innerText!== 'Менторинг') return;
+    if (popupTitle.innerText !== MENTORING_TITLE) {
+        return;
+    }
     let mentoringPromocodeId = localStorage.getItem("mentoring_promocode_id");
     localStorage.removeItem("mentoring_promocode_id");
     let tgNameInput = document.getElementById("tg");
@@ -342,9 +350,9 @@ getMentoringPrice();
 getRoastingPrice();
 
 document.getElementById("promo").addEventListener('input', () => {
-    if (popupTitle.innerText === 'Апгрейд резюме') {
+    if (popupTitle.innerText === CV_TITLE) {
         roastingPromocodePricing();
-    } else if (popupTitle.innerText === 'Менторинг') {
+    } else if (popupTitle.innerText === MENTORING_TITLE) {
         mentoringPromocodePricing();
     }
 });
