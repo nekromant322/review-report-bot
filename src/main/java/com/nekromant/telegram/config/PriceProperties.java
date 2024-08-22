@@ -15,5 +15,7 @@ public class PriceProperties {
 
     private String mentoringSubscription;
 
+    private String personalCall;
+
     private String userName;
 }

@@ -70,11 +70,16 @@ showUpgradeButton.addEventListener('click', async () => {
     document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${roasting_price}  р.`;
 });
 
-showCallButton.addEventListener('click', () => {
+showCallButton.addEventListener('click', async () => {
     popup.classList.remove('popup_hidden');
     popupTitle.innerText = CALL_TITLE;
     pdfField.style.display = 'none';
     pdfInput.required = false;
+    contractLink.href = './static/assets/avatar.png';
+
+    let response = await fetch("./pricing/call/price");
+    let call_price = await response.text();
+    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${call_price}  р.`;
 });
 
 showMentoringButton.addEventListener('click', async () => {
@@ -100,6 +105,8 @@ form.addEventListener('submit', async (event) => {
         submit_new_client_cv_roasting();
     } else if (popupTitle.innerText === MENTORING_TITLE) {
         submit_new_client_mentoringSubscription();
+    } else if (popupTitle.innerText === CALL_TITLE) {
+        submit_new_client_personalCall();
     }
     popup.classList.add('popup_hidden');
     form.reset();
@@ -248,6 +255,74 @@ async function submit_new_client_mentoringSubscription() {
         }));
 }
 
+async function submit_new_client_personalCall() {
+    if (popupTitle.innerText !== CALL_TITLE) {
+        return;
+    }
+    let callPromocodeId = localStorage.getItem("call_promocode_id");
+    localStorage.removeItem("call_promocode_id");
+    let tgNameInput = document.getElementById("tg");
+    let tgName = tgNameInput.value;
+    let phoneInput = document.getElementById("phone");
+    let phone = phoneInput.value;
+
+    if (tgNameInput.validity.valueMissing) {
+        tgNameInput.setCustomValidity('Введите имя пользователя!')
+        tgNameInput.reportValidity();
+        return;
+    }
+    if (tgNameInput.validity.patternMismatch) {
+        const toRemove = ["t.me", "https"];
+        tgName = toRemove.reduce((acc, substr) => acc.replace(new RegExp(substr, 'g'), ''), tgName);
+        tgName = tgName.replace(/[^\w]/g, '');
+
+        tgNameInput.setCustomValidity('Сомнительно, но окэй');
+        tgNameInput.reportValidity();
+    }
+
+    if (phoneInput.validity.valueMissing) {
+        phoneInput.setCustomValidity('Введите телефон!');
+        phoneInput.reportValidity();
+        return;
+    }
+    if (phoneInput.validity.patternMismatch) {
+        phoneInput.setCustomValidity("Чет не похоже на телефон.. \n Уж не ошибся ли ты часом?");
+        phoneInput.reportValidity();
+        return;
+    }
+    phone = phone.replace(/\D/g, '');
+    phone = '7' + phone.substr(phone.length - 10);
+
+    let call_data = {
+        'TG-NAME': tgName,
+        'PHONE': phone
+    }
+    if (callPromocodeId !== null) {
+        call_data['CALL-PROMOCODE-ID'] = callPromocodeId;
+    } else {
+        call_data['CALL-PROMOCODE-ID'] = null;
+    }
+
+    await fetch("./pricing/call", {
+        method: "POST",
+        body: JSON.stringify(call_data),
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                throw new Error('Что-то пошло не так :(');
+            }
+        })
+        .then(text => window.open(text).focus())
+        .catch((error => {
+            alert(error)
+        }));
+}
+
 async function getMentoringPrice() {
     let response = await fetch("./pricing/mentoring/price");
     let mentoring_price = await response.text();
@@ -258,6 +333,12 @@ async function getRoastingPrice() {
     let response = await fetch("./pricing/roasting/price");
     let roasting_price = await response.text();
     document.getElementById("roasting_price").innerHTML += `${roasting_price} руб`;
+}
+
+async function getCallPrice() {
+    let response = await fetch("./pricing/call/price");
+    let call_price = await response.text();
+    document.getElementById("call_price").innerHTML += `${call_price} руб`;
 }
 
 async function roastingPromocodePricing() {
@@ -340,6 +421,46 @@ async function mentoringPromocodePricing() {
     document.getElementById("promo").disabled = true;
 }
 
+async function callPromocodePricing() {
+    let promocodeInput = document.getElementById("promo").value;
+    if (promocodeInput.length === 0) {
+        alert('Что-то надо ввести');
+        return;
+    }
+
+    let response = await fetch("./promocodes?text=" + promocodeInput);
+
+    if (response.status == 404) {
+        alert("Промокода с таким текстом не существует!");
+        return;
+    }
+    let call_promocode = await response.json();
+    if (!call_promocode.active || call_promocode.maxUsesNumber <= call_promocode.counterUsed) {
+        alert("Этот промокод недоступен!\nПопробуйте другой...");
+        return;
+    }
+
+    if (!await checkPromocodeCompatibility("CALL", call_promocode.id)) {
+        alert('Промокод не соответствует желаемой услуге!');
+        return;
+    }
+
+    localStorage.setItem("call_promocode_id", call_promocode.id);
+    let discountPercent = call_promocode.discountPercent;
+
+    response = await fetch("./pricing/call/price");
+    let call_price = await response.text();
+    let discount_price = Math.round(call_price * (1 - discountPercent / 100));
+    if (discount_price == 0) {
+        alert("Сумма к оплате - 0 р.\nТак не должно быть. Выберите другой промокод.\nИли без него");
+        window.location.reload();
+        return;
+    }
+
+    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${discount_price} р.`;
+    document.getElementById("promo").disabled = true;
+}
+
 async function checkPromocodeCompatibility(serviceType, promocodeId) {
     return fetch("./servicetypes/checkpromocode?promocode_id=" + promocodeId + "&service_type=" + serviceType)
         .then(response => response.text())
@@ -348,11 +469,14 @@ async function checkPromocodeCompatibility(serviceType, promocodeId) {
 
 getMentoringPrice();
 getRoastingPrice();
+getCallPrice();
 
 document.getElementById("promo").addEventListener('input', () => {
     if (popupTitle.innerText === CV_TITLE) {
         roastingPromocodePricing();
     } else if (popupTitle.innerText === MENTORING_TITLE) {
         mentoringPromocodePricing();
+    } else if (popupTitle.innerText === CALL_TITLE) {
+        callPromocodePricing();
     }
 });
