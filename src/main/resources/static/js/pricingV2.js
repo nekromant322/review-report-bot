@@ -75,7 +75,7 @@ showCallButton.addEventListener('click', async () => {
     popupTitle.innerText = CALL_TITLE;
     pdfField.style.display = 'none';
     pdfInput.required = false;
-    contractLink.href = './static/assets/avatar.png';
+    contractLink.href = './others/personal_call_pferta.pdf';
 
     let response = await fetch("./pricing/call/price");
     let call_price = await response.text();
@@ -97,6 +97,9 @@ showMentoringButton.addEventListener('click', async () => {
 popupClose.addEventListener('click', () => {
     popup.classList.add('popup_hidden');
     form.reset();
+    clearInput.click();
+    document.getElementById('promo').value = '';
+    document.getElementById('promo').disabled = false;
 });
 
 form.addEventListener('submit', async (event) => {
@@ -110,6 +113,7 @@ form.addEventListener('submit', async (event) => {
     }
     popup.classList.add('popup_hidden');
     form.reset();
+    popupClose.click();
 });
 
 async function submit_new_client_cv_roasting() {
