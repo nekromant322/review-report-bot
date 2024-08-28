@@ -60,6 +60,7 @@ jobs:
             echo LIFE_PAY_LOGIN = ${{ secrets.LIFE_PAY_LOGIN }} >> review-bot-env.txt
             echo LIFE_PAY_KEY = ${{ secrets.LIFE_PAY_KEY }} >> review-bot-env.txt
             echo OWNER_PASSWORD = ${{secrets.OWNER_PASSWORD}} >> review-bot-env.txt
+            echo CALL_PRICE = 10000 >> review-bot-env.txt
                        
             sudo -S docker stop review-bot
             sudo -S docker rm review-bot

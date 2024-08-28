@@ -21,6 +21,7 @@ pay-info:
 price:
   resume-review: ${REVIEW_PRICE:5000}
   mentoring-subscription: ${MENTORING_PRICE:50000}
+  personal-call: ${CALL_PRICE:10000}
 
 spring:
   application:

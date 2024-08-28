@@ -2,6 +2,7 @@ package com.nekromant.telegram.controller;
 
 import com.nekromant.telegram.config.PriceProperties;
 import com.nekromant.telegram.service.MentoringSubscriptionRequestService;
+import com.nekromant.telegram.service.PersonalCallRequestService;
 import com.nekromant.telegram.service.ResumeAnalysisRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,6 +20,8 @@ public class PricingRestController {
     @Autowired
     private MentoringSubscriptionRequestService mentoringSubscriptionRequestService;
     @Autowired
+    private PersonalCallRequestService personalCallRequestService;
+    @Autowired
     private PriceProperties priceProperties;
 
     @PostMapping("/cv")
@@ -35,6 +38,11 @@ public class PricingRestController {
         return mentoringSubscriptionRequestService.save(mentoring_data);
     }
 
+    @PostMapping("/call")
+    public ResponseEntity submitNewCall(@RequestBody Map callData) {
+        return personalCallRequestService.save(callData);
+    }
+
     @GetMapping("/cv/price")
     public String getCVRoastingPrice() {
         return priceProperties.getResumeReview();
@@ -48,5 +56,10 @@ public class PricingRestController {
     @GetMapping("/roasting/price")
     public String getRoastingPrice() {
         return priceProperties.getResumeReview();
+    }
+
+    @GetMapping("/call/price")
+    public String getPersonalCallPrice() {
+        return priceProperties.getPersonalCall();
     }
 }
