@@ -475,7 +475,7 @@ getMentoringPrice();
 getRoastingPrice();
 getCallPrice();
 
-document.getElementById("promo").addEventListener('input', () => {
+document.getElementById("promo").addEventListener('blur', ()=> {
     if (popupTitle.innerText === CV_TITLE) {
         roastingPromocodePricing();
     } else if (popupTitle.innerText === MENTORING_TITLE) {
