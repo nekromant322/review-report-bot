@@ -7,6 +7,7 @@ import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -27,6 +28,7 @@ import static com.nekromant.telegram.contants.MessageContants.REPORT_HELP_MESSAG
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
 
+@Slf4j
 @Component
 public class ReportCommand extends MentoringReviewCommand {
 
@@ -63,24 +65,24 @@ public class ReportCommand extends MentoringReviewCommand {
             }
             reportRepository.save(report);
 
-            SendMessage message = new SendMessage();
-            message.setChatId(specialChatService.getReportsChatId());
-            message.setText(
-                    "@" + report.getStudentUserName() + "\n" + report.getDate().format(defaultDateFormatter()) + "\n" + report.getHours() +
-                            "\n" + report.getTitle());
-            execute(absSender, message, user);
+            sendAnswer(specialChatService.getReportsChatId(), "@" + report.getStudentUserName() + "\n" + report.getDate().format(defaultDateFormatter()) + "\n" + report.getHours() +
+                    "\n" + report.getTitle(), absSender, user);
         } catch (TooManyReportsException exception) {
-            SendMessage message = new SendMessage();
-            message.setChatId(chat.getId().toString());
-            message.setText(ERROR + exception.getMessage());
-            execute(absSender, message, user);
+            sendAnswer(chat.getId().toString(), ERROR + exception.getMessage(), absSender, user);
+        } catch (InvalidParameterException e) {
+            log.error(e.getMessage());
+            sendAnswer(chat.getId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE, absSender, user);
         } catch (Exception e) {
-            e.printStackTrace();
-            SendMessage message = new SendMessage();
-            message.setChatId(chat.getId().toString());
-            message.setText(ERROR + REPORT_HELP_MESSAGE);
-            execute(absSender, message, user);
+            log.error(e.getMessage());
+            sendAnswer(chat.getId().toString(), ERROR + REPORT_HELP_MESSAGE, absSender, user);
         }
+    }
+
+    private void sendAnswer(String chat, String text, AbsSender absSender, User user) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chat);
+        message.setText(text);
+        execute(absSender, message, user);
     }
 
     private String parseTitle(String[] strings) {
