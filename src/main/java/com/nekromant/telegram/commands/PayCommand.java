@@ -44,7 +44,7 @@ public class PayCommand extends MentoringReviewCommand {
         message.setChatId(studentChatId);
 
         try {
-            ValidationUtils.validateArguments(arguments);
+            ValidationUtils.validateArgumentsNumber(arguments);
             ChequeDTO chequeDTO = new ChequeDTO(
                     login,
                     apikey,

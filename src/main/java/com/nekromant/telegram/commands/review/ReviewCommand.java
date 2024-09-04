@@ -53,7 +53,7 @@ public class ReviewCommand extends MentoringReviewCommand {
 
         ReviewRequest reviewRequest = new ReviewRequest();
         try {
-            ValidationUtils.validateArguments(arguments);
+            ValidationUtils.validateArgumentsNumber(arguments);
             reviewRequest.setStudentUserName(user.getUserName());
             reviewRequest.setStudentChatId(studentChatId);
             reviewRequest.setDate(parseDate(arguments));

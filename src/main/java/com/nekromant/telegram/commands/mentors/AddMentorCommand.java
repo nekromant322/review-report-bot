@@ -46,7 +46,7 @@ public class AddMentorCommand extends MentoringReviewCommand {
             return;
         }
         try {
-            ValidationUtils.validateArguments(arguments);
+            ValidationUtils.validateArgumentsNumber(arguments);
             String newMentorUserName = arguments[0].replaceAll("@", "");
             String newMentorRoom = arguments[1];
             mentorRepository.save(new Mentor(newMentorUserName, true, newMentorRoom));

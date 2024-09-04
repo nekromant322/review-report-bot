@@ -43,7 +43,7 @@ public class DeleteMentorCommand extends MentoringReviewCommand {
         }
 
         try {
-            ValidationUtils.validateArguments(arguments);
+            ValidationUtils.validateArgumentsNumber(arguments);
             String deleteMentorUserName = arguments[0].replaceAll("@", "");
             userInfoService.demoteMentorToUser(deleteMentorUserName);
         } catch (Exception e) {

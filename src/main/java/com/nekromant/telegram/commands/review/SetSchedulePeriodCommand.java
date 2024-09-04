@@ -39,7 +39,7 @@ public class SetSchedulePeriodCommand extends MentoringReviewCommand {
             return;
         }
         try {
-            ValidationUtils.validateArguments(arguments);
+            ValidationUtils.validateArgumentsNumber(arguments);
             schedulePeriodService.setStart(Long.valueOf(arguments[0]));
             schedulePeriodService.setEnd(Long.valueOf(arguments[1]));
 

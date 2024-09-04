@@ -26,7 +26,7 @@ import static com.nekromant.telegram.contants.Command.REPORT;
 import static com.nekromant.telegram.contants.MessageContants.ERROR;
 import static com.nekromant.telegram.contants.MessageContants.REPORT_HELP_MESSAGE;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
-import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
+import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumber;
 
 @Slf4j
 @Component
@@ -48,12 +48,12 @@ public class ReportCommand extends MentoringReviewCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         try {
-            validateArguments(strings);
+            validateArgumentsNumber(strings);
 
             //тут убрать когда получу все chatId, оставить только в /start
             userInfoService.initializeUserInfo(chat, user);
 
-            ValidationUtils.validateArguments(strings);
+            ValidationUtils.validateArgumentsNumber(strings);
             Report report = new Report();
             report.setDate(parseDate(strings));
             report.setHours(parseHours(strings));
@@ -90,7 +90,9 @@ public class ReportCommand extends MentoringReviewCommand {
     }
 
     private Integer parseHours(String[] strings) {
-        return Integer.parseInt(strings[1]);
+        int hours = Integer.parseInt(strings[1]);
+        validateHoursArgument(hours);
+        return hours;
     }
 
     private LocalDate parseDate(String[] arguments) {
@@ -103,4 +105,9 @@ public class ReportCommand extends MentoringReviewCommand {
         throw new InvalidParameterException();
     }
 
+    private void validateHoursArgument(int hours) {
+        if (hours < 0 || hours > 24) {
+            throw new InvalidParameterException("Неверное значение часов — должно быть от 0 до 24");
+        }
+    }
 }

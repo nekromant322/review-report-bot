@@ -43,7 +43,7 @@ public class SetSalaryCommand extends MentoringReviewCommand {
             return;
         }
         try {
-            ValidationUtils.validateArguments(arguments);
+            ValidationUtils.validateArgumentsNumber(arguments);
 
             Salary salary = Salary.builder()
                     .id(null)

@@ -14,7 +14,7 @@ import static com.nekromant.telegram.contants.Command.REPORT_DELETE;
 import static com.nekromant.telegram.contants.MessageContants.ERROR;
 import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 import static com.nekromant.telegram.contants.MessageContants.REPORTS_DELETED;
-import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
+import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumber;
 
 @Component
 public class ReportDeleteCommand extends MentoringReviewCommand {
@@ -32,7 +32,7 @@ public class ReportDeleteCommand extends MentoringReviewCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         try {
-            validateArguments(strings);
+            validateArgumentsNumber(strings);
             SendMessage message = new SendMessage();
             String chatId = chat.getId().toString();
             message.setChatId(chatId);
