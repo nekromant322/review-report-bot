@@ -2,6 +2,7 @@ package com.nekromant.telegram.commands;
 
 import com.nekromant.telegram.commands.feign.LifePayFeign;
 import com.nekromant.telegram.commands.dto.ChequeDTO;
+import com.nekromant.telegram.exception.ParsingUrlException;
 import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.service.ContractService;
 import com.nekromant.telegram.utils.ValidationUtils;
@@ -68,8 +69,12 @@ public class PayCommand extends MentoringReviewCommand {
             message.setText("У вас нет контракта, обратитесь к @Marandyuk_Anatolii");
             execute(absSender, message, user);
             return;
+        } catch (ParsingUrlException e) {
+            message.setText(e.getMessage());
+            execute(absSender, message, user);
+            return;
         } catch (Exception e) {
-            message.setText("Пример: \n" +
+            message.setText(e.getMessage() + "\nПример: \n" +
                     "/pay <ваш номер в формате 79xxxxxxxxx> <сумма услуги в формате 5000.00>");
             execute(absSender, message, user);
             return;
@@ -92,16 +97,22 @@ public class PayCommand extends MentoringReviewCommand {
     }
 
     private String validateAmount(String argument) {
+        String replaced = argument.replace(",", ".");
         try {
-            Double.parseDouble(argument);
-            return argument;
-        } catch (ClassCastException e) {
-            throw new RuntimeException(e);
+            Double.parseDouble(replaced);
+            return replaced;
+        } catch (NumberFormatException e) {
+            log.error("Неверный формат суммы: {}", argument);
+            throw new NumberFormatException("Неверный формат суммы: + " + argument);
         }
     }
 
     private String parseUrl(String json) {
-        return json.substring(json.lastIndexOf("https"), json.lastIndexOf("\"")).replace("\\", "");
+        int httpsIndex = json.lastIndexOf("https");
+        if (httpsIndex == -1) {
+            throw new ParsingUrlException("Не удалось найти ссылку на оплату в ответе от LifePay. Попробуйте ввести команду снова");
+        }
+        return json.substring(httpsIndex, json.lastIndexOf("\"")).replace("\\", "");
     }
 
 }
