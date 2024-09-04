@@ -8,6 +8,7 @@ import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -25,12 +26,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REVIEW;
-import static com.nekromant.telegram.contants.MessageContants.ERROR;
-import static com.nekromant.telegram.contants.MessageContants.REVIEW_HELP_MESSAGE;
-import static com.nekromant.telegram.contants.MessageContants.REVIEW_REQUEST_SENT;
+import static com.nekromant.telegram.contants.MessageContants.*;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 import static java.time.temporal.ChronoUnit.DAYS;
 
+@Slf4j
 @Component
 public class ReviewCommand extends MentoringReviewCommand {
 
@@ -60,6 +60,11 @@ public class ReviewCommand extends MentoringReviewCommand {
             reviewRequest.setTitle(parseTitle(arguments));
             reviewRequest.setTimeSlots(parseTimeSlots(arguments));
 
+        } catch (NumberFormatException e) {
+            log.error("Таймслот должен быть указан целым числом. " + e.getMessage());
+            message.setText("Таймслот должен быть указан целым числом\n" + REVIEW_HELP_MESSAGE);
+            execute(absSender, message, user);
+            return;
         } catch (Exception e) {
             e.printStackTrace();
             message.setText(ERROR + REVIEW_HELP_MESSAGE);
