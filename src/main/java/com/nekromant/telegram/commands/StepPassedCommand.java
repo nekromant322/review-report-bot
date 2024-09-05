@@ -50,7 +50,7 @@ public class StepPassedCommand extends MentoringReviewCommand {
             return;
         }
         try {
-            ValidationUtils.validateArguments(arguments);
+            ValidationUtils.validateArgumentsNumber(arguments);
 
             String userName = arguments[0].replaceAll("@", "");
             Step step = Step.getStepByAlias(arguments[1]);

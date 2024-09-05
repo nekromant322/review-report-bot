@@ -45,7 +45,7 @@ public class AnnounceCommand extends MentoringReviewCommand {
             return;
         }
         try {
-            ValidationUtils.validateArguments(args);
+            ValidationUtils.validateArgumentsNumber(args);
             String announce = parseAnnounce(args);
             parseRecipients(args).forEach(recipient -> {
                 try {

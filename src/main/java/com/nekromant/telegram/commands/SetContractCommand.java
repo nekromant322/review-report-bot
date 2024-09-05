@@ -45,7 +45,7 @@ public class SetContractCommand extends MentoringReviewCommand {
             return;
         }
         try {
-            ValidationUtils.validateArguments(arguments);
+            ValidationUtils.validateArgumentsNumber(arguments);
             studentUserName = arguments[0].replaceAll("@", "");
             contractId = arguments[1];
             date = LocalDate.parse(arguments[2], defaultDateFormatter());

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.DAILY;
 import static com.nekromant.telegram.contants.MessageContants.*;
-import static com.nekromant.telegram.utils.ValidationUtils.validateArguments;
+import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumber;
 
 @Component
 public class DailyCommand extends MentoringReviewCommand {
@@ -41,7 +41,7 @@ public class DailyCommand extends MentoringReviewCommand {
                 execute(absSender, message, user);
                 return;
             }
-            validateArguments(strings);
+            validateArgumentsNumber(strings);
             Daily daily = new Daily();
             daily.setChatId(chatId);
             daily.setTime(LocalTime.parse(strings[0]));
