@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -23,7 +24,7 @@ public class ReportService {
         Integer studyDays = reportRepository.findTotalStudyDays(userName);
         Integer totalHours = reportRepository.findTotalHours(userName);
         Report firstReport =
-                reportRepository.findAllByStudentUserName(userName).stream().min(Comparator.comparing(Report::getDate))
+                reportRepository.findAllByStudentUserNameIgnoreCase(userName).stream().min(Comparator.comparing(Report::getDate))
                         .orElse(Report.builder()
                                 .date(LocalDate.now())
                                 .build()

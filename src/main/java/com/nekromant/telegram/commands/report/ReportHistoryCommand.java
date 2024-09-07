@@ -3,16 +3,15 @@ package com.nekromant.telegram.commands.report;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
-import com.nekromant.telegram.service.ReportService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import java.util.*;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REPORT_HISTORY;
@@ -20,14 +19,9 @@ import static com.nekromant.telegram.contants.MessageContants.ERROR;
 import static com.nekromant.telegram.contants.MessageContants.REPORT_HISTORY_HELP_MESSAGE;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumber;
 
+@Slf4j
 @Component
 public class ReportHistoryCommand extends MentoringReviewCommand {
-
-    @Value("${server.host}")
-    private String appHost;
-
-    @Autowired
-    private ReportService reportService;
 
     @Autowired
     private ReportRepository reportRepository;
@@ -44,7 +38,7 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
             message.setChatId(chat.getId().toString());
             int limitCount = strings.length > 1 ? Integer.parseInt(strings[1]) : 5;
             String studentUserName = parseUserName(strings);
-            String messageWithHistory = reportRepository.findAllByStudentUserName(studentUserName)
+            String messageWithHistory = reportRepository.findAllByStudentUserNameIgnoreCase(studentUserName)
                     .stream()
                     .sorted(Comparator.comparing(Report::getDate).reversed())
                     .limit(limitCount)
@@ -54,6 +48,10 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
                     .collect(Collectors.joining("\n-----------------\n"));
 
             message.setText(messageWithHistory);
+            if (messageWithHistory.isEmpty()) {
+                log.info("История отчётов {} пуста", studentUserName);
+                message.setText(ERROR + "\nИстория отчётов + " + studentUserName + " пуста");
+            }
 
             execute(absSender, message, user);
         } catch (Exception e) {
