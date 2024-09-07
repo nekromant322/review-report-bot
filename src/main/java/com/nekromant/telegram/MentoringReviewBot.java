@@ -2,9 +2,12 @@ package com.nekromant.telegram;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.CallBack;
+import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.SpecialChatService;
+import com.nekromant.telegram.service.UserInfoService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,21 +15,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.security.InvalidParameterException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.nekromant.telegram.contants.MessageContants.NOBODY_CAN_MAKE_REVIEW;
-import static com.nekromant.telegram.contants.MessageContants.REVIEW_APPROVED;
-import static com.nekromant.telegram.contants.MessageContants.REVIEW_BOOKED;
-import static com.nekromant.telegram.contants.MessageContants.SOMEBODY_DENIED_REVIEW;
-import static com.nekromant.telegram.contants.MessageContants.UNKNOWN_COMMAND;
+import static com.nekromant.telegram.contants.MessageContants.*;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 
@@ -46,6 +48,12 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
+
+    @Autowired
+    private ReportRepository reportRepository;
+
+    @Autowired
+    private UserInfoService userInfoService;
 
     @Autowired
     public MentoringReviewBot(List<MentoringReviewCommand> allCommands) {
@@ -74,7 +82,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             SendMessage messageForMentors = new SendMessage();
             messageForMentors.setChatId(specialChatService.getMentorsChatId());
 
-            if (callBackData.startsWith(CallBack.APPROVE.getAlias())) {
+            String callbackCommandName = callBackData.split(" ")[0];
+            if (callbackCommandName.equalsIgnoreCase(CallBack.APPROVE.getAlias())) {
                 Long reviewId = Long.parseLong(callBackData.split(" ")[1]);
                 int timeSlot = Integer.parseInt(callBackData.split(" ")[2]);
                 ReviewRequest review = reviewRequestRepository.findById(reviewId).orElseThrow(InvalidParameterException::new);
@@ -90,7 +99,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                         review.getStudentUserName(), review.getBookedDateTime().format(defaultDateTimeFormatter())));
                 deleteMessageMarkUp(review.getPollMessageId(), specialChatService.getMentorsChatId());
             }
-            if (callBackData.startsWith(CallBack.DENY.getAlias())) {
+            if (callbackCommandName.equalsIgnoreCase(CallBack.DENY.getAlias())) {
                 Long reviewId = Long.parseLong(callBackData.split(" ")[1]);
 
                 ReviewRequest review = reviewRequestRepository.findById(reviewId).orElseThrow(InvalidParameterException::new);
@@ -106,15 +115,77 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                         review.getStudentUserName()));
                 deleteMessageMarkUp(review.getPollMessageId(), specialChatService.getMentorsChatId());
             }
+            if (callbackCommandName.equalsIgnoreCase(CallBack.TODAY.getAlias())) {
+                String date = callBackData.split(" ")[1];
+                Report report = reportRepository.findById(Long.parseLong(callBackData.split(" ")[2])).orElseThrow(InvalidParameterException::new);
+                if (date.equalsIgnoreCase("Сегодня")) {
+                    report.setDate(LocalDate.now(ZoneId.of("Europe/Moscow")));
+                    validateAndSaveReportDate(message, report);
+                } else {
+                    throw new InvalidParameterException("Неверный ответ в колбэке: " + date);
+                }
+
+                setChatIdForUser(update, message);
+                deleteReportDatePickerMessage(update, report);
+            }
+            if (callbackCommandName.equalsIgnoreCase(CallBack.YESTERDAY.getAlias())) {
+                String date = callBackData.split(" ")[1];
+                Report report = reportRepository.findById(Long.parseLong(callBackData.split(" ")[2])).orElseThrow(InvalidParameterException::new);
+                if (date.equalsIgnoreCase("Вчера")) {
+                    report.setDate(LocalDate.now(ZoneId.of("Europe/Moscow")).minusDays(1));
+                    validateAndSaveReportDate(message, report);
+                } else {
+                    throw new InvalidParameterException("Ошибка в колбэке: " + date);
+                }
+
+                setChatIdForUser(update, message);
+                sendMessage(specialChatService.getReportsChatId(), "@" + report.getStudentUserName() + "\n" + report.getDate().format(defaultDateFormatter()) + "\n" + report.getHours() +
+                    "\n" + report.getTitle());
+                deleteReportDatePickerMessage(update, report);
+            }
+            if (callbackCommandName.equalsIgnoreCase(CallBack.DENY_REPORT.getAlias())) {
+                Long reportId = Long.parseLong(callBackData.split(" ")[1]);
+
+                Report report = reportRepository.findById(reportId).orElseThrow(InvalidParameterException::new);
+                message.setChatId(userInfoService.getUserInfo(report.getStudentUserName()).getChatId().toString());
+                message.setText("Отправка отчёта отменена");
+                reportRepository.deleteById(reportId);
+
+                deleteReportDatePickerMessage(update, report);
+            }
             try {
                 execute(message);
-                execute(messageForMentors);
+                if (messageForMentors.getText() != null) {
+                    execute(messageForMentors);
+                }
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         } else if (update.hasEditedMessage()) {
             processEditedMessageUpdate(update);
         }
+    }
+
+    private void validateAndSaveReportDate(SendMessage messageForUser, Report report) {
+        if (reportRepository.existsReportByDateAndStudentUserName(report.getDate(), report.getStudentUserName())) {
+            messageForUser.setText(TOO_MANY_REPORTS);
+            reportRepository.deleteById(report.getId());
+        }  else {
+            messageForUser.setText("@" + report.getStudentUserName() + "\n" + report.getDate().format(defaultDateFormatter()) + "\n" + report.getHours() +
+                    "\n" + report.getTitle());
+            reportRepository.save(report);
+        }
+    }
+
+    private void setChatIdForUser(Update update, SendMessage messageForUser) {
+        messageForUser.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
+    }
+
+    private void deleteReportDatePickerMessage(Update update, Report report) throws TelegramApiException {
+        DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setChatId(userInfoService.getUserInfo(report.getStudentUserName()).getChatId().toString());
+        deleteMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+        execute(deleteMessage);
     }
 
     public void processEditedMessageUpdate(Update update) {
