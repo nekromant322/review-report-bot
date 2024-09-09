@@ -47,37 +47,48 @@ public class ReviewCommand extends MentoringReviewCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        SendMessage message = new SendMessage();
-        String studentChatId = chat.getId().toString();
-        message.setChatId(studentChatId);
+        if (chat.isGroupChat()) {
+            sendAnswer(chat.getId().toString(), GROUP_CHAT_IS_NOT_SUPPORTED, absSender, user);
+        } else {
+            SendMessage message = new SendMessage();
+            String studentChatId = chat.getId().toString();
+            message.setChatId(studentChatId);
 
-        ReviewRequest reviewRequest = new ReviewRequest();
-        try {
-            ValidationUtils.validateArgumentsNumber(arguments);
-            reviewRequest.setStudentUserName(user.getUserName());
-            reviewRequest.setStudentChatId(studentChatId);
-            reviewRequest.setDate(parseDate(arguments));
-            reviewRequest.setTitle(parseTitle(arguments));
-            reviewRequest.setTimeSlots(parseTimeSlots(arguments));
+            ReviewRequest reviewRequest = new ReviewRequest();
+            try {
+                ValidationUtils.validateArgumentsNumber(arguments);
+                reviewRequest.setStudentUserName(user.getUserName());
+                reviewRequest.setStudentChatId(studentChatId);
+                reviewRequest.setDate(parseDate(arguments));
+                reviewRequest.setTitle(parseTitle(arguments));
+                reviewRequest.setTimeSlots(parseTimeSlots(arguments));
 
-        } catch (NumberFormatException e) {
-            log.error("Таймслот должен быть указан целым числом. " + e.getMessage());
-            message.setText("Таймслот должен быть указан целым числом\n" + REVIEW_HELP_MESSAGE);
+            } catch (NumberFormatException e) {
+                log.error("Таймслот должен быть указан целым числом. " + e.getMessage());
+                message.setText("Таймслот должен быть указан целым числом\n" + REVIEW_HELP_MESSAGE);
+                execute(absSender, message, user);
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+                message.setText(ERROR + REVIEW_HELP_MESSAGE);
+                execute(absSender, message, user);
+                return;
+            }
+            System.out.println("Сохранение нового реквеста " + reviewRequest.toString());
+            reviewRequestRepository.save(reviewRequest);
+
+            writeMentors(absSender, user, specialChatService.getMentorsChatId(), reviewRequest);
+
+
+            message.setText(REVIEW_REQUEST_SENT);
             execute(absSender, message, user);
-            return;
-        } catch (Exception e) {
-            e.printStackTrace();
-            message.setText(ERROR + REVIEW_HELP_MESSAGE);
-            execute(absSender, message, user);
-            return;
         }
-        System.out.println("Сохранение нового реквеста " + reviewRequest.toString());
-        reviewRequestRepository.save(reviewRequest);
+    }
 
-        writeMentors(absSender, user, specialChatService.getMentorsChatId(), reviewRequest);
-
-
-        message.setText(REVIEW_REQUEST_SENT);
+    private void sendAnswer(String chatId, String text, AbsSender absSender, User user) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(text);
         execute(absSender, message, user);
     }
 

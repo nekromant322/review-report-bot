@@ -12,13 +12,14 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.nekromant.telegram.contants.MessageContants.MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS;
-import static com.nekromant.telegram.contants.MessageContants.REPORT_REMINDER;
-import static com.nekromant.telegram.contants.MessageContants.STUDENT_REPORT_FORGET_REMINDER;
+import static com.nekromant.telegram.contants.MessageContants.*;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component
@@ -74,7 +75,7 @@ public class ReportReminderScheduler {
         for (String username : allStudentsUsernames) {
 
 
-            List<LocalDate> hotestReportsDates = reportRepository.findAllByStudentUserName(username).stream()
+            List<LocalDate> hotestReportsDates = reportRepository.findAllByStudentUserNameIgnoreCase(username).stream()
                     .sorted(Comparator.comparing(Report::getDate).reversed())
                     .limit(maxDaysWithoutReport)
                     .map(Report::getDate)

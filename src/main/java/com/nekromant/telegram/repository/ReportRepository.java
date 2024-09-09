@@ -6,14 +6,14 @@ import org.springframework.data.repository.CrudRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
 
 public interface ReportRepository extends CrudRepository<Report, Long> {
     Boolean existsReportByDateAndStudentUserName(LocalDate date, String studentUserName);
 
     List<Report> findAll(); //todo переписать на норм запрос для получения первого отчета
 
-    List<Report> findAllByStudentUserName(String studentUsername);
+    List<Report> findAllByStudentUserNameIgnoreCase(String studentUsername);
 
     @Query("SELECT sum(r.hours) FROM Report r WHERE r.studentUserName = ?1")
     Integer findTotalHours(String studentUsername);
