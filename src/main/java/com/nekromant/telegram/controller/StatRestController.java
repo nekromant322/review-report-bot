@@ -22,14 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.time.temporal.ChronoUnit.*;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.time.temporal.ChronoUnit.WEEKS;
 
 @RestController
 @Slf4j
@@ -77,7 +76,7 @@ public class StatRestController {
         int colorNumber = 0;
         for (String userName : allUserNames) {
             List<Integer> hours = new ArrayList<>();
-            List<Report> allStudentReports = reportRepository.findAllByStudentUserNameIgnoreCase(userName);
+            List<Report> allStudentReports = reportRepository.findAllByStudentUserName(userName);
             for (LocalDate label : labels) {
                 Report reportForLabel = findReportByLocalDate(allStudentReports, label);
                 if (reportForLabel != null) {
@@ -115,7 +114,7 @@ public class StatRestController {
         int colorNumber = 0;
         for (String userName : allUserNames) {
             List<Integer> hours = new ArrayList<>();
-            List<Report> allStudentReports = reportRepository.findAllByStudentUserNameIgnoreCase(userName);
+            List<Report> allStudentReports = reportRepository.findAllByStudentUserName(userName);
             for (LocalDate label : labels) {
                 hours.add(sumHoursPerWeekFromDate(allStudentReports, label));
             }
