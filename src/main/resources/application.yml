@@ -8,8 +8,8 @@ owner:
 
 
 server:
-  port: 8080
-  host: "https://overridetech.ru/review-bot"
+  port: ${TELEGRAM_BOT_PORT:8080}
+  host: ${TELEGRAM_BOT_HOST:https://overridetech.ru/review-bot}
 
 reminders:
   maxDaysWithoutReport: 3
@@ -35,6 +35,8 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  profiles:
+    active: ${TELEGRAM_BOT_PROFILE:prod}
 
   jpa:
     properties:
