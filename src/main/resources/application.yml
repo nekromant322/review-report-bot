@@ -8,8 +8,8 @@ owner:
 
 
 server:
-  port: 8080
-  host: "https://overridetech.ru/review-bot"
+  port: ${TELEGRAM_BOT_PORT:9100}
+  host: ${TELEGRAM_BOT_HOST:http://localhost:9100}
 
 reminders:
   maxDaysWithoutReport: 3
@@ -29,12 +29,14 @@ spring:
   datasource:
     password: ${POSTGRES_PASSWORD:postgres}
     username: ${POSTGRES_USER:postgres}
-    url: jdbc:postgresql://${POSTGRES_HOST}:${TELEGRAM_BOT_DB_PORT:5436}/review_bot
+    url: jdbc:postgresql://${POSTGRES_HOST:host.docker.internal}:${TELEGRAM_BOT_DB_PORT:5436}/review_bot
     driver-class-name: org.postgresql.Driver
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  profiles:
+    active: ${TELEGRAM_BOT_PROFILE:dev}
 
   jpa:
     properties:

@@ -61,6 +61,9 @@ jobs:
             echo LIFE_PAY_KEY = ${{ secrets.LIFE_PAY_KEY }} >> review-bot-env.txt
             echo OWNER_PASSWORD = ${{secrets.OWNER_PASSWORD}} >> review-bot-env.txt
             echo CALL_PRICE = 10000 >> review-bot-env.txt
+            echo TELEGRAM_BOT_PROFILE = prod >> review-bot-env.txt
+            echo TELEGRAM_BOT_PORT = 8080 >> review-bot-env.txt
+            echo TELEGRAM_BOT_HOST = https://overridetech.ru/review-bot >> review-bot-env.txt
                        
             sudo -S docker stop review-bot
             sudo -S docker rm review-bot
