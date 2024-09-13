@@ -4,6 +4,7 @@ import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.UserStatistic;
 import com.nekromant.telegram.service.ActualStatPhotoHolderService;
 import com.nekromant.telegram.service.ReportService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,13 +18,15 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Base64;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.ALL_STAT;
 import static com.nekromant.telegram.contants.MessageContants.ERROR;
 import static com.nekromant.telegram.contants.MessageContants.USER_STAT_MESSAGE;
 
+@Slf4j
 @Component
 public class AllStatCommand extends MentoringReviewCommand {
 
@@ -71,7 +74,7 @@ public class AllStatCommand extends MentoringReviewCommand {
             absSender.execute(sendPhoto);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(ERROR);
