@@ -10,7 +10,7 @@ import java.util.*;
 public interface StepPassedRepository extends CrudRepository<StepPassed, Long> {
     List<StepPassed> findAll();
 
-    List<StepPassed> findAllByStudentUserName(String studentUsername);
+    List<StepPassed> findAllByStudentUserNameIgnoreCase(String studentUsername);
 
     List<StepPassed> findAllByDateIs(LocalDate date);
 

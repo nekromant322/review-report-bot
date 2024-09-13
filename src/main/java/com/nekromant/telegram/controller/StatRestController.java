@@ -76,7 +76,7 @@ public class StatRestController {
         int colorNumber = 0;
         for (String userName : allUserNames) {
             List<Integer> hours = new ArrayList<>();
-            List<Report> allStudentReports = reportRepository.findAllByStudentUserName(userName);
+            List<Report> allStudentReports = reportRepository.findAllByStudentUserNameIgnoreCase(userName);
             for (LocalDate label : labels) {
                 Report reportForLabel = findReportByLocalDate(allStudentReports, label);
                 if (reportForLabel != null) {
@@ -114,7 +114,7 @@ public class StatRestController {
         int colorNumber = 0;
         for (String userName : allUserNames) {
             List<Integer> hours = new ArrayList<>();
-            List<Report> allStudentReports = reportRepository.findAllByStudentUserName(userName);
+            List<Report> allStudentReports = reportRepository.findAllByStudentUserNameIgnoreCase(userName);
             for (LocalDate label : labels) {
                 hours.add(sumHoursPerWeekFromDate(allStudentReports, label));
             }
@@ -146,7 +146,7 @@ public class StatRestController {
         int colorNumber = 0;
         for (String userName : allUserNames) {
             List<Integer> daysForSteps = new ArrayList<>();
-            List<StepPassed> allStudentPassedSteps = stepPassedRepository.findAllByStudentUserName(userName).stream()
+            List<StepPassed> allStudentPassedSteps = stepPassedRepository.findAllByStudentUserNameIgnoreCase(userName).stream()
                     .sorted(Comparator.comparing(StepPassed::getDate))
                     .collect(Collectors.toList());
 
@@ -192,7 +192,7 @@ public class StatRestController {
         int colorNumber = 0;
         for (String userName : allUserNames) {
             List<Integer> salaries = new ArrayList<>();
-            List<Salary> allStudentSalaries = salaryRepository.findAllByUserName(userName);
+            List<Salary> allStudentSalaries = salaryRepository.findAllByUserNameIgnoreCase(userName);
             for (LocalDate label : labels) {
 
                 int salaryIfNotMatched = salaries.size() > 0 ? salaries.get(salaries.size() - 1) : 0;

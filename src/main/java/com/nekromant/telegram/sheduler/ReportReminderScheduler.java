@@ -79,7 +79,7 @@ public class ReportReminderScheduler {
         for (String username : allStudentsUsernames) {
 
 
-            List<LocalDate> hotestReportsDates = reportRepository.findAllByStudentUserName(username).stream()
+            List<LocalDate> hotestReportsDates = reportRepository.findAllByStudentUserNameIgnoreCase(username).stream()
                     .sorted(Comparator.comparing(Report::getDate).reversed())
                     .limit(maxDaysWithoutReport)
                     .map(Report::getDate)
