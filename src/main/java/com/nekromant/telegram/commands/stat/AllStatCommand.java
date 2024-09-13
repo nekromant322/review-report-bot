@@ -5,6 +5,8 @@ import com.nekromant.telegram.model.UserStatistic;
 import com.nekromant.telegram.service.ActualStatPhotoHolderService;
 import com.nekromant.telegram.service.ReportService;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,7 @@ import static com.nekromant.telegram.contants.MessageContants.USER_STAT_MESSAGE;
 @Component
 public class AllStatCommand extends MentoringReviewCommand {
 
+    private static final Logger log = LoggerFactory.getLogger(AllStatCommand.class);
     @Autowired
     private ReportService reportService;
 
@@ -71,7 +74,7 @@ public class AllStatCommand extends MentoringReviewCommand {
             absSender.execute(sendPhoto);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(ERROR);

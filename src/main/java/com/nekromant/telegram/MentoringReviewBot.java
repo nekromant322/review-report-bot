@@ -161,7 +161,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             } catch (InvalidParameterException e) {
                 deleteReportDatePickerMessage(update);
             } catch (TelegramApiException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         } else if (update.hasEditedMessage()) {
             processEditedMessageUpdate(update);
@@ -217,7 +217,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 

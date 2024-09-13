@@ -2,6 +2,7 @@ package com.nekromant.telegram.commands.report;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.repository.ReportRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 import static com.nekromant.telegram.contants.MessageContants.REPORTS_DELETED;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumber;
 
+@Slf4j
 @Component
 public class ReportDeleteCommand extends MentoringReviewCommand {
 
@@ -46,7 +48,7 @@ public class ReportDeleteCommand extends MentoringReviewCommand {
             message.setText(REPORTS_DELETED);
             execute(absSender, message, user);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(ERROR + "/report_delete @anfisa_andrienko");
