@@ -70,13 +70,13 @@ public class ReportCommand extends MentoringReviewCommand {
         } catch (TooManyReportsException exception) {
             sendAnswer(chat.getId().toString(), ERROR + exception.getMessage(), absSender, user);
         } catch (InvalidParameterException e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             sendAnswer(chat.getId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE, absSender, user);
         } catch (NumberFormatException e) {
-            log.error("Часы должны быть указаны целым числом. " + e.getMessage());
+            log.error("Часы должны быть указаны целым числом. {}", e.getMessage());
             sendAnswer(chat.getId().toString(), "Часы должны быть указаны целым числом\n" + REPORT_HELP_MESSAGE, absSender, user);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             sendAnswer(chat.getId().toString(), ERROR + REPORT_HELP_MESSAGE, absSender, user);
         }
     }

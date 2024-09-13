@@ -16,12 +16,12 @@ public abstract class MentoringReviewCommand extends BotCommand {
     }
 
     public void execute(AbsSender sender, SendMessage message, User user) {
-        log.debug(this.getDescription() + " , пользователь - " + user.getUserName());
-        log.debug("output: \n" + message.getText() + "\n");
+        log.debug("{} , пользователь - {}", this.getDescription(), user.getUserName());
+        log.debug("output: \n{}\n", message.getText());
         try {
             sender.execute(message);
         } catch (TelegramApiException e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 }

@@ -61,17 +61,17 @@ public class ReviewCommand extends MentoringReviewCommand {
             reviewRequest.setTimeSlots(parseTimeSlots(arguments));
 
         } catch (NumberFormatException e) {
-            log.error("Таймслот должен быть указан целым числом. " + e.getMessage());
+            log.error("Таймслот должен быть указан целым числом. {}", e.getMessage());
             message.setText("Таймслот должен быть указан целым числом\n" + REVIEW_HELP_MESSAGE);
             execute(absSender, message, user);
             return;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             message.setText(ERROR + REVIEW_HELP_MESSAGE);
             execute(absSender, message, user);
             return;
         }
-        System.out.println("Сохранение нового реквеста " + reviewRequest.toString());
+        log.info("Сохранение нового реквеста {}", reviewRequest);
         reviewRequestRepository.save(reviewRequest);
 
         writeMentors(absSender, user, specialChatService.getMentorsChatId(), reviewRequest);

@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands.stat;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.UserStatistic;
 import com.nekromant.telegram.service.ReportService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,6 +15,7 @@ import static com.nekromant.telegram.contants.Command.MY_STAT;
 import static com.nekromant.telegram.contants.MessageContants.ERROR;
 import static com.nekromant.telegram.contants.MessageContants.USER_STAT_MESSAGE;
 
+@Slf4j
 @Component
 public class MyStatCommand extends MentoringReviewCommand {
 
@@ -37,7 +39,7 @@ public class MyStatCommand extends MentoringReviewCommand {
             message.disableNotification();
             execute(absSender, message, user);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(ERROR);

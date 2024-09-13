@@ -13,8 +13,6 @@ import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.Promocode;
 import com.nekromant.telegram.repository.PaymentDetailsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
@@ -23,8 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
-
-import static java.rmi.server.LogStream.log;
 
 @Slf4j
 @Service
@@ -44,15 +40,14 @@ public class ClientPaymentRequestServiceCommon {
     private LifePayFeign lifePayFeign;
     @Autowired
     private MentoringReviewBot mentoringReviewBot;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     public ResponseEntity save(ServiceType serviceType, ChequeDTO chequeDTO, ClientPaymentRequest paymentRequest, CrudRepository repository, String promocodeId) {
 
         try {
-            logger.info("Sending request to LifePay: {}", chequeDTO);
+            log.info("Sending request to LifePay: {}", chequeDTO);
             LifePayResponseDTO lifePayResponse = new Gson().fromJson(lifePayFeign.payCheque(chequeDTO).getBody(), LifePayResponseDTO.class);
-            logger.info("Life pay response: {}", lifePayResponse);
+            log.info("Life pay response: {}", lifePayResponse);
 
             PaymentDetails paymentDetails = PaymentDetails.builder()
                     .number(lifePayResponse.getData().getNumber())
@@ -60,11 +55,11 @@ public class ClientPaymentRequestServiceCommon {
                     .serviceType(serviceType)
                     .build();
             paymentDetailsRepository.save(paymentDetails);
-            logger.info("Unredeemed payment created: {}", paymentDetails);
+            log.info("Unredeemed payment created: {}", paymentDetails);
 
             paymentRequest.setLifePayTransactionNumber(lifePayResponse.getData().getNumber());
             repository.save(paymentRequest);
-            logger.info("New client payment request created: {}", paymentRequest);
+            log.info("New client payment request created: {}", paymentRequest);
 
             Promocode promocode = promocodeService.findById(promocodeId);
             if (promocode != null) {
@@ -75,10 +70,10 @@ public class ClientPaymentRequestServiceCommon {
             }
             return ResponseEntity.ok(lifePayResponse.getData().getPaymentUrlWeb());
         } catch (JsonParseException jsonParseException) {
-            log("Error while parsing Json: " + jsonParseException.getMessage());
+            log.error("Error while parsing Json: {}", jsonParseException.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (DataAccessException dataAccessException) {
-            log("Error while accessing database: " + dataAccessException.getMessage());
+            log.error("Error while accessing database: {}", dataAccessException.getMessage());
             return ResponseEntity.internalServerError().build();
         }
 
@@ -87,15 +82,15 @@ public class ClientPaymentRequestServiceCommon {
     public void notifyMentor(PaymentDetails paymentDetails, String text) {
         promocodeService.incrementCounterUsed(paymentDetails);
         paymentDetailsService.save(paymentDetails);
-        logger.info("Payment details have been redeemed: {}", paymentDetails);
+        log.info("Payment details have been redeemed: {}", paymentDetails);
         String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
         mentoringReviewBot.sendMessage(receiverId, text);
-        logger.info(text);
+        log.info(text);
     }
 
     public void rejectApplication(PaymentDetails paymentDetails) {
         paymentDetailsService.save(paymentDetails);
-        logger.info("Payment failed: {}", paymentDetails);
+        log.info("Payment failed: {}", paymentDetails);
     }
 
     public String calculatePriceWithOptionalDiscount(String basePrice, String promocodeId) {

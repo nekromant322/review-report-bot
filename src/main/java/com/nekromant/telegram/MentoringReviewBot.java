@@ -110,7 +110,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 execute(message);
                 execute(messageForMentors);
             } catch (TelegramApiException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         } else if (update.hasEditedMessage()) {
             processEditedMessageUpdate(update);
@@ -144,7 +144,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -158,7 +158,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             message.setChatId(chatId);
             execute(message);
         } catch (Exception e) {
-            log.error("Ошибка при отправке сообщения " + e.getMessage());
+            log.error("Ошибка при отправке сообщения {}", e.getMessage());
         }
 
     }

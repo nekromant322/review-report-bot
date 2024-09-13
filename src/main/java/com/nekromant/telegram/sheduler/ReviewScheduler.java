@@ -5,6 +5,7 @@ import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.UserInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import java.util.*;
 import static com.nekromant.telegram.contants.MessageContants.REVIEW_INCOMING;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 
+@Slf4j
 @Component
 public class ReviewScheduler {
 
@@ -42,7 +44,7 @@ public class ReviewScheduler {
     }
 
     private void notifyReview() {
-        System.out.println("Отправка уведомлений");
+        log.info("Отправка уведомлений");
         LocalDateTime nowInMoscow = ZonedDateTime.now(ZoneId.of("Europe/Moscow")).toLocalDateTime();
 
         List<ReviewRequest> sudenReviews = reviewRequestRepository
@@ -68,7 +70,7 @@ public class ReviewScheduler {
     }
 
     private void cleanUp() {
-        System.out.println("Удаление старых запросов");
+        log.info("Удаление старых запросов");
         LocalDateTime nowInMoscow = ZonedDateTime.now(ZoneId.of("Europe/Moscow")).toLocalDateTime();
         reviewRequestRepository.deleteAllByBookedDateTimeIsBefore(nowInMoscow.minus(1, ChronoUnit.DAYS));
     }

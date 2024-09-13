@@ -2,6 +2,7 @@ package com.nekromant.telegram.commands.daily;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.service.DailyService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import static com.nekromant.telegram.contants.Command.DAILY_DELETE;
 import static com.nekromant.telegram.contants.MessageContants.*;
 
+@Slf4j
 @Component
 public class DailyDeleteCommand extends MentoringReviewCommand {
     @Value("${owner.userName}")
@@ -40,7 +42,7 @@ public class DailyDeleteCommand extends MentoringReviewCommand {
             execute(absSender, message, user);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(ERROR);
