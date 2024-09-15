@@ -10,6 +10,6 @@ public interface SalaryRepository extends CrudRepository<Salary, String> {
 
     Salary findUserInfoByUserName(String userName);
 
-    List<Salary> findAllByUserName(String userName);
+    List<Salary> findAllByUserNameIgnoreCase(String userName);
 
 }
