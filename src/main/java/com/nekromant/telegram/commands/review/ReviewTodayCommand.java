@@ -8,6 +8,7 @@ import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.SpecialChatService;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -28,6 +29,7 @@ import static com.nekromant.telegram.contants.Command.REVIEW_TODAY;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 import static java.time.temporal.ChronoUnit.DAYS;
 
+@Slf4j
 @Component
 public class ReviewTodayCommand extends MentoringReviewCommand {
 
@@ -112,7 +114,7 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
                 x.setPollMessageId(executedMessage.getMessageId());
                 reviewRequestRepository.save(x);
             } catch (TelegramApiException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         });
 

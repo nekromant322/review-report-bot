@@ -55,7 +55,7 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
 
             execute(absSender, message, user);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(ERROR + REPORT_HISTORY_HELP_MESSAGE);

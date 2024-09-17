@@ -5,6 +5,7 @@ import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.service.UserInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,9 +20,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.nekromant.telegram.contants.MessageContants.*;
+import static com.nekromant.telegram.contants.MessageContants.MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS;
+import static com.nekromant.telegram.contants.MessageContants.REPORT_REMINDER;
+import static com.nekromant.telegram.contants.MessageContants.STUDENT_REPORT_FORGET_REMINDER;
 import static java.time.temporal.ChronoUnit.DAYS;
 
+@Slf4j
 @Component
 public class ReportReminderScheduler {
 
@@ -42,7 +46,7 @@ public class ReportReminderScheduler {
 
     @Scheduled(cron = "0 0 19 * * *")
     public void everyOneRemindAboutReports() {
-        System.out.println("Процесинг напоминаний об отчетах");
+        log.info("Процессинг напоминаний об отчетах");
         Set<String> allStudents = reportRepository.findAll()
                 .stream()
                 .map(Report::getStudentUserName)

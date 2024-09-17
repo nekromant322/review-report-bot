@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands.daily;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.Daily;
 import com.nekromant.telegram.service.DailyService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import static com.nekromant.telegram.contants.Command.DAILY;
 import static com.nekromant.telegram.contants.MessageContants.*;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumber;
 
+@Slf4j
 @Component
 public class DailyCommand extends MentoringReviewCommand {
     @Value("${owner.userName}")
@@ -51,7 +53,7 @@ public class DailyCommand extends MentoringReviewCommand {
             execute(absSender, message, user);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(ERROR + DAILY_HELP_MESSAGE);

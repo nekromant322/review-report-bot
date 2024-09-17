@@ -3,6 +3,7 @@ package com.nekromant.telegram.sheduler;
 import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.model.Daily;
 import com.nekromant.telegram.service.DailyService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 
+@Slf4j
 @Component
 public class DailyScheduler {
     @Autowired
@@ -24,7 +26,7 @@ public class DailyScheduler {
     }
 
     public void notifyDaily() {
-        System.out.println("Отправка уведомлений");
+        log.info("Отправка уведомлений");
         LocalTime nowInMoscow = LocalTime.now(ZoneId.of("Europe/Moscow"));
         LocalTime localTime = LocalTime.of(nowInMoscow.getHour(), nowInMoscow.getMinute());
         List<Daily> dailyList = dailyService.getAllDailyByTime(localTime);

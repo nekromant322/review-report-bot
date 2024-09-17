@@ -4,17 +4,15 @@ public class MessageContants {
 
     public static final String ERROR = "Что-то пошло не так\n";
 
-    public static final String REPORT_HELP_MESSAGE = "Чтобы отправить отчет \n/report <целое кол-во часов> <чем " +
+    public static final String REPORT_HELP_MESSAGE = "Чтобы отправить отчет \n/report [сегодня|вчера] <целое кол-во часов> <чем " +
             "занимался>\n" +
-            "Пример:\n /report 2 Читал статьи про ооп\n\n";
+            "Пример:\n /report сегодня 2 Читал статьи про ооп\n\n";
     public static final String REPORT_HISTORY_HELP_MESSAGE = "Чтобы получить историю отчетов\n/" + Command.REPORT_HISTORY.getAlias() + " " +
             "@username <кол-во отчетов>";
     public static final String REVIEW_HELP_MESSAGE = "Для того чтобы попросить " +
             "ревью напишите " +
             "что-то вроде \n/" + Command.REVIEW.getAlias() + " [сегодня|завтра] <таймслоты через пробел> Тема:<Тема ревью>\n" +
             "Пример:\n/" + Command.REVIEW.getAlias() + " завтра 15 16 20 Тема: 4 модуль";
-    public static final String GROUP_CHAT_IS_NOT_SUPPORTED = "Эта команда не поддерживается в групповых чатах.";
-    public static final String TOO_MANY_REPORTS = "За этот день уже есть отчет";
     public static final String START_HELP_MESSAGE = REPORT_HELP_MESSAGE + REVIEW_HELP_MESSAGE;
     public static final String ANNOUNCE_HELP_MESSAGE = "Пример: /announce \"Текст анонса\" @UserName";
     public static final String UNKNOWN_COMMAND = "Не понимаю команду";
@@ -44,11 +42,11 @@ public class MessageContants {
     public static final String DAILY_HELP_MESSAGE = "Чтобы назначить ежедневное уведомление \n/daily <час:минута> " +
             "<текст уведомления>\n Пример:\n/daily 20:55 подключаемся на дейлик";
     public static final String DAILY_DELETED = "Ежедневные уведомления в данном чате удалены";
-    public static final String RESPONSE_FOR_RESUME_PROJARKA = "Зарегистрирован и оплачен заказ %s на разбор резюме: \nтелефон: %s \nTelegram nickname: @%s";
-    public static final String RESPONSE_FOR_MENTORING_SUBSCRIPTION = "Зарегистрирован и оплачен заказ %s на подписку на менторинг: \nтелефон: %s \nTelegram nickname: @%s";
+    public static final String RESPONSE_FOR_RESUME_PROJARKA = "Зарегистрирован и оплачен заказ %s на разбор резюме: \nтелефон: %s \nTelegram nickname: %s";
+    public static final String RESPONSE_FOR_MENTORING_SUBSCRIPTION = "Зарегистрирован и оплачен заказ %s на подписку на менторинг: \nтелефон: %s \nTelegram nickname: %s";
     public static final String MENTORING_OFFER_DESCRIPTION = "Оплата за подписку на менторинг по договору публичной оферты";
     public static final String RESUME_OFFER_DESCRIPTION = "Оплата за разбор резюме по договору публичной оферты";
 
-    public static final String RESPONSE_FOR_PERSONAL_CALL = "Зарегистрирован и оплачен заказ %s на личный созвон: \nтелефон: %s \nTelegram nickname: @%s";
+    public static final String RESPONSE_FOR_PERSONAL_CALL = "Зарегистрирован и оплачен заказ %s на личный созвон: \nтелефон: %s \nTelegram nickname: %s";
     public static final String PERSONAL_CALL_DESCRIPTION = "Оплата за персональный созвон ПО ДОГОВОРУ ПУБЛ ОФЕРТЫ";
 }

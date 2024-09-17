@@ -22,14 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.time.temporal.ChronoUnit.*;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.time.temporal.ChronoUnit.WEEKS;
 
 @RestController
 @Slf4j
@@ -147,7 +146,7 @@ public class StatRestController {
         int colorNumber = 0;
         for (String userName : allUserNames) {
             List<Integer> daysForSteps = new ArrayList<>();
-            List<StepPassed> allStudentPassedSteps = stepPassedRepository.findAllByStudentUserName(userName).stream()
+            List<StepPassed> allStudentPassedSteps = stepPassedRepository.findAllByStudentUserNameIgnoreCase(userName).stream()
                     .sorted(Comparator.comparing(StepPassed::getDate))
                     .collect(Collectors.toList());
 
@@ -193,7 +192,7 @@ public class StatRestController {
         int colorNumber = 0;
         for (String userName : allUserNames) {
             List<Integer> salaries = new ArrayList<>();
-            List<Salary> allStudentSalaries = salaryRepository.findAllByUserName(userName);
+            List<Salary> allStudentSalaries = salaryRepository.findAllByUserNameIgnoreCase(userName);
             for (LocalDate label : labels) {
 
                 int salaryIfNotMatched = salaries.size() > 0 ? salaries.get(salaries.size() - 1) : 0;
