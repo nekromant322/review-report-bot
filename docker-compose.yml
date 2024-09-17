@@ -32,6 +32,8 @@ services:
       LIFE_PAY_KEY: ${LIFE_PAY_KEY}
       OWNER_PASSWORD: ${OWNER_PASSWORD}
       CALL_PRICE: ${CALL_PRICE}
+      TELEGRAM_BOT_PORT: ${TELEGRAM_BOT_PORT:-8080}
+      TELEGRAM_BOT_PROFILE: ${TELEGRAM_BOT_PROFILE:-prod}
     ports:
       - "9100:8080"
     logging:
