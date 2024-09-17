@@ -23,7 +23,9 @@ public class ReportService {
         Integer studyDays = reportRepository.findTotalStudyDays(userName);
         Integer totalHours = reportRepository.findTotalHours(userName);
         Report firstReport =
-                reportRepository.findAllByStudentUserNameIgnoreCase(userName).stream().min(Comparator.comparing(Report::getDate))
+                reportRepository.findAllByStudentUserNameIgnoreCase(userName).stream()
+                        .filter(this::hasRequiredFields)
+                        .min(Comparator.comparing(Report::getDate))
                         .orElse(Report.builder()
                                 .date(LocalDate.now())
                                 .build()
@@ -46,5 +48,9 @@ public class ReportService {
                 .distinct()
                 .map(this::getUserStats)
                 .collect(Collectors.toList());
+    }
+
+    private boolean hasRequiredFields(Report report) {
+        return report.getDate() != null && report.getHours() != null && report.getTitle() != null;
     }
 }
