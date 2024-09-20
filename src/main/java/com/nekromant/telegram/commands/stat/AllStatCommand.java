@@ -2,24 +2,17 @@ package com.nekromant.telegram.commands.stat;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.UserStatistic;
-import com.nekromant.telegram.service.ActualStatPhotoHolderService;
 import com.nekromant.telegram.service.ReportService;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import java.io.File;
-import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -37,8 +30,6 @@ public class AllStatCommand extends MentoringReviewCommand {
     @Value("${server.host}")
     private String appHost;
 
-    @Autowired
-    private ActualStatPhotoHolderService photoHolderService;
     @Autowired
     private SendMessageFactory sendMessageFactory;
 
@@ -62,27 +53,10 @@ public class AllStatCommand extends MentoringReviewCommand {
             message.disableNotification();
             execute(absSender, message, user);
 
-            SendPhoto sendPhoto = new SendPhoto();
-            sendPhoto.setChatId(chat.getId().toString());
-
-            InputFile inputFile = new InputFile();
-            String encodedString = photoHolderService.getEncodedPerDayGraph();
-            File fileForPhoto = new File(getFileName());
-            byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
-            FileUtils.writeByteArrayToFile(fileForPhoto, decodedBytes);
-
-            inputFile.setMedia(fileForPhoto);
-            sendPhoto.setPhoto(inputFile);
-            absSender.execute(sendPhoto);
-
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             SendMessage message = sendMessageFactory.create(chat.getId().toString(), ERROR);
             execute(absSender, message, user);
         }
-    }
-
-    private String getFileName() {
-        return ("allStatPhoto-" + LocalDateTime.now()).replaceAll(":", "-");
     }
 }

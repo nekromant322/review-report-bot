@@ -1,9 +1,9 @@
 package com.nekromant.telegram.commands.stat;
 
 import com.nekromant.telegram.model.UserStatistic;
-import com.nekromant.telegram.service.ActualStatPhotoHolderService;
 import com.nekromant.telegram.service.ReportService;
 import com.nekromant.telegram.utils.SendMessageFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -24,8 +24,10 @@ import java.util.stream.Stream;
 import static com.nekromant.telegram.contants.MessageContants.ERROR;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class AllStatCommandTest {
     @InjectMocks
@@ -33,11 +35,7 @@ class AllStatCommandTest {
     @Mock
     private ReportService reportService;
     @Mock
-    private ActualStatPhotoHolderService photoHolderService;
-    @Mock
     private SendMessageFactory sendMessageFactory;
-    @Mock
-    private SendMessage mockMessage;
     @Mock
     private AbsSender absSender;
     @Mock
@@ -56,15 +54,14 @@ class AllStatCommandTest {
     @MethodSource("provideReportListArguments")
     void executeUserStatisticList_DoesntShowError(List<UserStatistic> userStatisticList) {
         // Given - arrange
-        Mockito.when(reportService.getAllUsersStats()).thenReturn(userStatisticList);
-        Mockito.when(sendMessageFactory.create(anyString(), anyString())).thenReturn(new SendMessage());
-        Mockito.when(photoHolderService.getEncodedPerDayGraph()).thenReturn("encodedGraph");
+        given(reportService.getAllUsersStats()).willReturn(userStatisticList);
+        given(sendMessageFactory.create(anyString(), anyString())).willReturn(new SendMessage());
 
         // When - act
         allStatCommand.execute(absSender, user, chat, strings);
 
         // Then - assert/verify
-        Mockito.verify(mockMessage, never()).setText(contains(ERROR));
+        Mockito.verify(sendMessageFactory, never()).create(anyString(), contains(ERROR));
     }
 
     private static Stream<Arguments> provideReportListArguments() {
