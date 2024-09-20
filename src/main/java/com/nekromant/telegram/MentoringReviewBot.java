@@ -64,7 +64,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         if (update.hasMessage() && update.getMessage().isUserMessage()) {
             if (!(update.getMessage().getChatId().toString().equals(specialChatService.getMentorsChatId()) ||
                     update.getMessage().getChatId().toString().equals(specialChatService.getReportsChatId()) ||
-                    update.getMessage().getChat().getTitle().equals("java-кумунити"))) { //todo add chatId to special chats
+                    ((update.getMessage().getChat().isGroupChat() || update.getMessage().getChat().isSuperGroupChat()) && update.getMessage().getChat().getTitle().equals("java-кумунити")))) { //todo add chatId to special chats
                 sendMessage(update);
             }
         } else if (update.hasCallbackQuery()) {

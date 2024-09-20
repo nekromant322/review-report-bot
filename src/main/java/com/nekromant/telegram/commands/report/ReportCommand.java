@@ -23,8 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REPORT;
-import static com.nekromant.telegram.contants.MessageContants.ERROR;
-import static com.nekromant.telegram.contants.MessageContants.REPORT_HELP_MESSAGE;
+import static com.nekromant.telegram.contants.MessageContants.*;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumber;
 
@@ -47,43 +46,48 @@ public class ReportCommand extends MentoringReviewCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
-        try {
-            validateArgumentsNumber(strings);
+        if (chat.isGroupChat() || chat.isSuperGroupChat()) {
+            sendAnswer(chat.getId().toString(), GROUP_CHAT_IS_NOT_SUPPORTED, absSender, user);
+        } else {
+            try {
 
-            //тут убрать когда получу все chatId, оставить только в /start
-            userInfoService.initializeUserInfo(chat, user);
+                validateArgumentsNumber(strings);
 
-            ValidationUtils.validateArgumentsNumber(strings);
-            Report report = new Report();
-            report.setDate(parseDate(strings));
-            report.setHours(parseHours(strings));
-            report.setStudentUserName(user.getUserName());
-            report.setTitle(parseTitle(strings));
+                //тут убрать когда получу все chatId, оставить только в /start
+                userInfoService.initializeUserInfo(chat, user);
 
-            if (reportRepository.existsReportByDateAndStudentUserName(report.getDate(), report.getStudentUserName())) {
-                throw new TooManyReportsException();
+                ValidationUtils.validateArgumentsNumber(strings);
+                Report report = new Report();
+                report.setDate(parseDate(strings));
+                report.setHours(parseHours(strings));
+                report.setStudentUserName(user.getUserName());
+                report.setTitle(parseTitle(strings));
+
+                if (reportRepository.existsReportByDateAndStudentUserName(report.getDate(), report.getStudentUserName())) {
+                    throw new TooManyReportsException();
+                }
+                reportRepository.save(report);
+
+                sendAnswer(specialChatService.getReportsChatId(), "@" + report.getStudentUserName() + "\n" + report.getDate().format(defaultDateFormatter()) + "\n" + report.getHours() +
+                        "\n" + report.getTitle(), absSender, user);
+            } catch (TooManyReportsException exception) {
+                sendAnswer(chat.getId().toString(), ERROR + exception.getMessage(), absSender, user);
+            } catch (InvalidParameterException e) {
+                log.error(e.getMessage(), e);
+                sendAnswer(chat.getId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE, absSender, user);
+            } catch (NumberFormatException e) {
+                log.error("Часы должны быть указаны целым числом. {}", e.getMessage());
+                sendAnswer(chat.getId().toString(), "Часы должны быть указаны целым числом\n" + REPORT_HELP_MESSAGE, absSender, user);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                sendAnswer(chat.getId().toString(), ERROR + REPORT_HELP_MESSAGE, absSender, user);
             }
-            reportRepository.save(report);
-
-            sendAnswer(specialChatService.getReportsChatId(), "@" + report.getStudentUserName() + "\n" + report.getDate().format(defaultDateFormatter()) + "\n" + report.getHours() +
-                    "\n" + report.getTitle(), absSender, user);
-        } catch (TooManyReportsException exception) {
-            sendAnswer(chat.getId().toString(), ERROR + exception.getMessage(), absSender, user);
-        } catch (InvalidParameterException e) {
-            log.error(e.getMessage(), e);
-            sendAnswer(chat.getId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE, absSender, user);
-        } catch (NumberFormatException e) {
-            log.error("Часы должны быть указаны целым числом. {}", e.getMessage());
-            sendAnswer(chat.getId().toString(), "Часы должны быть указаны целым числом\n" + REPORT_HELP_MESSAGE, absSender, user);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            sendAnswer(chat.getId().toString(), ERROR + REPORT_HELP_MESSAGE, absSender, user);
         }
     }
 
-    private void sendAnswer(String chat, String text, AbsSender absSender, User user) {
+    private void sendAnswer(String chatId, String text, AbsSender absSender, User user) {
         SendMessage message = new SendMessage();
-        message.setChatId(chat);
+        message.setChatId(chatId);
         message.setText(text);
         execute(absSender, message, user);
     }
