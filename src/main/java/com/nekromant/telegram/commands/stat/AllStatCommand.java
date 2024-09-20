@@ -47,8 +47,6 @@ public class AllStatCommand extends MentoringReviewCommand {
                             stat.getTotalHours(), stat.getAveragePerWeek()))
                     .collect(Collectors.joining("\n\n"));
 
-            allStatsMessage += "\n\n" + appHost + "/charts.html";
-
             SendMessage message = sendMessageFactory.create(chat.getId().toString(), allStatsMessage);
             message.disableNotification();
             execute(absSender, message, user);

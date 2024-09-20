@@ -7,9 +7,4 @@ import java.util.*;
 
 public interface SalaryRepository extends CrudRepository<Salary, String> {
     List<Salary> findAll();
-
-    Salary findUserInfoByUserName(String userName);
-
-    List<Salary> findAllByUserNameIgnoreCase(String userName);
-
 }
