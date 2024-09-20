@@ -26,7 +26,6 @@ public class DailyScheduler {
     }
 
     public void notifyDaily() {
-        log.info("Отправка уведомлений");
         LocalTime nowInMoscow = LocalTime.now(ZoneId.of("Europe/Moscow"));
         LocalTime localTime = LocalTime.of(nowInMoscow.getHour(), nowInMoscow.getMinute());
         List<Daily> dailyList = dailyService.getAllDailyByTime(localTime);

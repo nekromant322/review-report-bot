@@ -44,7 +44,7 @@ public class ReviewScheduler {
     }
 
     private void notifyReview() {
-        log.info("Отправка уведомлений");
+        log.info("Ежечасная отправка уведомлений о назначенных ревью");
         LocalDateTime nowInMoscow = ZonedDateTime.now(ZoneId.of("Europe/Moscow")).toLocalDateTime();
 
         List<ReviewRequest> sudenReviews = reviewRequestRepository
