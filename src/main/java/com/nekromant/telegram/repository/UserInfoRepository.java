@@ -1,5 +1,6 @@
 package com.nekromant.telegram.repository;
 
+import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.UserInfo;
 import org.springframework.data.repository.CrudRepository;
 
@@ -11,4 +12,5 @@ public interface UserInfoRepository extends CrudRepository<UserInfo, String> {
     UserInfo findUserInfoByUserNameIgnoreCase(String userName);
 
     List<UserInfo> findAllByNotifyAboutReportsIsTrue();
+    List<UserInfo> findAllByUserType(UserType userType);
 }

@@ -78,21 +78,25 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 Long reviewId = Long.parseLong(callBackData.split(" ")[1]);
                 int timeSlot = Integer.parseInt(callBackData.split(" ")[2]);
                 ReviewRequest review = reviewRequestRepository.findById(reviewId).orElseThrow(InvalidParameterException::new);
-                if (reviewRequestRepository.existsByBookedDateTime(LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0)))) {
-                    log.error("Time slot already booked: {}", timeSlot);
-                    throw new InvalidParameterException("Time slot already booked: " + timeSlot);
-                }
-                review.setBookedDateTime(LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0)));
-                review.setMentorUserName(update.getCallbackQuery().getFrom().getUserName());
-                reviewRequestRepository.save(review);
                 message.setChatId(review.getStudentChatId());
 
-                message.setText(String.format(REVIEW_BOOKED, review.getMentorUserName(),
-                        review.getBookedDateTime().format(defaultDateTimeFormatter()), review.getTitle()));
+                LocalDateTime timeSlotLDT = LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0));
+                String mentorUserName = update.getCallbackQuery().getFrom().getUserName();
+                if (reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(timeSlotLDT,
+                        mentorUserName)) {
+                    messageForMentors.setText(timeSlot + " уже забронировано для ментора " + mentorUserName);
+                } else {
+                    review.setBookedDateTime(timeSlotLDT);
+                    review.setMentorUserName(update.getCallbackQuery().getFrom().getUserName());
+                    reviewRequestRepository.save(review);
 
-                messageForMentors.setText(String.format(REVIEW_APPROVED, update.getCallbackQuery().getFrom().getUserName(),
-                        review.getStudentUserName(), review.getBookedDateTime().format(defaultDateTimeFormatter())));
-                deleteMessageMarkUp(review.getPollMessageId(), specialChatService.getMentorsChatId());
+                    message.setText(String.format(REVIEW_BOOKED, review.getMentorUserName(),
+                            review.getBookedDateTime().format(defaultDateTimeFormatter()), review.getTitle()));
+
+                    messageForMentors.setText(String.format(REVIEW_APPROVED, update.getCallbackQuery().getFrom().getUserName(),
+                            review.getStudentUserName(), review.getBookedDateTime().format(defaultDateTimeFormatter())));
+                    deleteMessageMarkUp(review.getPollMessageId(), specialChatService.getMentorsChatId());
+                }
             }
             if (callBackData.startsWith(CallBack.DENY.getAlias())) {
                 Long reviewId = Long.parseLong(callBackData.split(" ")[1]);
@@ -111,8 +115,12 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 deleteMessageMarkUp(review.getPollMessageId(), specialChatService.getMentorsChatId());
             }
             try {
-                execute(message);
-                execute(messageForMentors);
+                if (message.getText() != null && !message.getText().isEmpty()) {
+                    execute(message);
+                }
+                if (messageForMentors.getText() != null && !messageForMentors.getText().isEmpty()) {
+                    execute(messageForMentors);
+                }
             } catch (TelegramApiException e) {
                 log.error(e.getMessage(), e);
             }

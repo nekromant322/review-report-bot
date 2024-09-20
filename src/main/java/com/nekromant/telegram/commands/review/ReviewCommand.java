@@ -3,8 +3,11 @@ package com.nekromant.telegram.commands.review;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.CallBack;
+import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.repository.UserInfoRepository;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import lombok.SneakyThrows;
@@ -41,6 +44,8 @@ public class ReviewCommand extends MentoringReviewCommand {
 
     @Autowired
     private SpecialChatService specialChatService;
+    @Autowired
+    private UserInfoRepository userInfoRepository;
 
     @Autowired
     public ReviewCommand() {
@@ -138,7 +143,7 @@ public class ReviewCommand extends MentoringReviewCommand {
         LocalDate reviewRequestDate = reviewRequest.getDate();
         reviewRequest.getTimeSlots().
                 stream().
-                filter(timeSlot -> !reviewRequestRepository.existsByBookedDateTime(LocalDateTime.of(reviewRequestDate, LocalTime.of(timeSlot, 0)))).
+                filter(x -> isTimeSlotTakenByAllMentors(x, reviewRequestDate)).
                 forEach(x -> {
             List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
             InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
@@ -172,4 +177,13 @@ public class ReviewCommand extends MentoringReviewCommand {
         reviewRequestRepository.save(reviewRequest);
     }
 
+    private boolean isTimeSlotTakenByAllMentors(Integer timeSlot, LocalDate reviewRequestDate) {
+        boolean isNotTakenByAllMentors = true;
+        List<UserInfo> allMentors = userInfoRepository.findAllByUserType(UserType.MENTOR);
+        for (UserInfo mentor : allMentors) {
+            isNotTakenByAllMentors = !reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate, LocalTime.of(timeSlot, 0)), mentor.getUserName());
+            log.info("Время {} {} {}", timeSlot, mentor.getUserName(), isNotTakenByAllMentors ? "свободно" : "занято");
+        }
+        return isNotTakenByAllMentors;
+    }
 }
