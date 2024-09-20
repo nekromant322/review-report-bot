@@ -182,7 +182,6 @@ public class ReviewCommand extends MentoringReviewCommand {
         List<UserInfo> allMentors = userInfoRepository.findAllByUserType(UserType.MENTOR);
         for (UserInfo mentor : allMentors) {
             isNotTakenByAllMentors = !reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate, LocalTime.of(timeSlot, 0)), mentor.getUserName());
-            log.info("Время {} {} {}", timeSlot, mentor.getUserName(), isNotTakenByAllMentors ? "свободно" : "занято");
         }
         return isNotTakenByAllMentors;
     }
