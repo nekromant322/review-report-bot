@@ -79,9 +79,8 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
                             .collect(Collectors.joining("\n"));
             message.setText(messageWithReviewsToday);
             message.disableWebPagePreview();
+            execute(absSender, message, user);
         }
-
-        execute(absSender, message, user);
     }
 
     @SneakyThrows

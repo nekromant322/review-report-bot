@@ -11,7 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +24,7 @@ public class UserInfoService {
 
     public void initializeUserInfo(Chat chat, User user) {
         if (chat.getType().equalsIgnoreCase("private")
-                && userInfoRepository.findUserInfoByUserName(user.getUserName()) == null) {
+                && userInfoRepository.findUserInfoByUserNameIgnoreCase(user.getUserName()) == null) {
             UserInfo userInfo = UserInfo.builder()
                     .userName(user.getUserName())
                     .chatId(chat.getId())
@@ -36,7 +35,7 @@ public class UserInfoService {
     }
 
     public void promoteUserToMentor(String userName) {
-        UserInfo userInfo = userInfoRepository.findUserInfoByUserName(userName);
+        UserInfo userInfo = userInfoRepository.findUserInfoByUserNameIgnoreCase(userName);
         if (userInfo.getUserType() != UserType.MENTOR) {
             userInfo.setUserType(UserType.MENTOR);
             userInfoRepository.save(userInfo);
@@ -44,7 +43,7 @@ public class UserInfoService {
     }
 
     public void demoteMentorToUser(String userName) throws Exception {
-        UserInfo userInfo = userInfoRepository.findUserInfoByUserName(userName);
+        UserInfo userInfo = userInfoRepository.findUserInfoByUserNameIgnoreCase(userName);
         if (userInfo.getUserType() == UserType.MENTOR) {
             Mentor deleteMentor = mentorRepository.findMentorByUserName(userName);
             mentorRepository.delete(deleteMentor);
@@ -62,7 +61,7 @@ public class UserInfoService {
     }
 
     public UserInfo getUserInfo(String userName) {
-        return userInfoRepository.findUserInfoByUserName(userName);
+        return userInfoRepository.findUserInfoByUserNameIgnoreCase(userName);
     }
 
     public void save(UserInfo userInfo) {

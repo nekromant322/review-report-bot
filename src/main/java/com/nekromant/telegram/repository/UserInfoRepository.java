@@ -8,7 +8,7 @@ import java.util.*;
 public interface UserInfoRepository extends CrudRepository<UserInfo, String> {
     List<UserInfo> findAll();
 
-    UserInfo findUserInfoByUserName(String userName);
+    UserInfo findUserInfoByUserNameIgnoreCase(String userName);
 
     List<UserInfo> findAllByNotifyAboutReportsIsTrue();
 }

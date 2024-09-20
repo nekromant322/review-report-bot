@@ -1,6 +1,7 @@
 package com.nekromant.telegram.sheduler;
 
 import com.nekromant.telegram.MentoringReviewBot;
+import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SpecialChatService;
@@ -20,9 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.nekromant.telegram.contants.MessageContants.MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS;
-import static com.nekromant.telegram.contants.MessageContants.REPORT_REMINDER;
-import static com.nekromant.telegram.contants.MessageContants.STUDENT_REPORT_FORGET_REMINDER;
+import static com.nekromant.telegram.contants.MessageContants.*;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Slf4j
@@ -31,6 +30,9 @@ public class ReportReminderScheduler {
 
     @Value("${reminders.maxDaysWithoutReport}")
     private Integer maxDaysWithoutReport;
+
+    @Value("${owner.userName}")
+    private String ownerUserName;
 
     @Autowired
     private ReportRepository reportRepository;
@@ -62,6 +64,7 @@ public class ReportReminderScheduler {
         if (!allStudents.isEmpty()) {
             mentoringReviewBot.sendMessage(specialChatService.getReportsChatId(), REPORT_REMINDER +
                 allStudents.stream()
+                        .filter(username -> !username.equalsIgnoreCase(ownerUserName))
                         .map(username -> "@" + username)
                         .collect(Collectors.joining(", ")));
         }
@@ -73,6 +76,7 @@ public class ReportReminderScheduler {
         Set<String> allStudentsUsernames = reportRepository.findAll()
                 .stream()
                 .map(Report::getStudentUserName)
+                .filter(this::isNotOwnerOrMentor)
                 .collect(Collectors.toSet());
 
         List<String> badStudentsUsernames = new ArrayList<>();
@@ -114,6 +118,11 @@ public class ReportReminderScheduler {
                 map(name -> userInfoService.getUserInfo(name).getChatId())
                 .forEach(chatId -> mentoringReviewBot.sendMessage(chatId.toString(), STUDENT_REPORT_FORGET_REMINDER));
 
+    }
+
+    private boolean isNotOwnerOrMentor(String username) {
+        return !username.equalsIgnoreCase(ownerUserName)
+                && !userInfoService.getUserInfo(ownerUserName).getUserType().equals(UserType.MENTOR);
     }
 
 }

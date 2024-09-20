@@ -78,6 +78,10 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 Long reviewId = Long.parseLong(callBackData.split(" ")[1]);
                 int timeSlot = Integer.parseInt(callBackData.split(" ")[2]);
                 ReviewRequest review = reviewRequestRepository.findById(reviewId).orElseThrow(InvalidParameterException::new);
+                if (reviewRequestRepository.existsByBookedDateTime(LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0)))) {
+                    log.error("Time slot already booked: {}", timeSlot);
+                    throw new InvalidParameterException("Time slot already booked: " + timeSlot);
+                }
                 review.setBookedDateTime(LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0)));
                 review.setMentorUserName(update.getCallbackQuery().getFrom().getUserName());
                 reviewRequestRepository.save(review);

@@ -21,6 +21,8 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,8 +135,11 @@ public class ReviewCommand extends MentoringReviewCommand {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
 
-
-        reviewRequest.getTimeSlots().forEach(x -> {
+        LocalDate reviewRequestDate = reviewRequest.getDate();
+        reviewRequest.getTimeSlots().
+                stream().
+                filter(timeSlot -> !reviewRequestRepository.existsByBookedDateTime(LocalDateTime.of(reviewRequestDate, LocalTime.of(timeSlot, 0)))).
+                forEach(x -> {
             List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
             InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
             inlineKeyboardButton.setText(x + ":00");
