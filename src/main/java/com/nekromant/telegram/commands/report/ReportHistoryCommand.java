@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands.report;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
+import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,8 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
 
     @Autowired
     private ReportRepository reportRepository;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
 
     public ReportHistoryCommand() {
         super(REPORT_HISTORY.getAlias(), REPORT_HISTORY.getDescription());
@@ -34,12 +37,11 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         try {
             validateArgumentsNumber(strings);
-            SendMessage message = new SendMessage();
-            message.setChatId(chat.getId().toString());
             int limitCount = strings.length > 1 ? Integer.parseInt(strings[1]) : 5;
             String studentUserName = parseUserName(strings);
             String messageWithHistory = reportRepository.findAllByStudentUserNameIgnoreCase(studentUserName)
                     .stream()
+                    .filter(this::hasRequiredFields)
                     .sorted(Comparator.comparing(Report::getDate).reversed())
                     .limit(limitCount)
                     .sorted(Comparator.comparing(Report::getDate))
@@ -47,23 +49,25 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
                             report.getTitle())
                     .collect(Collectors.joining("\n-----------------\n"));
 
-            message.setText(messageWithHistory);
+            SendMessage message = sendMessageFactory.create(chat.getId().toString(), messageWithHistory);
             if (messageWithHistory.isEmpty()) {
                 log.info("История отчётов {} пуста", studentUserName);
-                message.setText(ERROR + "\nИстория отчётов + " + studentUserName + " пуста");
+                message.setText(ERROR + "\nИстория отчётов " + studentUserName + " пуста");
             }
 
             execute(absSender, message, user);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            SendMessage message = new SendMessage();
-            message.setChatId(chat.getId().toString());
-            message.setText(ERROR + REPORT_HISTORY_HELP_MESSAGE);
+            SendMessage message = sendMessageFactory.create(chat.getId().toString(), ERROR + REPORT_HISTORY_HELP_MESSAGE);
             execute(absSender, message, user);
         }
     }
 
     private String parseUserName(String[] strings) {
         return strings[0].replaceAll("@", "");
+    }
+
+    private boolean hasRequiredFields(Report report) {
+        return report.getDate() != null && report.getHours() != null && report.getTitle() != null;
     }
 }
