@@ -1,6 +1,7 @@
 package com.nekromant.telegram.sheduler;
 
 import com.nekromant.telegram.MentoringReviewBot;
+import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SpecialChatService;
@@ -31,6 +32,9 @@ public class ReportReminderScheduler {
 
     @Value("${reminders.maxDaysWithoutReport}")
     private Integer maxDaysWithoutReport;
+
+    @Value("${owner.userName}")
+    private String ownerUserName;
 
     @Autowired
     private ReportRepository reportRepository;
@@ -73,6 +77,7 @@ public class ReportReminderScheduler {
         Set<String> allStudentsUsernames = reportRepository.findAll()
                 .stream()
                 .map(Report::getStudentUserName)
+                .filter(this::isNotOwnerOrMentor)
                 .collect(Collectors.toSet());
 
         List<String> badStudentsUsernames = new ArrayList<>();
@@ -114,6 +119,11 @@ public class ReportReminderScheduler {
                 map(name -> userInfoService.getUserInfo(name).getChatId())
                 .forEach(chatId -> mentoringReviewBot.sendMessage(chatId.toString(), STUDENT_REPORT_FORGET_REMINDER));
 
+    }
+
+    private boolean isNotOwnerOrMentor(String username) {
+        return !username.equalsIgnoreCase(ownerUserName)
+                && !userInfoService.getUserInfo(ownerUserName).getUserType().equals(UserType.MENTOR);
     }
 
 }
