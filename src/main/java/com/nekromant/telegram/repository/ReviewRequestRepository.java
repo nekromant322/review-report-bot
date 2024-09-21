@@ -14,4 +14,5 @@ public interface ReviewRequestRepository extends CrudRepository<ReviewRequest, L
     List<ReviewRequest> findAllByBookedDateTimeBetween(LocalDateTime from, LocalDateTime to);
 
     List<ReviewRequest> findAll();
+    boolean existsByBookedDateTimeAndMentorUserName(LocalDateTime dateTime, String mentorUserName);
 }
