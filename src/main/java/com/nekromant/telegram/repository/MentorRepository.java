@@ -10,5 +10,5 @@ public interface MentorRepository extends CrudRepository<Mentor, String> {
 
     List<Mentor> findAllByIsActiveIsTrue();
 
-    Mentor findMentorByUserNameIgnoreCase(String userName);
+    Mentor findMentorByUserName(String userName);
 }
