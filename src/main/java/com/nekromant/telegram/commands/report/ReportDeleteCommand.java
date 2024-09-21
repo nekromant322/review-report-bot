@@ -44,7 +44,7 @@ public class ReportDeleteCommand extends MentoringReviewCommand {
                 execute(absSender, message, user);
                 return;
             }
-            reportRepository.deleteByStudentUserName(strings[0].replaceAll("@", ""));
+            reportRepository.deleteByStudentUserNameIgnoreCase(strings[0].replaceAll("@", ""));
             message.setText(REPORTS_DELETED);
             execute(absSender, message, user);
         } catch (Exception e) {

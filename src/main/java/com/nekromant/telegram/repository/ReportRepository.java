@@ -24,6 +24,6 @@ public interface ReportRepository extends CrudRepository<Report, Long> {
     List<Report> findAllByDateIs(LocalDate date);
 
     @Transactional
-    void deleteByStudentUserName(String studentUserName);
+    void deleteByStudentUserNameIgnoreCase(String studentUserName);
 
 }

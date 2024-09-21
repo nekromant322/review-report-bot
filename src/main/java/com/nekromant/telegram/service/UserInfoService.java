@@ -45,7 +45,7 @@ public class UserInfoService {
     public void demoteMentorToUser(String userName) throws Exception {
         UserInfo userInfo = userInfoRepository.findUserInfoByUserNameIgnoreCase(userName);
         if (userInfo.getUserType() == UserType.MENTOR) {
-            Mentor deleteMentor = mentorRepository.findMentorByUserName(userName);
+            Mentor deleteMentor = mentorRepository.findMentorByUserNameIgnoreCase(userName);
             mentorRepository.delete(deleteMentor);
             userInfo.setUserType(UserType.DEV);
             userInfoRepository.save(userInfo);
