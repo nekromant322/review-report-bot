@@ -55,7 +55,7 @@ public class ReviewScheduler {
                     reviewRequest.getStudentUserName(), reviewRequest.getMentorUserName(),
                     reviewRequest.getBookedDateTime().format(defaultDateTimeFormatter()),
                     reviewRequest.getTitle(),
-                    mentorRepository.findMentorByUserName(reviewRequest.getMentorUserName()).getRoomUrl());
+                    mentorRepository.findMentorByUserNameIgnoreCase(reviewRequest.getMentorUserName()).getRoomUrl());
 
             userInfoService.getAllUsersReportNotificationsEnabled()
                     .stream()
