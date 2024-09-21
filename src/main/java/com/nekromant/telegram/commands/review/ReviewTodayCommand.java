@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REVIEW_TODAY;
+import static com.nekromant.telegram.contants.MessageContants.NO_REVIEW_TODAY;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -66,18 +67,21 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
                             LocalDate.now(ZoneId.of("Europe/Moscow")).atStartOfDay(),
                             LocalDate.now(ZoneId.of("Europe/Moscow")).plus(1, DAYS).atStartOfDay()
                     );
-
-            String messageWithReviewsToday = "Расписание ревью на сегодня\n\n" +
-                    reviewsToday.stream()
-                            .sorted(Comparator.comparing(ReviewRequest::getBookedDateTime))
-                            .map(review ->
-                                    "@" + review.getStudentUserName() + "\n" +
-                                            review.getBookedDateTime().format(defaultDateTimeFormatter()) + "\n" +
-                                            review.getTitle() + "\n" +
-                                            "@" + review.getMentorUserName() + "\n" +
-                                            mentorRepository.findMentorByUserName(review.getMentorUserName()).getRoomUrl() + "\n")
-                            .collect(Collectors.joining("\n"));
-            message.setText(messageWithReviewsToday);
+            if (reviewsToday.isEmpty()) {
+                message.setText(NO_REVIEW_TODAY);
+            } else {
+                String messageWithReviewsToday = "Расписание ревью на сегодня\n\n" +
+                        reviewsToday.stream()
+                                .sorted(Comparator.comparing(ReviewRequest::getBookedDateTime))
+                                .map(review ->
+                                        "@" + review.getStudentUserName() + "\n" +
+                                                review.getBookedDateTime().format(defaultDateTimeFormatter()) + "\n" +
+                                                review.getTitle() + "\n" +
+                                                "@" + review.getMentorUserName() + "\n" +
+                                                mentorRepository.findMentorByUserNameIgnoreCase(review.getMentorUserName()).getRoomUrl() + "\n")
+                                .collect(Collectors.joining("\n"));
+                message.setText(messageWithReviewsToday);
+            }
             message.disableWebPagePreview();
             execute(absSender, message, user);
         }
