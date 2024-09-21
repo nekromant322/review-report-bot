@@ -107,8 +107,12 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 deleteMessageMarkUp(review.getPollMessageId(), specialChatService.getMentorsChatId());
             }
             try {
-                execute(message);
-                execute(messageForMentors);
+                if (message.getText() != null && !message.getText().isEmpty()) {
+                    execute(message);
+                }
+                if (messageForMentors.getText() != null && !messageForMentors.getText().isEmpty()) {
+                    execute(messageForMentors);
+                }
             } catch (TelegramApiException e) {
                 log.error(e.getMessage(), e);
             }
