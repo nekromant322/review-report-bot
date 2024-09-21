@@ -11,7 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,7 +45,7 @@ public class UserInfoService {
     public void demoteMentorToUser(String userName) throws Exception {
         UserInfo userInfo = userInfoRepository.findUserInfoByUserName(userName);
         if (userInfo.getUserType() == UserType.MENTOR) {
-            Mentor deleteMentor = mentorRepository.findMentorByUserName(userName);
+            Mentor deleteMentor = mentorRepository.findMentorByUserNameIgnoreCase(userName);
             mentorRepository.delete(deleteMentor);
             userInfo.setUserType(UserType.DEV);
             userInfoRepository.save(userInfo);

@@ -71,7 +71,7 @@ public class SchedulePeriodService {
                         x.getTitle().replace("Тема:", ""),
                         x.getBookedDateTime().toString().replace("T", " "),
                         false,
-                        mentorRepository.findMentorByUserName(x.getMentorUserName()).getRoomUrl(),
+                        mentorRepository.findMentorByUserNameIgnoreCase(x.getMentorUserName()).getRoomUrl(),
                         true
                 ))
                 .sorted(Comparator.comparing(BookedReviewDTO::getBookedDateTime));

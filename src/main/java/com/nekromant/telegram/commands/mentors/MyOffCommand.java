@@ -33,7 +33,7 @@ public class MyOffCommand extends MentoringReviewCommand {
         message.disableNotification();
 
         try {
-            Mentor mentor = mentorRepository.findMentorByUserName(user.getUserName());
+            Mentor mentor = mentorRepository.findMentorByUserNameIgnoreCase(user.getUserName());
             if (mentor == null) {
                 message.setText("Ты не ментор");
                 execute(absSender, message, user);
