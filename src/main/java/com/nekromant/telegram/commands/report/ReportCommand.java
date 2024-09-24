@@ -1,7 +1,7 @@
 package com.nekromant.telegram.commands.report;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
-import com.nekromant.telegram.exception.TooManyReportsException;
+import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SpecialChatService;
@@ -13,13 +13,17 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REPORT;
@@ -33,9 +37,6 @@ public class ReportCommand extends MentoringReviewCommand {
 
     @Autowired
     private ReportRepository reportRepository;
-
-    @Autowired
-    private SpecialChatService specialChatService;
 
     @Autowired
     private UserInfoService userInfoService;
@@ -58,20 +59,17 @@ public class ReportCommand extends MentoringReviewCommand {
 
                 ValidationUtils.validateArgumentsNumber(strings);
                 Report report = new Report();
-                report.setDate(parseDate(strings));
                 report.setHours(parseHours(strings));
                 report.setStudentUserName(user.getUserName());
                 report.setTitle(parseTitle(strings));
 
                 if (reportRepository.existsReportByDateAndStudentUserName(report.getDate(), report.getStudentUserName())) {
-                    throw new TooManyReportsException();
+                    log.info(TOO_MANY_REPORTS + "\n{}", report);
                 }
                 reportRepository.save(report);
 
-                sendAnswer(specialChatService.getReportsChatId(), "@" + report.getStudentUserName() + "\n" + report.getDate().format(defaultDateFormatter()) + "\n" + report.getHours() +
-                        "\n" + report.getTitle(), absSender, user);
-            } catch (TooManyReportsException exception) {
-                sendAnswer(chat.getId().toString(), ERROR + exception.getMessage(), absSender, user);
+                sendDatePicker(absSender, user.getId().toString(), report);
+
             } catch (InvalidParameterException e) {
                 log.error(e.getMessage(), e);
                 sendAnswer(chat.getId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE, absSender, user);
@@ -93,28 +91,59 @@ public class ReportCommand extends MentoringReviewCommand {
     }
 
     private String parseTitle(String[] strings) {
-        return Arrays.stream(strings).skip(2).collect(Collectors.joining(" "));
+        return Arrays.stream(strings).skip(1).collect(Collectors.joining(" "));
     }
 
     private Integer parseHours(String[] strings) {
-        int hours = Integer.parseInt(strings[1]);
+        int hours = Integer.parseInt(strings[0]);
         validateHoursArgument(hours);
         return hours;
-    }
-
-    private LocalDate parseDate(String[] arguments) {
-        if (arguments[0].equalsIgnoreCase("сегодня")) {
-            return LocalDate.now(ZoneId.of("Europe/Moscow"));
-        }
-        if (arguments[0].equalsIgnoreCase("вчера")) {
-            return LocalDate.now(ZoneId.of("Europe/Moscow")).minus(1, ChronoUnit.DAYS);
-        }
-        throw new InvalidParameterException();
     }
 
     private void validateHoursArgument(int hours) {
         if (hours < 0 || hours > 24) {
             throw new InvalidParameterException("Неверное значение часов — должно быть от 0 до 24");
         }
+    }
+
+    private void sendDatePicker(AbsSender absSender, String userChatId, Report report) throws TelegramApiException {
+        InlineKeyboardMarkup inlineKeyboardMarkup = getDatePickerInlineKeyboardMarkup(report);
+        SendMessage message = new SendMessage();
+        message.setChatId(userChatId);
+        message.setText("Выберите дату");
+        message.setReplyMarkup(inlineKeyboardMarkup);
+
+        absSender.execute(message);
+    }
+
+    private static InlineKeyboardMarkup getDatePickerInlineKeyboardMarkup(Report report) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+
+        List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
+        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+        LocalDate today = LocalDate.now(ZoneId.of("Europe/Moscow"));
+        inlineKeyboardButton.setText(today.format(defaultDateFormatter()));
+        inlineKeyboardButton.setCallbackData(CallBack.TODAY.getAlias() + " " + "Сегодня " + report.getId());
+        keyboardButtonRow.add(inlineKeyboardButton);
+        rowList.add(keyboardButtonRow);
+
+        keyboardButtonRow = new ArrayList<>();
+        inlineKeyboardButton = new InlineKeyboardButton();
+        LocalDate yesterday = LocalDate.now(ZoneId.of("Europe/Moscow")).minusDays(1);
+        inlineKeyboardButton.setText(yesterday.format(defaultDateFormatter()));
+        inlineKeyboardButton.setCallbackData(CallBack.YESTERDAY.getAlias() + " " + "Вчера " + report.getId());
+        keyboardButtonRow.add(inlineKeyboardButton);
+        rowList.add(keyboardButtonRow);
+
+        keyboardButtonRow = new ArrayList<>();
+        inlineKeyboardButton = new InlineKeyboardButton();
+        inlineKeyboardButton.setText("Отмена");
+        inlineKeyboardButton.setCallbackData(CallBack.DENY_REPORT.getAlias() + " " + report.getId());
+        keyboardButtonRow.add(inlineKeyboardButton);
+        rowList.add(keyboardButtonRow);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        return inlineKeyboardMarkup;
     }
 }
