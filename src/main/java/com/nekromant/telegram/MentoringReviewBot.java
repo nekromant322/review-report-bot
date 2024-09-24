@@ -133,13 +133,13 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     private CallbackStrategy getCallbackStrategy(String callbackData) {
         String callbackCommandName = callbackData.split(" ")[0];
-        if (callbackCommandName.equalsIgnoreCase(CallBack.APPROVE.getAlias())) {
+        if (CallBack.APPROVE.equals(CallBack.from(callbackCommandName))) {
             return approveCallbackStrategy;
-        } else if (callbackCommandName.equalsIgnoreCase(CallBack.DENY.getAlias())) {
+        } else if (CallBack.DENY.equals(CallBack.from(callbackCommandName))) {
             return denyCallbackStrategy;
-        } else if (callbackCommandName.equalsIgnoreCase(CallBack.DATE_TIME.getAlias())) {
+        } else if (CallBack.DATE_TIME.equals(CallBack.from(callbackCommandName))) {
             return dateTimeCallbackStrategy;
-        } else if (callbackCommandName.equalsIgnoreCase(CallBack.DENY_REPORT.getAlias())) {
+        } else if (CallBack.DENY_REPORT.equals(CallBack.from(callbackCommandName))) {
             return denyReportCallbackStrategy;
         }
         throw new IllegalArgumentException("Invalid callback data: " + callbackData);

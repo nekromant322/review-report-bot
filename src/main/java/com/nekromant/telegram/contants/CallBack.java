@@ -2,6 +2,8 @@ package com.nekromant.telegram.contants;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 @Getter
 public enum CallBack {
     APPROVE("/approve"),
@@ -15,4 +17,10 @@ public enum CallBack {
         this.alias = alias;
     }
 
+    public static CallBack from(String alias) {
+        return Arrays.stream(CallBack.values())
+                .filter(callBack -> callBack.getAlias().equals(alias))
+                .findFirst()
+                .orElse(null);
+    }
 }
