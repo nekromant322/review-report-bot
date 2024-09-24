@@ -6,8 +6,7 @@ import lombok.Getter;
 public enum CallBack {
     APPROVE("/approve"),
     DENY("/deny"),
-    TODAY("/today"),
-    YESTERDAY("/yesterday"),
+    DATE_TIME("/date_time"),
     DENY_REPORT("/cancel_report");
 
     private final String alias;

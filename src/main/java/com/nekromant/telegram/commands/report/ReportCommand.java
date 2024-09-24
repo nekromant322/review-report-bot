@@ -4,9 +4,7 @@ import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
-import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.service.UserInfoService;
-import com.nekromant.telegram.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -57,7 +55,6 @@ public class ReportCommand extends MentoringReviewCommand {
                 //тут убрать когда получу все chatId, оставить только в /start
                 userInfoService.initializeUserInfo(chat, user);
 
-                ValidationUtils.validateArgumentsNumber(strings);
                 Report report = new Report();
                 report.setHours(parseHours(strings));
                 report.setStudentUserName(user.getUserName());
@@ -122,17 +119,17 @@ public class ReportCommand extends MentoringReviewCommand {
 
         List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
         InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-        LocalDate today = LocalDate.now(ZoneId.of("Europe/Moscow"));
-        inlineKeyboardButton.setText(today.format(defaultDateFormatter()));
-        inlineKeyboardButton.setCallbackData(CallBack.TODAY.getAlias() + " " + "Сегодня " + report.getId());
+        String today = LocalDate.now(ZoneId.of("Europe/Moscow")).format(defaultDateFormatter());
+        inlineKeyboardButton.setText(today);
+        inlineKeyboardButton.setCallbackData(CallBack.DATE_TIME.getAlias() + " " + today + " " + report.getId());
         keyboardButtonRow.add(inlineKeyboardButton);
         rowList.add(keyboardButtonRow);
 
         keyboardButtonRow = new ArrayList<>();
         inlineKeyboardButton = new InlineKeyboardButton();
-        LocalDate yesterday = LocalDate.now(ZoneId.of("Europe/Moscow")).minusDays(1);
-        inlineKeyboardButton.setText(yesterday.format(defaultDateFormatter()));
-        inlineKeyboardButton.setCallbackData(CallBack.YESTERDAY.getAlias() + " " + "Вчера " + report.getId());
+        String yesterday = LocalDate.now(ZoneId.of("Europe/Moscow")).minusDays(1).format(defaultDateFormatter());
+        inlineKeyboardButton.setText(yesterday);
+        inlineKeyboardButton.setCallbackData(CallBack.DATE_TIME.getAlias() + " " + yesterday + " " + report.getId());
         keyboardButtonRow.add(inlineKeyboardButton);
         rowList.add(keyboardButtonRow);
 
