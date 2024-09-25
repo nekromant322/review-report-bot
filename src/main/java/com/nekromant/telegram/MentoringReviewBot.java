@@ -5,7 +5,9 @@ import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMe
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategyComponent;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.CallBack;
+import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.service.SpecialChatService;
+import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingC
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -30,7 +33,6 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     @Value("${bot.name}")
     private String botName;
-
     @Value("${bot.token}")
     private String botToken;
 
@@ -46,6 +48,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private DenyReportCallbackStrategy denyReportCallbackStrategy;
     @Autowired
     private DeleteMessageStrategyComponent deleteMessageStrategyComponent;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
 
     @Autowired
     public MentoringReviewBot(List<MentoringReviewCommand> allCommands) {
@@ -70,16 +74,6 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         }
     }
 
-    private boolean isUserMessage(Update update) {
-        return update.hasMessage() && update.getMessage().isUserMessage() && !isSpecialChat(update);
-    }
-
-    private boolean isSpecialChat(Update update) {
-        return update.getMessage().getChatId().toString().equals(specialChatService.getMentorsChatId()) ||
-                update.getMessage().getChatId().toString().equals(specialChatService.getReportsChatId()) ||
-                ((update.getMessage().getChat().isGroupChat() || update.getMessage().getChat().isSuperGroupChat()) && update.getMessage().getChat().getTitle().equals("java-кумунити"));
-    }
-
     private void processUserMessage(Update update) {
         if (!isSpecialChat(update)) {
             sendMessage(update);
@@ -87,74 +81,66 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     }
 
     private void handleCallbackQuery(Update update) throws TelegramApiException {
-        String callbackData = update.getCallbackQuery().getData();
-        SendMessage messageForUser = new SendMessage();
-        SendMessage messageForMentors = new SendMessage();
-        SendMessage messageForReportsChat = new SendMessage();
-        setChatIdForUser(update, messageForUser);
-        setChatIdForMentors(messageForMentors);
-        setChatIdForReportsChat(messageForReportsChat);
+        SendMessage userMessage = sendMessageFactory.createFromUpdate(update, ChatType.USER_CHAT);
+        SendMessage mentorsMessage = sendMessageFactory.createFromUpdate(update, ChatType.MENTORS_CHAT);
+        SendMessage reportsChatMessage = sendMessageFactory.createFromUpdate(update, ChatType.REPORTS_CHAT);
 
-
-        CallbackStrategy strategy = getCallbackStrategy(callbackData);
-        strategy.executeCallbackQuery(update, callbackData, messageForUser, messageForMentors, messageForReportsChat, deleteMessageStrategyComponent);
+        CallbackStrategy strategy = getCallbackStrategy(update);
+        strategy.executeCallbackQuery(update, userMessage, mentorsMessage, reportsChatMessage, deleteMessageStrategyComponent);
 
         deleteReplyMessage(update);
 
-        try {
-            if (isNotEmptyMessage(messageForUser)) {
-                execute(messageForUser);
-            }
-            if (isNotEmptyMessage(messageForMentors)) {
-                execute(messageForMentors);
-            }
-            if (isNotEmptyMessage(messageForReportsChat)) {
-                execute(messageForReportsChat);
-            }
-        } catch (TelegramApiException e) {
-            log.error("Failed to execute callback query", e);
-        }
+        sendMessagesIfNotEmpty(userMessage, mentorsMessage, reportsChatMessage);
     }
 
-    private void deleteReplyMessage(Update update) {
-        DeleteMessageStrategy chosenDeleteMessageStrategy = deleteMessageStrategyComponent.getDeleteMessageStrategy();
-        if (chosenDeleteMessageStrategy == DeleteMessageStrategy.MARKUP) {
-            deleteMessageMarkUp(update);
-        } else if (chosenDeleteMessageStrategy == DeleteMessageStrategy.ENTIRE_MESSAGE) {
-            deleteCallbackMessage(update);
-        } else {
-            throw new RuntimeException("Invalid delete message strategy: " + chosenDeleteMessageStrategy.name());
-        }
+    public void processEditedMessageUpdate(Update update) {
+        update.setMessage(update.getEditedMessage());
+        super.onUpdateReceived(update);
+    }
+
+    private boolean isUserMessage(Update update) {
+        return update.hasMessage() && update.getMessage().isUserMessage() && !isSpecialChat(update);
+    }
+
+    private boolean isSpecialChat(Update update) {
+        String chatId = update.getMessage().getChatId().toString();
+        Chat chat = update.getMessage().getChat();
+
+        return isMentorsChat(chatId) || isReportsChat(chatId) || isJavaCommunityChat(chat);
+    }
+
+    private boolean isMentorsChat(String chatId) {
+        return chatId.equals(specialChatService.getMentorsChatId());
+    }
+
+    private boolean isReportsChat(String chatId) {
+        return chatId.equals(specialChatService.getReportsChatId());
+    }
+
+    private boolean isJavaCommunityChat(Chat chat) {
+        return (chat.isGroupChat() || chat.isSuperGroupChat()) && chat.getTitle().equals("java-кумунити");
     }
 
     private static boolean isNotEmptyMessage(SendMessage sendMessage) {
         return sendMessage.getText() != null && !sendMessage.getText().isEmpty();
     }
 
-    private CallbackStrategy getCallbackStrategy(String callbackData) {
-        String callbackCommandName = callbackData.split(" ")[0];
-        if (CallBack.APPROVE.equals(CallBack.from(callbackCommandName))) {
-            return approveCallbackStrategy;
-        } else if (CallBack.DENY.equals(CallBack.from(callbackCommandName))) {
-            return denyCallbackStrategy;
-        } else if (CallBack.DATE_TIME.equals(CallBack.from(callbackCommandName))) {
-            return dateTimeCallbackStrategy;
-        } else if (CallBack.DENY_REPORT.equals(CallBack.from(callbackCommandName))) {
-            return denyReportCallbackStrategy;
+    private CallbackStrategy getCallbackStrategy(Update update) {
+        String callbackData = update.getCallbackQuery().getData();
+        String command = callbackData.split(" ")[0];
+        CallBack callBack = CallBack.from(command);
+        switch (callBack) {
+            case APPROVE:
+                return approveCallbackStrategy;
+            case DENY:
+                return denyCallbackStrategy;
+            case DATE_TIME:
+                return dateTimeCallbackStrategy;
+            case DENY_REPORT:
+                return denyReportCallbackStrategy;
+            default:
+                throw new IllegalArgumentException("Invalid callback data: " + callbackData);
         }
-        throw new IllegalArgumentException("Invalid callback data: " + callbackData);
-    }
-
-    private void setChatIdForUser(Update update, SendMessage messageForUser) {
-        messageForUser.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
-    }
-
-    private void setChatIdForMentors(SendMessage messageForMentors) {
-        messageForMentors.setChatId(specialChatService.getMentorsChatId());
-    }
-
-    private void setChatIdForReportsChat(SendMessage messageForReportsChat) {
-        messageForReportsChat.setChatId(specialChatService.getReportsChatId());
     }
 
     private boolean isCallbackQuery(Update update) {
@@ -165,29 +151,43 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return update.hasEditedMessage();
     }
 
-    public void processEditedMessageUpdate(Update update) {
-        update.setMessage(update.getEditedMessage());
-        super.onUpdateReceived(update);
+    private void deleteReplyMessage(Update update) {
+        DeleteMessageStrategy strategy = deleteMessageStrategyComponent.getDeleteMessageStrategy();
+        switch (strategy) {
+            case MARKUP:
+                deleteMessageMarkUp(update);
+                break;
+            case ENTIRE_MESSAGE:
+                deleteCallbackMessage(update);
+                break;
+            default:
+                throw new RuntimeException("Unsupported delete message strategy: " + strategy.name());
+        }
     }
 
-    @SneakyThrows
     private void deleteCallbackMessage(Update update) {
         DeleteMessage deleteMessage = new DeleteMessage();
         Message message = update.getCallbackQuery().getMessage();
         deleteMessage.setChatId(message.getChatId().toString());
         deleteMessage.setMessageId(message.getMessageId());
-        execute(deleteMessage);
+        try {
+            execute(deleteMessage);
+        } catch (TelegramApiException e) {
+            log.error("Failed to delete callback message: {}", e.getMessage(), e);
+        }
     }
 
-    @SneakyThrows
     private void deleteMessageMarkUp(Update update) {
         EditMessageReplyMarkup message = new EditMessageReplyMarkup();
         Message callbackMessage = update.getCallbackQuery().getMessage();
         message.setChatId(callbackMessage.getChatId().toString());
         message.setMessageId(callbackMessage.getMessageId());
         message.setReplyMarkup(null);
-        execute(message);
-
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Failed to delete message markup: {}", e.getMessage(), e);
+        }
     }
 
     @Override
@@ -195,25 +195,32 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return botToken;
     }
 
+    private void sendMessagesIfNotEmpty(SendMessage... messages) {
+        for (SendMessage message : messages) {
+            if (isNotEmptyMessage(message)) {
+                try {
+                    execute(message);
+                } catch (TelegramApiException e) {
+                    log.error("Ошибка при отправке сообщения {}", e.getMessage(), e);
+                }
+            }
+        }
+    }
+
     private void sendMessage(Update update) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(update.getMessage().getChatId()));
-        sendMessage.setText(UNKNOWN_COMMAND);
+        SendMessage sendMessage = sendMessageFactory.create(String.valueOf(update.getMessage().getChatId()), UNKNOWN_COMMAND);
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            log.error(e.getMessage(), e);
+            log.error("Ошибка при отправке сообщения {}", e.getMessage(), e);
         }
     }
 
     @SneakyThrows
     public void sendMessage(String chatId, String text) {
+        SendMessage message = sendMessageFactory.create(chatId, text);
+        message.disableWebPagePreview();
         try {
-            SendMessage message = new SendMessage();
-            //убирает превьюшки ссылок
-            message.disableWebPagePreview();
-            message.setText(text);
-            message.setChatId(chatId);
             execute(message);
         } catch (Exception e) {
             log.error("Ошибка при отправке сообщения {}", e.getMessage());

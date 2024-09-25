@@ -25,7 +25,8 @@ public class DenyCallbackStrategy implements CallbackStrategy {
     private StrategyUtils strategyUtils;
 
     @Override
-    public void executeCallbackQuery(Update update, String callbackData, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+        String callbackData = update.getCallbackQuery().getData();
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
 
         ReviewRequest review = strategyUtils.getReviewRequest(reviewId);

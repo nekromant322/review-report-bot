@@ -26,21 +26,20 @@ public class ApproveCallbackStrategy implements CallbackStrategy {
     private StrategyUtils strategyUtils;
 
     @Override
-    public void executeCallbackQuery(Update update, String callbackData, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+        String callbackData = update.getCallbackQuery().getData();
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
         int timeSlot = Integer.parseInt(callbackData.split(" ")[2]);
 
         ReviewRequest review = strategyUtils.getReviewRequest(reviewId);
         messageForUser.setChatId(review.getStudentChatId());
-        LocalDateTime timeSlotLDT = LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0));
+        LocalDateTime timeSlotDateTime = LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0));
         String mentorUsername = update.getCallbackQuery().getFrom().getUserName();
-        if (reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(timeSlotLDT,
+        if (reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(timeSlotDateTime,
                 mentorUsername)) {
             setMessageTextForMentorsTaken(messageForMentors, timeSlot, mentorUsername);
-        } else {
-            setBookedDateTime(review, timeSlotLDT);
-            setMentorUserName(review, update);
-            saveReviewRequest(review);
+        } else  {
+            bookTimeSlot(update, review, timeSlotDateTime);
 
             setMessageTextForUserApproved(messageForUser, review);
             setMessageTextForMentorsApproved(messageForMentors, update, review);
@@ -48,8 +47,14 @@ public class ApproveCallbackStrategy implements CallbackStrategy {
         deleteMessageStrategy.setDeleteMessageStrategy(DeleteMessageStrategy.MARKUP);
     }
 
+    private void bookTimeSlot(Update update, ReviewRequest review, LocalDateTime timeSlotDateTime) {
+        setBookedDateTime(review, timeSlotDateTime);
+        setMentorUserName(review, update);
+        saveReviewRequest(review);
+    }
+
     private void setMessageTextForMentorsTaken(SendMessage messageForMentors, int timeSlot, String mentorUsername) {
-        messageForMentors.setText(timeSlot + " уже забронировано для ментора " + mentorUsername);
+        messageForMentors.setText(String.format("%d уже забронировано для ментора %s", timeSlot, mentorUsername));
     }
 
     private void setBookedDateTime(ReviewRequest review, LocalDateTime timeSlotLDT) {

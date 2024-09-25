@@ -14,7 +14,7 @@ public class MessageContants {
             "что-то вроде \n/" + Command.REVIEW.getAlias() + " [сегодня|завтра] <таймслоты через пробел> Тема:<Тема ревью>\n" +
             "Пример:\n/" + Command.REVIEW.getAlias() + " завтра 15 16 20 Тема: 4 модуль";
     public static final String GROUP_CHAT_IS_NOT_SUPPORTED = "Эта команда не поддерживается в групповых чатах.";
-    public static final String TOO_MANY_REPORTS = "За этот день уже есть отчет";
+    public static final String WRONG_ARGUMENTS_COUNT = "Неверное количество аргументов команды";
     public static final String START_HELP_MESSAGE = REPORT_HELP_MESSAGE + REVIEW_HELP_MESSAGE;
     public static final String ANNOUNCE_HELP_MESSAGE = "Пример: /announce \"Текст анонса\" @UserName";
     public static final String UNKNOWN_COMMAND = "Не понимаю команду";

@@ -12,17 +12,27 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class DenyReportCallbackStrategy implements CallbackStrategy {
     @Autowired
     private ReportRepository reportRepository;
+
     @Override
-    public void executeCallbackQuery(Update update, String callbackData, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+        String callbackData = update.getCallbackQuery().getData();
         Long reportId = Long.parseLong(callbackData.split(" ")[1]);
 
-        setChatIdForUser(update, messageForUser);
-        messageForUser.setText("Отправка отчёта отменена");
-        reportRepository.deleteById(reportId);
+        setMessageForUser(update, messageForUser);
+        deleteReport(reportId);
         deleteMessageStrategy.setDeleteMessageStrategy(DeleteMessageStrategy.ENTIRE_MESSAGE);
     }
 
-    private void setChatIdForUser(Update update, SendMessage messageForUser) {
-        messageForUser.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
+    private void deleteReport(Long reportId) {
+        reportRepository.findById(reportId).ifPresent(report -> reportRepository.deleteById(reportId));
+    }
+
+    private void setMessageForUser(Update update, SendMessage messageForUser) {
+        messageForUser.setChatId(getChatIdFromUpdate(update));
+        messageForUser.setText("Отправка отчёта отменена");
+    }
+
+    private String getChatIdFromUpdate(Update update) {
+        return update.getCallbackQuery().getMessage().getChatId().toString();
     }
 }

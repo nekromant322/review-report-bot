@@ -11,6 +11,8 @@ import java.util.List;
 public interface ReportRepository extends CrudRepository<Report, Long> {
     Boolean existsReportByDateAndStudentUserName(LocalDate date, String studentUserName);
 
+    List<Report> findByDateAndStudentUserName(LocalDate date, String studentUserName);
+
     List<Report> findAll(); //todo переписать на норм запрос для получения первого отчета
 
     List<Report> findAllByStudentUserNameIgnoreCase(String studentUsername);

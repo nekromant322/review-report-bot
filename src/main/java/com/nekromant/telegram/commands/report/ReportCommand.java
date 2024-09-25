@@ -5,6 +5,7 @@ import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.UserInfoService;
+import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,8 @@ public class ReportCommand extends MentoringReviewCommand {
 
     @Autowired
     private UserInfoService userInfoService;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
 
     public ReportCommand() {
         super(REPORT.getAlias(), REPORT.getDescription());
@@ -60,13 +64,8 @@ public class ReportCommand extends MentoringReviewCommand {
                 report.setStudentUserName(user.getUserName());
                 report.setTitle(parseTitle(strings));
 
-                if (reportRepository.existsReportByDateAndStudentUserName(report.getDate(), report.getStudentUserName())) {
-                    log.info(TOO_MANY_REPORTS + "\n{}", report);
-                }
                 reportRepository.save(report);
-
                 sendDatePicker(absSender, user.getId().toString(), report);
-
             } catch (InvalidParameterException e) {
                 log.error(e.getMessage(), e);
                 sendAnswer(chat.getId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE, absSender, user);
@@ -81,9 +80,7 @@ public class ReportCommand extends MentoringReviewCommand {
     }
 
     private void sendAnswer(String chatId, String text, AbsSender absSender, User user) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(text);
+        SendMessage message = sendMessageFactory.create(chatId, text);
         execute(absSender, message, user);
     }
 
@@ -105,42 +102,36 @@ public class ReportCommand extends MentoringReviewCommand {
 
     private void sendDatePicker(AbsSender absSender, String userChatId, Report report) throws TelegramApiException {
         InlineKeyboardMarkup inlineKeyboardMarkup = getDatePickerInlineKeyboardMarkup(report);
-        SendMessage message = new SendMessage();
-        message.setChatId(userChatId);
-        message.setText("Выберите дату");
+        SendMessage message = sendMessageFactory.create(userChatId, "Выберите дату");
         message.setReplyMarkup(inlineKeyboardMarkup);
-
         absSender.execute(message);
     }
 
-    private static InlineKeyboardMarkup getDatePickerInlineKeyboardMarkup(Report report) {
+    private InlineKeyboardMarkup getDatePickerInlineKeyboardMarkup(Report report) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
 
-        List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
-        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-        String today = LocalDate.now(ZoneId.of("Europe/Moscow")).format(defaultDateFormatter());
-        inlineKeyboardButton.setText(today);
-        inlineKeyboardButton.setCallbackData(CallBack.DATE_TIME.getAlias() + " " + today + " " + report.getId());
-        keyboardButtonRow.add(inlineKeyboardButton);
-        rowList.add(keyboardButtonRow);
+        LocalDate currentDay = LocalDate.now(ZoneId.of("Europe/Moscow"));
+        addDateButton(keyboardRows, report, currentDay);
+        addDateButton(keyboardRows, report, currentDay.minusDays(1));
+        addCancelButton(keyboardRows, report);
 
-        keyboardButtonRow = new ArrayList<>();
-        inlineKeyboardButton = new InlineKeyboardButton();
-        String yesterday = LocalDate.now(ZoneId.of("Europe/Moscow")).minusDays(1).format(defaultDateFormatter());
-        inlineKeyboardButton.setText(yesterday);
-        inlineKeyboardButton.setCallbackData(CallBack.DATE_TIME.getAlias() + " " + yesterday + " " + report.getId());
-        keyboardButtonRow.add(inlineKeyboardButton);
-        rowList.add(keyboardButtonRow);
-
-        keyboardButtonRow = new ArrayList<>();
-        inlineKeyboardButton = new InlineKeyboardButton();
-        inlineKeyboardButton.setText("Отмена");
-        inlineKeyboardButton.setCallbackData(CallBack.DENY_REPORT.getAlias() + " " + report.getId());
-        keyboardButtonRow.add(inlineKeyboardButton);
-        rowList.add(keyboardButtonRow);
-
-        inlineKeyboardMarkup.setKeyboard(rowList);
+        inlineKeyboardMarkup.setKeyboard(keyboardRows);
         return inlineKeyboardMarkup;
+    }
+
+    private void addDateButton(List<List<InlineKeyboardButton>> keyboardRows, Report report, LocalDate date) {
+        String dateString = date.format(defaultDateFormatter());
+        InlineKeyboardButton dateButton = new InlineKeyboardButton();
+        dateButton.setText(dateString);
+        dateButton.setCallbackData(String.join(" ", CallBack.DATE_TIME.getAlias(), dateString, report.getId().toString()));
+        keyboardRows.add(Collections.singletonList(dateButton));
+    }
+
+    private void addCancelButton(List<List<InlineKeyboardButton>> keyboardRows, Report report) {
+        InlineKeyboardButton cancelButton = new InlineKeyboardButton();
+        cancelButton.setText("Отмена");
+        cancelButton.setCallbackData(String.join(" ", CallBack.DENY_REPORT.getAlias(), report.getId().toString()));
+        keyboardRows.add(Collections.singletonList(cancelButton));
     }
 }
