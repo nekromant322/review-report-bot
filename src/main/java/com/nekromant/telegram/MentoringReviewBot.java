@@ -23,6 +23,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.MessageContants.UNKNOWN_COMMAND;
 
@@ -39,21 +42,17 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     @Autowired
     private SpecialChatService specialChatService;
     @Autowired
-    private ApproveCallbackStrategy approveCallbackStrategy;
-    @Autowired
-    private DenyCallbackStrategy denyCallbackStrategy;
-    @Autowired
-    private DateTimeCallbackStrategy dateTimeCallbackStrategy;
-    @Autowired
-    private DenyReportCallbackStrategy denyReportCallbackStrategy;
-    @Autowired
     private DeleteMessageStrategyComponent deleteMessageStrategyComponent;
     @Autowired
     private SendMessageFactory sendMessageFactory;
 
+    private final Map<CallBack, CallbackStrategy> callbackStrategyMap;
+
     @Autowired
-    public MentoringReviewBot(List<MentoringReviewCommand> allCommands) {
+    public MentoringReviewBot(List<MentoringReviewCommand> allCommands, List<CallbackStrategy> callbackStrategies) {
         super();
+        this.callbackStrategyMap = callbackStrategies.stream()
+                .collect(Collectors.toMap(CallbackStrategy::getPrefix, Function.identity()));
         allCommands.forEach(this::register);
     }
 
@@ -128,19 +127,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private CallbackStrategy getCallbackStrategy(Update update) {
         String callbackData = update.getCallbackQuery().getData();
         String command = callbackData.split(" ")[0];
-        CallBack callBack = CallBack.from(command);
-        switch (callBack) {
-            case APPROVE:
-                return approveCallbackStrategy;
-            case DENY:
-                return denyCallbackStrategy;
-            case DATE_TIME:
-                return dateTimeCallbackStrategy;
-            case DENY_REPORT:
-                return denyReportCallbackStrategy;
-            default:
-                throw new IllegalArgumentException("Invalid callback data: " + callbackData);
-        }
+
+        return callbackStrategyMap.get(CallBack.from(command));
     }
 
     private boolean isCallbackQuery(Update update) {

@@ -6,10 +6,10 @@ import java.util.Arrays;
 
 @Getter
 public enum CallBack {
-    APPROVE("/approve"),
-    DENY("/deny"),
-    DATE_TIME("/date_time"),
-    DENY_REPORT("/cancel_report");
+    APPROVE("approve"),
+    DENY("deny"),
+    DATE_TIME("dateTime"),
+    DENY_REPORT("denyReport");
 
     private final String alias;
 
@@ -19,7 +19,7 @@ public enum CallBack {
 
     public static CallBack from(String alias) {
         return Arrays.stream(CallBack.values())
-                .filter(callBack -> callBack.getAlias().equals(alias))
+                .filter(callBack -> callBack.getAlias().equalsIgnoreCase(alias))
                 .findFirst()
                 .orElse(null);
     }
