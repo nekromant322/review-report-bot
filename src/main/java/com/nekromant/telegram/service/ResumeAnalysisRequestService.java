@@ -64,7 +64,7 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestServiceCom
 
         String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
         byte[] CV_bytes = resumeAnalysisRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getCVPdf();
-        FormData formData = new FormData(MediaType.MULTIPART_FORM_DATA, "document", CV_bytes);
+        FormData formData = new FormData(MediaType.MULTIPART_FORM_DATA, "document.pdf", CV_bytes);
         telegramFeign.sendDocument(formData, receiverId);
     }
 
