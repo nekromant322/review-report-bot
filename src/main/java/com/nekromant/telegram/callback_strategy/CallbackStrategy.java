@@ -8,9 +8,5 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public interface CallbackStrategy {
     void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) throws TelegramApiException;
-    default CallBack getPrefix() {
-        String className = getClass().getSimpleName();
-        String strategyPrefix = className.substring(0, className.indexOf("Callback"));
-        return CallBack.from(strategyPrefix);
-    }
+    CallBack getPrefix();
 }

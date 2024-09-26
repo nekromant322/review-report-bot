@@ -2,6 +2,7 @@ package com.nekromant.telegram.callback_strategy;
 
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategyComponent;
+import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SpecialChatService;
@@ -26,6 +27,11 @@ public class DateTimeCallbackStrategy implements CallbackStrategy {
     @Override
     public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
         setReportDate(update, messageForUser, messageForReportsChat, deleteMessageStrategy);
+    }
+
+    @Override
+    public CallBack getPrefix() {
+        return CallBack.DATE_TIME;
     }
 
     private void setReportDate(Update update, SendMessage messageForUser, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {

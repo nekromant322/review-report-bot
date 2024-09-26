@@ -2,6 +2,7 @@ package com.nekromant.telegram.callback_strategy;
 
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategyComponent;
+import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,11 @@ public class DenyReportCallbackStrategy implements CallbackStrategy {
         setMessageForUser(update, messageForUser);
         deleteReport(reportId);
         deleteMessageStrategy.setDeleteMessageStrategy(DeleteMessageStrategy.ENTIRE_MESSAGE);
+    }
+
+    @Override
+    public CallBack getPrefix() {
+        return CallBack.DENY_REPORT;
     }
 
     private void deleteReport(Long reportId) {

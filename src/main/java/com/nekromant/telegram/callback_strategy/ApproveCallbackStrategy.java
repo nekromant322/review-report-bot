@@ -3,6 +3,7 @@ package com.nekromant.telegram.callback_strategy;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategyComponent;
 import com.nekromant.telegram.callback_strategy.utils.StrategyUtils;
+import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,11 @@ public class ApproveCallbackStrategy implements CallbackStrategy {
             setMessageTextForMentorsApproved(messageForMentors, update, review);
         }
         deleteMessageStrategy.setDeleteMessageStrategy(DeleteMessageStrategy.MARKUP);
+    }
+
+    @Override
+    public CallBack getPrefix() {
+        return CallBack.APPROVE;
     }
 
     private void bookTimeSlot(Update update, ReviewRequest review, LocalDateTime timeSlotDateTime) {

@@ -3,6 +3,7 @@ package com.nekromant.telegram.callback_strategy;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategyComponent;
 import com.nekromant.telegram.callback_strategy.utils.StrategyUtils;
+import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,11 @@ public class DenyCallbackStrategy implements CallbackStrategy {
 
         reviewRequestRepository.deleteById(reviewId);
         deleteMessageStrategy.setDeleteMessageStrategy(DeleteMessageStrategy.MARKUP);
+    }
+
+    @Override
+    public CallBack getPrefix() {
+        return CallBack.DENY;
     }
 
     private void setMessageTextDenied(SendMessage messageForUser, ReviewRequest review) {
