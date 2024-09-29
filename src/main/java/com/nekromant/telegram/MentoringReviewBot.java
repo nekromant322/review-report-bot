@@ -42,8 +42,6 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     @Autowired
     private SpecialChatService specialChatService;
     @Autowired
-    private DeleteMessageStrategyComponent deleteMessageStrategyComponent;
-    @Autowired
     private SendMessageFactory sendMessageFactory;
 
     private final Map<CallBack, CallbackStrategy> callbackStrategyMap;
@@ -85,9 +83,10 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         SendMessage reportsChatMessage = sendMessageFactory.createFromUpdate(update, ChatType.REPORTS_CHAT);
 
         CallbackStrategy strategy = getCallbackStrategy(update);
+        DeleteMessageStrategyComponent deleteMessageStrategyComponent = new DeleteMessageStrategyComponent();
         strategy.executeCallbackQuery(update, userMessage, mentorsMessage, reportsChatMessage, deleteMessageStrategyComponent);
 
-        deleteReplyMessage(update);
+        deleteReplyMessage(update, deleteMessageStrategyComponent.getDeleteMessageStrategy());
 
         sendMessagesIfNotEmpty(userMessage, mentorsMessage, reportsChatMessage);
     }
@@ -139,9 +138,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return update.hasEditedMessage();
     }
 
-    private void deleteReplyMessage(Update update) {
-        DeleteMessageStrategy strategy = deleteMessageStrategyComponent.getDeleteMessageStrategy();
-        switch (strategy) {
+    private void deleteReplyMessage(Update update, DeleteMessageStrategy deleteMessageStrategy) {
+        switch (deleteMessageStrategy) {
             case MARKUP:
                 deleteMessageMarkUp(update);
                 break;
@@ -149,7 +147,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 deleteCallbackMessage(update);
                 break;
             default:
-                throw new RuntimeException("Unsupported delete message strategy: " + strategy.name());
+                throw new RuntimeException("Unsupported delete message strategy: " + deleteMessageStrategy.name());
         }
     }
 
