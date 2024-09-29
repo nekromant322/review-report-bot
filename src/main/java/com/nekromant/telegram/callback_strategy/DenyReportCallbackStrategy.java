@@ -1,7 +1,7 @@
 package com.nekromant.telegram.callback_strategy;
 
+import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategyComponent;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +15,13 @@ public class DenyReportCallbackStrategy implements CallbackStrategy {
     private ReportRepository reportRepository;
 
     @Override
-    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategy deleteMessageStrategy) {
         String callbackData = update.getCallbackQuery().getData();
         Long reportId = Long.parseLong(callbackData.split(" ")[1]);
 
         setMessageForUser(update, messageForUser);
         deleteReport(reportId);
-        deleteMessageStrategy.setDeleteMessageStrategy(DeleteMessageStrategy.ENTIRE_MESSAGE);
+        deleteMessageStrategy.setMessagePart(MessagePart.ENTIRE_MESSAGE);
     }
 
     @Override

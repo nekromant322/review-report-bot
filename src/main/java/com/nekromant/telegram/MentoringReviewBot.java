@@ -1,8 +1,8 @@
 package com.nekromant.telegram;
 
 import com.nekromant.telegram.callback_strategy.*;
+import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategyComponent;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
@@ -83,10 +83,10 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         SendMessage reportsChatMessage = sendMessageFactory.createFromUpdate(update, ChatType.REPORTS_CHAT);
 
         CallbackStrategy strategy = getCallbackStrategy(update);
-        DeleteMessageStrategyComponent deleteMessageStrategyComponent = new DeleteMessageStrategyComponent();
-        strategy.executeCallbackQuery(update, userMessage, mentorsMessage, reportsChatMessage, deleteMessageStrategyComponent);
+        DeleteMessageStrategy deleteMessageStrategy = new DeleteMessageStrategy();
+        strategy.executeCallbackQuery(update, userMessage, mentorsMessage, reportsChatMessage, deleteMessageStrategy);
 
-        deleteReplyMessage(update, deleteMessageStrategyComponent.getDeleteMessageStrategy());
+        deleteReplyMessage(update, deleteMessageStrategy.getMessagePart());
 
         sendMessagesIfNotEmpty(userMessage, mentorsMessage, reportsChatMessage);
     }
@@ -138,8 +138,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return update.hasEditedMessage();
     }
 
-    private void deleteReplyMessage(Update update, DeleteMessageStrategy deleteMessageStrategy) {
-        switch (deleteMessageStrategy) {
+    private void deleteReplyMessage(Update update, MessagePart messagePart) {
+        switch (messagePart) {
             case MARKUP:
                 deleteMessageMarkUp(update);
                 break;
@@ -147,7 +147,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 deleteCallbackMessage(update);
                 break;
             default:
-                throw new RuntimeException("Unsupported delete message strategy: " + deleteMessageStrategy.name());
+                throw new RuntimeException("Unsupported delete message strategy: " + messagePart.name());
         }
     }
 

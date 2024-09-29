@@ -1,6 +1,10 @@
 package com.nekromant.telegram.callback_strategy.delete_message_strategy;
 
-public enum DeleteMessageStrategy {
-    MARKUP,
-    ENTIRE_MESSAGE
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class DeleteMessageStrategy {
+    private MessagePart messagePart;
 }

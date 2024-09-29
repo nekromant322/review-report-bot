@@ -1,7 +1,7 @@
 package com.nekromant.telegram.callback_strategy;
 
+import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategyComponent;
 import com.nekromant.telegram.callback_strategy.utils.StrategyUtils;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
@@ -27,7 +27,7 @@ public class ApproveCallbackStrategy implements CallbackStrategy {
     private StrategyUtils strategyUtils;
 
     @Override
-    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategy deleteMessageStrategy) {
         String callbackData = update.getCallbackQuery().getData();
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
         int timeSlot = Integer.parseInt(callbackData.split(" ")[2]);
@@ -45,7 +45,7 @@ public class ApproveCallbackStrategy implements CallbackStrategy {
             setMessageTextForUserApproved(messageForUser, review);
             setMessageTextForMentorsApproved(messageForMentors, update, review);
         }
-        deleteMessageStrategy.setDeleteMessageStrategy(DeleteMessageStrategy.MARKUP);
+        deleteMessageStrategy.setMessagePart(MessagePart.MARKUP);
     }
 
     @Override

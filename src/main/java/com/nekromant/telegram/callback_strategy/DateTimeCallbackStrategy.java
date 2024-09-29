@@ -1,7 +1,7 @@
 package com.nekromant.telegram.callback_strategy;
 
+import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategyComponent;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
@@ -25,7 +25,7 @@ public class DateTimeCallbackStrategy implements CallbackStrategy {
     private SpecialChatService specialChatService;
 
     @Override
-    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategy deleteMessageStrategy) {
         setReportDate(update, messageForUser, messageForReportsChat, deleteMessageStrategy);
     }
 
@@ -34,7 +34,7 @@ public class DateTimeCallbackStrategy implements CallbackStrategy {
         return CallBack.DATE_TIME;
     }
 
-    private void setReportDate(Update update, SendMessage messageForUser, SendMessage messageForReportsChat, DeleteMessageStrategyComponent deleteMessageStrategy) {
+    private void setReportDate(Update update, SendMessage messageForUser, SendMessage messageForReportsChat, DeleteMessageStrategy deleteMessageStrategy) {
         String callbackData = update.getCallbackQuery().getData();
         String[] dataParts = callbackData.split(" ");
         String date = dataParts[1];
@@ -44,7 +44,7 @@ public class DateTimeCallbackStrategy implements CallbackStrategy {
         Report report = getReport(reportId);
 
         setReportDateAndSave(messageForUser, messageForReportsChat, update, localDate, report);
-        deleteMessageStrategy.setDeleteMessageStrategy(DeleteMessageStrategy.ENTIRE_MESSAGE);
+        deleteMessageStrategy.setMessagePart(MessagePart.ENTIRE_MESSAGE);
     }
 
     private Report getReport(Long reportId) {
