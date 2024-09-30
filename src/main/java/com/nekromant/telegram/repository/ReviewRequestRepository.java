@@ -4,11 +4,9 @@ import com.nekromant.telegram.model.ReviewRequest;
 import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 public interface ReviewRequestRepository extends CrudRepository<ReviewRequest, Long> {
-    ReviewRequest findReviewRequestByStudentChatId(String studentChatId);
-
     void deleteAllByBookedDateTimeIsBefore(LocalDateTime dateTime);
 
     List<ReviewRequest> findAllByBookedDateTimeBetween(LocalDateTime from, LocalDateTime to);

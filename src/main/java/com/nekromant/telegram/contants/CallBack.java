@@ -1,16 +1,26 @@
 package com.nekromant.telegram.contants;
 
-public enum CallBack {
-    APPROVE("/approve"),
-    DENY("/deny");
+import lombok.Getter;
 
-    private String alias;
+import java.util.Arrays;
+
+@Getter
+public enum CallBack {
+    APPROVE("approve"),
+    DENY("deny"),
+    DATE_TIME("dateTime"),
+    DENY_REPORT("denyReport");
+
+    private final String alias;
 
     CallBack(String alias) {
         this.alias = alias;
     }
 
-    public String getAlias() {
-        return alias;
+    public static CallBack from(String alias) {
+        return Arrays.stream(CallBack.values())
+                .filter(callBack -> callBack.getAlias().equalsIgnoreCase(alias))
+                .findFirst()
+                .orElse(null);
     }
 }
