@@ -8,7 +8,7 @@ import java.util.Arrays;
 public enum CallBack {
     APPROVE("approve"),
     DENY("deny"),
-    DATE_TIME("dateTime"),
+    SET_REPORT_DATE_TIME("dateTime"),
     DENY_REPORT("denyReport");
 
     private final String alias;

@@ -1,11 +1,15 @@
 package com.nekromant.telegram.callback_strategy;
 
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
+import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.contants.CallBack;
+import com.nekromant.telegram.contants.ChatType;
+import com.nekromant.telegram.model.ChatMessage;
 import com.nekromant.telegram.model.Report;
+import com.nekromant.telegram.repository.ChatMessageRepository;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SpecialChatService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,24 +18,31 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
+@Slf4j
 @Component
 public class DateTimeCallbackStrategy implements CallbackStrategy {
     @Autowired
     private ReportRepository reportRepository;
     @Autowired
     private SpecialChatService specialChatService;
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
 
     @Override
-    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategy deleteMessageStrategy) {
+    public void executeCallbackQuery(Update update, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
+        SendMessage messageForUser = messageMap.get(ChatType.USER_CHAT);
+        SendMessage messageForReportsChat = messageMap.get(ChatType.REPORTS_CHAT);
+
         setReportDate(update, messageForUser, messageForReportsChat, deleteMessageStrategy);
     }
 
     @Override
     public CallBack getPrefix() {
-        return CallBack.DATE_TIME;
+        return CallBack.SET_REPORT_DATE_TIME;
     }
 
     private void setReportDate(Update update, SendMessage messageForUser, SendMessage messageForReportsChat, DeleteMessageStrategy deleteMessageStrategy) {
@@ -40,10 +51,11 @@ public class DateTimeCallbackStrategy implements CallbackStrategy {
         String date = dataParts[1];
         Long reportId = Long.parseLong(callbackData.split(" ")[2]);
         LocalDate localDate = LocalDate.parse(date, defaultDateFormatter());
+        Integer messageId = Integer.parseInt(callbackData.split(" ")[3]);
 
         Report report = getReport(reportId);
 
-        setReportDateAndSave(messageForUser, messageForReportsChat, update, localDate, report);
+        setReportDateAndSave(messageForUser, messageForReportsChat, update, localDate, report, messageId);
         deleteMessageStrategy.setMessagePart(MessagePart.ENTIRE_MESSAGE);
     }
 
@@ -51,61 +63,96 @@ public class DateTimeCallbackStrategy implements CallbackStrategy {
         return reportRepository.findById(reportId).orElseThrow(InvalidParameterException::new);
     }
 
-    private void setReportDateAndSave(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, LocalDate localDate, Report report) {
+    private void setReportDateAndSave(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, LocalDate localDate, Report report, Integer messageId) {
         report.setDate(localDate);
-        validateAndSaveReportDate(messageForUser, messageForReportsChat, update, report);
+        validateAndSaveReportDate(messageForUser, messageForReportsChat, update, report, messageId);
     }
 
-    private void validateAndSaveReportDate(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, Report report) {
-        if (reportRepository.existsReportByDateAndStudentUserName(report.getDate(), report.getStudentUserName())) {
-            updateExistingReport(messageForUser, messageForReportsChat, report);
+    private void validateAndSaveReportDate(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, Report report, Integer messageId) {
+        if (chatMessageRepository.findByUserMessageId(messageId) != null) {
+            updateReportByMessageId(messageForUser, messageForReportsChat, report, messageId);
+        } else if (reportRepository.existsReportByDateAndStudentUserName(report.getDate(), report.getStudentUserName())) {
+            deleteNewTemporaryReport(report);
+            messageForUser.setText("Отчёт с такой датой уже есть. Отредактируйте отчёт с выбранной датой (" + defaultDateFormatter().format(report.getDate()) + ") или выберите другую дату");
         } else {
-            saveNewReport(messageForUser, messageForReportsChat, update, report);
+            saveNewReport(messageForUser, messageForReportsChat, update, report, messageId);
         }
     }
 
-    private void updateExistingReport(SendMessage messageForUser, SendMessage messageForReportsChat, Report report) {
-        List<Report> existingReports = reportRepository.findByDateAndStudentUserName(report.getDate(), report.getStudentUserName());
-        Report oldReport = existingReports.get(0);
+    private void updateReportByMessageId(SendMessage messageForUser, SendMessage messageForReportsChat, Report updatedReport, Integer messageId) {
+        ChatMessage chatMessageOldReport = chatMessageRepository.findByUserMessageId(messageId);
 
-        deleteDuplicateReports(existingReports);
-        updateOldReport(report, oldReport);
-        deleteNewTemporaryReport(report);
+        if (chatMessageOldReport == null) {
+            messageForUser.setText("Редактируемое сообщение не было найдено в БД. Редактирование отчёта для данного сообщения невозможно");
+        } else if (chatMessageOldReport.getReport() == null) {
+            messageForUser.setText("Отчёт не был привязан к сообщению. Редактирование отчёта для данного сообщения невозможно");
+        } else {
+            Report reportByMessageId = chatMessageOldReport.getReport();
 
-        messageForUser.setText(String.format("Отчёт обновлен:\nДата: %s\nЧасы: %s\nЗаголовок: %s",
-                report.getDate().format(defaultDateFormatter()),
-                report.getHours(),
-                report.getTitle()
-        ));
-        messageForReportsChat.setText(String.format("Отчёт обновлен:\nДата: %s\nЧасы: %s\nЗаголовок: %s",
-                report.getDate().format(defaultDateFormatter()),
-                report.getHours(),
-                report.getTitle()
-        ));
+            if (isUpdateForExistingReportWithSameDate(messageId, updatedReport)) {
+                updateReportByMessageId(updatedReport, reportByMessageId);
+
+                messageForUser.setText(String.format("Отчёт обновлен %s:\n@%s\n%s\n%s\n%s",
+                        LocalDate.now().format(defaultDateFormatter()),
+                        updatedReport.getStudentUserName(),
+                        updatedReport.getDate().format(defaultDateFormatter()),
+                        updatedReport.getHours(),
+                        updatedReport.getTitle()
+                ));
+
+                messageForReportsChat.setText(String.format("Отчёт обновлен %s:\n@%s\n%s\n%s\n%s",
+                        LocalDate.now().format(defaultDateFormatter()),
+                        updatedReport.getStudentUserName(),
+                        updatedReport.getDate().format(defaultDateFormatter()),
+                        updatedReport.getHours(),
+                        updatedReport.getTitle()
+                ));
+            } else {
+                messageForUser.setText("Отчёт с такой датой уже есть. Отредактируйте отчёт с выбранной датой (" + defaultDateFormatter().format(updatedReport.getDate()) + ") или выберите другую дату");
+            }
+            deleteNewTemporaryReport(updatedReport);
+        }
+    }
+
+    private boolean isUpdateForExistingReportWithSameDate(Integer messageId, Report updatedReport) {
+        List<Report> existingReportsWithSuchDate = reportRepository.findByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName());
+        Report reportLikeReceived = existingReportsWithSuchDate.get(0);
+        deleteDuplicateReports(existingReportsWithSuchDate);
+        ChatMessage chatMessageReportWithSameDate = chatMessageRepository.findChatMessageByReport(reportLikeReceived);
+        return chatMessageReportWithSameDate.getUserMessageId().equals(messageId);
     }
 
     private void deleteDuplicateReports(List<Report> existingReports) {
         existingReports.stream()
                 .skip(1)
-                .forEach(reportRepository::delete);
+                .forEach(report -> {
+                    chatMessageRepository.deleteChatMessageByReport(report);
+                    reportRepository.delete(report);
+                });
     }
 
-    private void updateOldReport(Report report, Report oldReport) {
-        oldReport.setHours(report.getHours());
-        oldReport.setTitle(report.getTitle());
-        reportRepository.save(oldReport);
+    private void updateReportByMessageId(Report report, Report reportByMessageId) {
+        reportByMessageId.setHours(report.getHours());
+        reportByMessageId.setTitle(report.getTitle());
+        reportByMessageId.setDate(report.getDate());
+        reportRepository.save(reportByMessageId);
     }
 
     private void deleteNewTemporaryReport(Report report) {
         reportRepository.deleteById(report.getId());
     }
 
-    private void saveNewReport(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, Report report) {
+    private void saveNewReport(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, Report report, Integer messageId) {
         if (!isUserChatEqualsReportsChat(update)) {
             setMessageTextForReportsChat(messageForReportsChat, report);
         }
         setMessageTextReportDone(messageForUser, report);
-        reportRepository.save(report);
+        Report savedReport = reportRepository.save(report);
+        ChatMessage chatMessage = ChatMessage.builder()
+                        .userMessageId(messageId)
+                        .report(savedReport)
+                        .build();
+        chatMessageRepository.save(chatMessage);
     }
 
     private void setMessageTextReportDone(SendMessage messageForUser, Report report) {

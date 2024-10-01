@@ -1,9 +1,10 @@
 package com.nekromant.telegram.callback_strategy;
 
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
+import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.callback_strategy.utils.StrategyUtils;
 import com.nekromant.telegram.contants.CallBack;
+import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.MessageContants.NOBODY_CAN_MAKE_REVIEW;
@@ -26,7 +28,10 @@ public class DenyCallbackStrategy implements CallbackStrategy {
     private StrategyUtils strategyUtils;
 
     @Override
-    public void executeCallbackQuery(Update update, SendMessage messageForUser, SendMessage messageForMentors, SendMessage messageForReportsChat, DeleteMessageStrategy deleteMessageStrategy) {
+    public void executeCallbackQuery(Update update, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
+        SendMessage messageForUser = messageMap.get(ChatType.USER_CHAT);
+        SendMessage messageForMentors = messageMap.get(ChatType.MENTORS_CHAT);
+
         String callbackData = update.getCallbackQuery().getData();
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
 

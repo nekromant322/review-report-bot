@@ -1,6 +1,6 @@
 package com.nekromant.telegram.commands.report;
 
-import com.nekromant.telegram.commands.MentoringReviewCommand;
+import com.nekromant.telegram.commands.MentoringReviewWithMessageIdCommand;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
@@ -33,11 +33,10 @@ import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumb
 
 @Slf4j
 @Component
-public class ReportCommand extends MentoringReviewCommand {
+public class ReportCommand extends MentoringReviewWithMessageIdCommand {
 
     @Autowired
     private ReportRepository reportRepository;
-
     @Autowired
     private UserInfoService userInfoService;
     @Autowired
@@ -48,7 +47,7 @@ public class ReportCommand extends MentoringReviewCommand {
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
+    public void execute(AbsSender absSender, User user, Chat chat, Integer messageId, String[] strings) {
         if (chat.isGroupChat() || chat.isSuperGroupChat()) {
             sendAnswer(chat.getId().toString(), GROUP_CHAT_IS_NOT_SUPPORTED, absSender, user);
         } else {
@@ -65,7 +64,7 @@ public class ReportCommand extends MentoringReviewCommand {
                 report.setTitle(parseTitle(strings));
 
                 reportRepository.save(report);
-                sendDatePicker(absSender, user.getId().toString(), report);
+                sendDatePicker(absSender, user.getId().toString(), report, messageId);
             } catch (InvalidParameterException e) {
                 log.error(e.getMessage(), e);
                 sendAnswer(chat.getId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE, absSender, user);
@@ -100,31 +99,31 @@ public class ReportCommand extends MentoringReviewCommand {
         }
     }
 
-    private void sendDatePicker(AbsSender absSender, String userChatId, Report report) throws TelegramApiException {
-        InlineKeyboardMarkup inlineKeyboardMarkup = getDatePickerInlineKeyboardMarkup(report);
+    private void sendDatePicker(AbsSender absSender, String userChatId, Report report, Integer messageId) throws TelegramApiException {
+        InlineKeyboardMarkup inlineKeyboardMarkup = getDatePickerInlineKeyboardMarkup(report, messageId);
         SendMessage message = sendMessageFactory.create(userChatId, "Выберите дату");
         message.setReplyMarkup(inlineKeyboardMarkup);
         absSender.execute(message);
     }
 
-    private InlineKeyboardMarkup getDatePickerInlineKeyboardMarkup(Report report) {
+    private InlineKeyboardMarkup getDatePickerInlineKeyboardMarkup(Report report, Integer messageId) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
 
         LocalDate currentDay = LocalDate.now(ZoneId.of("Europe/Moscow"));
-        addDateButton(keyboardRows, report, currentDay);
-        addDateButton(keyboardRows, report, currentDay.minusDays(1));
+        addDateButton(keyboardRows, report, currentDay, messageId);
+        addDateButton(keyboardRows, report, currentDay.minusDays(1), messageId);
         addCancelButton(keyboardRows, report);
 
         inlineKeyboardMarkup.setKeyboard(keyboardRows);
         return inlineKeyboardMarkup;
     }
 
-    private void addDateButton(List<List<InlineKeyboardButton>> keyboardRows, Report report, LocalDate date) {
+    private void addDateButton(List<List<InlineKeyboardButton>> keyboardRows, Report report, LocalDate date, Integer messageId) {
         String dateString = date.format(defaultDateFormatter());
         InlineKeyboardButton dateButton = new InlineKeyboardButton();
         dateButton.setText(dateString);
-        dateButton.setCallbackData(String.join(" ", CallBack.DATE_TIME.getAlias(), dateString, report.getId().toString()));
+        dateButton.setCallbackData(String.join(" ", CallBack.SET_REPORT_DATE_TIME.getAlias(), dateString, report.getId().toString(), messageId.toString()));
         keyboardRows.add(Collections.singletonList(dateButton));
     }
 
