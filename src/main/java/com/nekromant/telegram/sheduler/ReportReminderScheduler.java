@@ -54,6 +54,7 @@ public class ReportReminderScheduler {
         Set<String> allStudents = reportRepository.findAll()
                 .stream()
                 .map(Report::getStudentUserName)
+                .filter(this::isNotOwnerOrMentor)
                 .collect(Collectors.toSet());
 
         Set<String> alreadyWroteReportToday = reportRepository.findAllByDateIs(LocalDate.now(ZoneId.of("Europe/Moscow")))
