@@ -244,14 +244,42 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setText(message.getText());
         editMessageText.setChatId(message.getChatId());
+        editMessageText.setMessageId(getMessageId(chatType, chatMessage));
 
-        if (chatType == ChatType.REPORTS_CHAT) {
-            editMessageText.setMessageId(chatMessage.getReportChatBotMessageId());
-        } else {
-            editMessageText.setMessageId(chatMessage.getUserChatBotMessageId());
+        try {
+            execute(editMessageText);
+        } catch (TelegramApiException e) {
+            if (isMessageNotFound(e)) {
+                Message newMessage = execute(message);
+                updateChatMessageId(chatType, chatMessage, newMessage.getMessageId());
+                chatMessageRepository.save(chatMessage);
+            } else {
+                log.error("Ошибка при обновлении текста сообщения {}", e.getMessage(), e);
+            }
         }
+    }
 
-        execute(editMessageText);
+    private int getMessageId(ChatType chatType, ChatMessage chatMessage) {
+        if (chatType == ChatType.REPORTS_CHAT) {
+            return chatMessage.getReportChatBotMessageId();
+        } else {
+            if (chatType != ChatType.USER_CHAT) {
+                log.error("Был передан неподдерживаемый тип чата при обновлении текста сообщения: {}", chatType);
+            }
+            return chatMessage.getUserChatBotMessageId();
+        }
+    }
+
+    private boolean isMessageNotFound(TelegramApiException e) {
+        return e.getMessage().contains("message to edit not found") || e.getMessage().contains("MessageId parameter can't be empty");
+    }
+
+    private void updateChatMessageId(ChatType chatType, ChatMessage chatMessage, int newMessageId) {
+        if (chatType == ChatType.REPORTS_CHAT) {
+            chatMessage.setReportChatBotMessageId(newMessageId);
+        } else if (chatType == ChatType.USER_CHAT) {
+            chatMessage.setUserChatBotMessageId(newMessageId);
+        }
     }
 
     private static boolean isReportUpdated(SendMessage message) {
@@ -259,7 +287,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     }
 
     private static boolean isReportUpdate(String callbackData) {
-        return callbackData.split(" ")[0].equalsIgnoreCase(CallBack.SET_REPORT_DATE_TIME.getAlias()) || !callbackData.split(" ")[0].equalsIgnoreCase(CallBack.DENY_REPORT.getAlias());
+        return callbackData.split(" ")[0].equalsIgnoreCase(CallBack.SET_REPORT_DATE_TIME.getAlias()) && !callbackData.split(" ")[0].equalsIgnoreCase(CallBack.DENY_REPORT.getAlias());
     }
 
     private Integer extractMessageIdFromCallbackData(String callbackData) {
