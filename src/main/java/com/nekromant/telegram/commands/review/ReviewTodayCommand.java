@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -22,7 +21,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REVIEW_TODAY;
@@ -113,14 +114,11 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
 
 
             try {
-                Message executedMessage = absSender.execute(message);
-                x.setPollMessageId(executedMessage.getMessageId());
+                absSender.execute(message);
                 reviewRequestRepository.save(x);
             } catch (TelegramApiException e) {
                 log.error(e.getMessage(), e);
             }
         });
-
-
     }
 }
