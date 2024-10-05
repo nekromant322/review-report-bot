@@ -4,15 +4,10 @@ import com.nekromant.telegram.converter.TimeSlotsConverter;
 import lombok.Data;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Set;
 
 @Data
 @Entity
@@ -44,7 +39,4 @@ public class ReviewRequest {
 
     @Column
     private LocalDateTime bookedDateTime;
-
-    @Column
-    private Integer pollMessageId;
 }

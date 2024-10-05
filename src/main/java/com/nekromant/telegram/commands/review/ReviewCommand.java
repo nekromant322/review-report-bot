@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -84,7 +83,7 @@ public class ReviewCommand extends MentoringReviewCommand {
             log.info("Сохранение нового реквеста {}", reviewRequest);
             reviewRequestRepository.save(reviewRequest);
 
-            writeMentors(absSender, user, specialChatService.getMentorsChatId(), reviewRequest);
+            writeMentors(absSender, specialChatService.getMentorsChatId(), reviewRequest);
 
 
             message.setText(REVIEW_REQUEST_SENT);
@@ -135,7 +134,7 @@ public class ReviewCommand extends MentoringReviewCommand {
     }
 
     @SneakyThrows
-    private void writeMentors(AbsSender absSender, User user, String mentorsChatId, ReviewRequest reviewRequest) {
+    private void writeMentors(AbsSender absSender, String mentorsChatId, ReviewRequest reviewRequest) {
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
@@ -172,8 +171,7 @@ public class ReviewCommand extends MentoringReviewCommand {
                 reviewRequest.getDate().format(defaultDateFormatter()) + "\n");
         message.setReplyMarkup(inlineKeyboardMarkup);
 
-        Message executedMessage = absSender.execute(message);
-        reviewRequest.setPollMessageId(executedMessage.getMessageId());
+        absSender.execute(message);
         reviewRequestRepository.save(reviewRequest);
     }
 
