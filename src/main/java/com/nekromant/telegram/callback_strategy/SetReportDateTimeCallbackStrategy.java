@@ -24,7 +24,7 @@ import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 @Slf4j
 @Component
-public class DateTimeCallbackStrategy implements CallbackStrategy {
+public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
     @Autowired
     private ReportRepository reportRepository;
     @Autowired

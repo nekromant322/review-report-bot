@@ -15,14 +15,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
+import java.util.Set;
 
 import static com.nekromant.telegram.contants.MessageContants.REVIEW_APPROVED;
 import static com.nekromant.telegram.contants.MessageContants.REVIEW_BOOKED;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 
 @Component
-public class ApproveCallbackStrategy implements CallbackStrategy {
+public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
 
+    private static final int MIDNIGHT = 24;
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
     @Autowired
@@ -39,13 +41,20 @@ public class ApproveCallbackStrategy implements CallbackStrategy {
 
         ReviewRequest review = strategyUtils.getReviewRequest(reviewId);
         messageForUser.setChatId(review.getStudentChatId());
-        LocalDateTime timeSlotDateTime = LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0));
+        LocalDateTime timeSlotDateTime;
+        if (timeSlot == MIDNIGHT) {
+            timeSlotDateTime = LocalDateTime.of(review.getDate().plusDays(1), LocalTime.of(0, 0));
+        } else {
+            timeSlotDateTime = LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0));
+        }
         String mentorUsername = update.getCallbackQuery().getFrom().getUserName();
         if (reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(timeSlotDateTime,
                 mentorUsername)) {
             setMessageTextForMentorsTaken(messageForMentors, timeSlot, mentorUsername);
         } else  {
             bookTimeSlot(update, review, timeSlotDateTime);
+            review.setTimeSlots(Set.of(timeSlot));
+            saveReviewRequest(review);
 
             setMessageTextForUserApproved(messageForUser, review);
             setMessageTextForMentorsApproved(messageForMentors, update, review);
@@ -55,13 +64,12 @@ public class ApproveCallbackStrategy implements CallbackStrategy {
 
     @Override
     public CallBack getPrefix() {
-        return CallBack.APPROVE;
+        return CallBack.APPROVE_REVIEW_REQUEST;
     }
 
     private void bookTimeSlot(Update update, ReviewRequest review, LocalDateTime timeSlotDateTime) {
         setBookedDateTime(review, timeSlotDateTime);
         setMentorUserName(review, update);
-        saveReviewRequest(review);
     }
 
     private void setMessageTextForMentorsTaken(SendMessage messageForMentors, int timeSlot, String mentorUsername) {

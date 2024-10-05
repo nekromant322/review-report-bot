@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -22,13 +21,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REVIEW_TODAY;
 import static com.nekromant.telegram.contants.MessageContants.NO_REVIEW_TODAY;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Slf4j
 @Component
@@ -59,13 +59,13 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
             writeMentorsCancelButtons(absSender, reviewRequestRepository
                     .findAllByBookedDateTimeBetween(
                             LocalDate.now(ZoneId.of("Europe/Moscow")).atStartOfDay(),
-                            LocalDate.now(ZoneId.of("Europe/Moscow")).plus(3, DAYS).atStartOfDay()
+                            LocalDate.now(ZoneId.of("Europe/Moscow")).plusDays(3).atStartOfDay()
                     ));
         } else {
             List<ReviewRequest> reviewsToday = reviewRequestRepository
                     .findAllByBookedDateTimeBetween(
                             LocalDate.now(ZoneId.of("Europe/Moscow")).atStartOfDay(),
-                            LocalDate.now(ZoneId.of("Europe/Moscow")).plus(1, DAYS).atStartOfDay()
+                            LocalDate.now(ZoneId.of("Europe/Moscow")).plusDays(1).atStartOfDay()
                     );
             if (reviewsToday.isEmpty()) {
                 message.setText(NO_REVIEW_TODAY);
@@ -89,8 +89,6 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
 
     @SneakyThrows
     private void writeMentorsCancelButtons(AbsSender absSender, List<ReviewRequest> reviewRequestList) {
-
-
         reviewRequestList.forEach(x -> {
             InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
@@ -98,7 +96,7 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
             InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
             inlineKeyboardButton
                     .setText("Отменить");
-            inlineKeyboardButton.setCallbackData(CallBack.DENY.getAlias() + " " + x.getId());
+            inlineKeyboardButton.setCallbackData(CallBack.DENY_REVIEW_REQUEST.getAlias() + " " + x.getId());
 
             keyboardButtonRow.add(inlineKeyboardButton);
             rowList.add(keyboardButtonRow);
@@ -113,14 +111,11 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
 
 
             try {
-                Message executedMessage = absSender.execute(message);
-                x.setPollMessageId(executedMessage.getMessageId());
+                absSender.execute(message);
                 reviewRequestRepository.save(x);
             } catch (TelegramApiException e) {
                 log.error(e.getMessage(), e);
             }
         });
-
-
     }
 }

@@ -11,7 +11,7 @@ public class MessageContants {
             "@username <кол-во отчетов>";
     public static final String REVIEW_HELP_MESSAGE = "Для того чтобы попросить " +
             "ревью напишите " +
-            "что-то вроде \n/" + Command.REVIEW.getAlias() + " [сегодня|завтра] <таймслоты через пробел> Тема:<Тема ревью>\n" +
+            "что-то вроде \n/" + Command.REVIEW.getAlias() + " <таймслоты через пробел> Тема:<Тема ревью>\n" +
             "Пример:\n/" + Command.REVIEW.getAlias() + " завтра 15 16 20 Тема: 4 модуль";
     public static final String GROUP_CHAT_IS_NOT_SUPPORTED = "Эта команда не поддерживается в групповых чатах.";
     public static final String WRONG_ARGUMENTS_COUNT = "Неверное количество аргументов команды";
@@ -40,7 +40,7 @@ public class MessageContants {
     public static final String STUDENT_REPORT_FORGET_REMINDER = "Кажется ты уже пару дней забываешь написать отчет\n" +
             "Бездельничаешь?\uD83D\uDE49";
     public static final String PERIOD_IS_SET = "Период установлен";
-    public static final String ANNOUNCE_SENT = "Аннонсы отправлены";
+    public static final String ANNOUNCE_SENT = "Анонсы отправлены";
     public static final String DAILY_CREATED = "Ежедневное уведомление установлено";
     public static final String DAILY_HELP_MESSAGE = "Чтобы назначить ежедневное уведомление \n/daily <час:минута> " +
             "<текст уведомления>\n Пример:\n/daily 20:55 подключаемся на дейлик";

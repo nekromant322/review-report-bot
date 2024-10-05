@@ -15,7 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.Map;
 
 @Component
-public class DenyReportCallbackStrategy implements CallbackStrategy {
+public class DenyReportDateTimeCallbackStrategy implements CallbackStrategy {
     @Autowired
     private ReportRepository reportRepository;
     @Autowired
@@ -36,7 +36,7 @@ public class DenyReportCallbackStrategy implements CallbackStrategy {
 
     @Override
     public CallBack getPrefix() {
-        return CallBack.DENY_REPORT;
+        return CallBack.DENY_REPORT_DATE_TIME;
     }
 
     private void deleteReport(Long reportId) {
