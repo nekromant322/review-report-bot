@@ -105,14 +105,15 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     private void handleCallbackQuery(Update update) throws TelegramApiException {
         Map<ChatType, SendMessage> messageByChatTypeMap = getMessageByChatTypeMap(update);
+        String callbackData = update.getCallbackQuery().getData();
 
-        CallbackStrategy strategy = getCallbackStrategy(update);
+        CallbackStrategy strategy = getCallbackStrategy(callbackData);
         DeleteMessageStrategy deleteMessageStrategy = new DeleteMessageStrategy();
         strategy.executeCallbackQuery(update, messageByChatTypeMap, deleteMessageStrategy);
 
         deleteReplyMessage(update, deleteMessageStrategy.getMessagePart());
 
-        sendMessagesIfNotEmpty(messageByChatTypeMap, update);
+        sendMessagesIfNotEmpty(messageByChatTypeMap, callbackData);
     }
 
     private Map<ChatType, SendMessage> getMessageByChatTypeMap(Update update) {
@@ -155,11 +156,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return sendMessage.getText() != null && !sendMessage.getText().isEmpty();
     }
 
-    private CallbackStrategy getCallbackStrategy(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        String command = callbackData.split(" ")[0];
-
-        return callbackStrategyMap.get(CallBack.from(command));
+    private CallbackStrategy getCallbackStrategy(String callbackData) {
+        return callbackStrategyMap.get(CallBack.from(callbackData.split(" ")[0]));
     }
 
     private boolean isCallbackQuery(Update update) {
@@ -214,17 +212,17 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return botToken;
     }
 
-    private void sendMessagesIfNotEmpty(Map<ChatType, SendMessage> messages, Update update) {
+    private void sendMessagesIfNotEmpty(Map<ChatType, SendMessage> messages, String callbackData) {
         messages.forEach((chatType, message) -> {
             if (isNotEmptyMessage(message)) {
                 try {
-                    String callbackData = update.getCallbackQuery().getData();
-                    if (isNewOrEditedReport(callbackData)) {
+                    String callbackAlias = callbackData.split(" ")[0];
+                    if (isNewOrEditedReport(callbackAlias)) {
                         updateReportMessage(chatType, message, callbackData);
-                    } else if (isReviewRequest(callbackData)) {
+                    } else if (isReviewRequest(callbackAlias)) {
                         execute(message);
-                        if (isNotDenyForReviewRequest(callbackData)) {
-                            writeMentors(callbackData);
+                        if (isNotDenyForReviewRequest(callbackAlias)) {
+                            writeMentors(callbackData); // [2]
                         }
                     } else {
                         execute(message);
@@ -236,13 +234,13 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         });
     }
 
-    private static boolean isNotDenyForReviewRequest(String callbackData) {
-        return !callbackData.split(" ")[0].equalsIgnoreCase(CallBack.DENY_REVIEW_REQUEST_DATE_TIME.getAlias());
+    private static boolean isNotDenyForReviewRequest(String callbackAlias) {
+        return !callbackAlias.equalsIgnoreCase(CallBack.DENY_REVIEW_REQUEST_DATE_TIME.getAlias());
     }
 
-    private boolean isReviewRequest(String callbackData) {
-        return callbackData.split(" ")[0].equalsIgnoreCase(CallBack.SET_REVIEW_REQUEST_DATE_TIME.getAlias())
-                || callbackData.split(" ")[0].equalsIgnoreCase(CallBack.DENY_REVIEW_REQUEST_DATE_TIME.getAlias());
+    private boolean isReviewRequest(String callbackAlias) {
+        return callbackAlias.equalsIgnoreCase(CallBack.SET_REVIEW_REQUEST_DATE_TIME.getAlias())
+                || callbackAlias.equalsIgnoreCase(CallBack.DENY_REVIEW_REQUEST_DATE_TIME.getAlias());
     }
 
     @SneakyThrows
@@ -381,8 +379,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return message.getText().contains("Отчёт обновлен");
     }
 
-    private static boolean isNewOrEditedReport(String callbackData) {
-        return callbackData.split(" ")[0].equalsIgnoreCase(CallBack.SET_REPORT_DATE_TIME.getAlias()) && !callbackData.split(" ")[0].equalsIgnoreCase(CallBack.DENY_REPORT_DATE_TIME.getAlias());
+    private static boolean isNewOrEditedReport(String callbackAlias) {
+        return callbackAlias.equalsIgnoreCase(CallBack.SET_REPORT_DATE_TIME.getAlias()) && !callbackAlias.equalsIgnoreCase(CallBack.DENY_REPORT_DATE_TIME.getAlias());
     }
 
     private Integer extractMessageIdFromCallbackData(String callbackData) {
