@@ -20,7 +20,7 @@ import static com.nekromant.telegram.contants.MessageContants.SOMEBODY_DENIED_RE
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 @Component
-public class DenyCallbackStrategy implements CallbackStrategy {
+public class DenyReviewRequestCallbackStrategy implements CallbackStrategy {
 
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
@@ -47,7 +47,7 @@ public class DenyCallbackStrategy implements CallbackStrategy {
 
     @Override
     public CallBack getPrefix() {
-        return CallBack.DENY;
+        return CallBack.DENY_REVIEW_REQUEST;
     }
 
     private void setMessageTextDenied(SendMessage messageForUser, ReviewRequest review) {

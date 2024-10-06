@@ -7,8 +7,13 @@ import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.commands.MentoringReviewWithMessageIdCommand;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
+import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.ChatMessage;
+import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ChatMessageRepository;
+import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.repository.UserInfoRepository;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.SneakyThrows;
@@ -24,8 +29,15 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.security.InvalidParameterException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +45,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.MessageContants.UNKNOWN_COMMAND;
+import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 
 @Component
 @Slf4j
 public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
+    private static final int MIDNIGHT = 24;
     @Value("${bot.name}")
     private String botName;
     @Value("${bot.token}")
@@ -50,6 +64,10 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private SendMessageFactory sendMessageFactory;
     @Autowired
     private ChatMessageRepository chatMessageRepository;
+    @Autowired
+    private ReviewRequestRepository reviewRequestRepository;
+    @Autowired
+    private UserInfoRepository userInfoRepository;
 
     private final Map<CallBack, CallbackStrategy> callbackStrategyMap;
 
@@ -87,14 +105,15 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     private void handleCallbackQuery(Update update) throws TelegramApiException {
         Map<ChatType, SendMessage> messageByChatTypeMap = getMessageByChatTypeMap(update);
+        String callbackData = update.getCallbackQuery().getData();
 
-        CallbackStrategy strategy = getCallbackStrategy(update);
+        CallbackStrategy strategy = getCallbackStrategy(callbackData);
         DeleteMessageStrategy deleteMessageStrategy = new DeleteMessageStrategy();
         strategy.executeCallbackQuery(update, messageByChatTypeMap, deleteMessageStrategy);
 
         deleteReplyMessage(update, deleteMessageStrategy.getMessagePart());
 
-        sendMessagesIfNotEmpty(messageByChatTypeMap, update);
+        sendMessagesIfNotEmpty(messageByChatTypeMap, callbackData);
     }
 
     private Map<ChatType, SendMessage> getMessageByChatTypeMap(Update update) {
@@ -137,11 +156,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return sendMessage.getText() != null && !sendMessage.getText().isEmpty();
     }
 
-    private CallbackStrategy getCallbackStrategy(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        String command = callbackData.split(" ")[0];
-
-        return callbackStrategyMap.get(CallBack.from(command));
+    private CallbackStrategy getCallbackStrategy(String callbackData) {
+        return callbackStrategyMap.get(CallBack.from(callbackData.split(" ")[0]));
     }
 
     private boolean isCallbackQuery(Update update) {
@@ -196,13 +212,18 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return botToken;
     }
 
-    private void sendMessagesIfNotEmpty(Map<ChatType, SendMessage> messages, Update update) {
+    private void sendMessagesIfNotEmpty(Map<ChatType, SendMessage> messages, String callbackData) {
         messages.forEach((chatType, message) -> {
             if (isNotEmptyMessage(message)) {
                 try {
-                    String callbackData = update.getCallbackQuery().getData();
-                    if (isReportUpdate(callbackData)) {
+                    String callbackAlias = callbackData.split(" ")[0];
+                    if (isNewOrEditedReport(callbackAlias)) {
                         updateReportMessage(chatType, message, callbackData);
+                    } else if (isReviewRequest(callbackAlias)) {
+                        execute(message);
+                        if (isNotDenyForReviewRequest(callbackAlias)) {
+                            writeMentors(callbackData); // [2]
+                        }
                     } else {
                         execute(message);
                     }
@@ -211,6 +232,78 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 }
             }
         });
+    }
+
+    private static boolean isNotDenyForReviewRequest(String callbackAlias) {
+        return !callbackAlias.equalsIgnoreCase(CallBack.DENY_REVIEW_REQUEST_DATE_TIME.getAlias());
+    }
+
+    private boolean isReviewRequest(String callbackAlias) {
+        return callbackAlias.equalsIgnoreCase(CallBack.SET_REVIEW_REQUEST_DATE_TIME.getAlias())
+                || callbackAlias.equalsIgnoreCase(CallBack.DENY_REVIEW_REQUEST_DATE_TIME.getAlias());
+    }
+
+    @SneakyThrows
+    private void writeMentors(String callbackData) {
+        String mentorsChatId = specialChatService.getMentorsChatId();
+        Long reviewRequestId = Long.parseLong(callbackData.split(" ")[2]);
+        ReviewRequest reviewRequest = reviewRequestRepository.findById(reviewRequestId).orElseThrow(InvalidParameterException::new);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+
+        LocalDate reviewRequestDate = reviewRequest.getDate();
+        reviewRequest.getTimeSlots().
+                stream().
+                filter(timeSlot -> isTimeSlotTakenByAllMentors(timeSlot, reviewRequestDate)).
+                sorted(Integer::compareTo).
+                forEach(x -> {
+                    List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
+                    InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+                    if (x == MIDNIGHT) {
+                        inlineKeyboardButton.setText("00" + ":00 (" + reviewRequestDate.plusDays(1).format(defaultDateFormatter()) + ")");
+                    } else {
+                        inlineKeyboardButton.setText(x + ":00");
+                    }
+                    inlineKeyboardButton.setCallbackData(CallBack.APPROVE_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId() + " " + x);
+
+                    keyboardButtonRow.add(inlineKeyboardButton);
+                    rowList.add(keyboardButtonRow);
+                });
+
+        List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
+        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+        inlineKeyboardButton.setText("Отменить");
+        inlineKeyboardButton.setCallbackData(CallBack.DENY_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId());
+
+        keyboardButtonRow.add(inlineKeyboardButton);
+        rowList.add(keyboardButtonRow);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(mentorsChatId);
+
+
+        message.setText("@" + reviewRequest.getStudentUserName() + "\n" + reviewRequest.getTitle() + "\n" +
+                reviewRequest.getDate().format(defaultDateFormatter()) + "\n");
+        message.setReplyMarkup(inlineKeyboardMarkup);
+
+        execute(message);
+        reviewRequestRepository.save(reviewRequest);
+    }
+
+    private boolean isTimeSlotTakenByAllMentors(Integer timeSlot, LocalDate reviewRequestDate) {
+        boolean isNotTakenByAllMentors = true;
+        List<UserInfo> allMentors = userInfoRepository.findAllByUserType(UserType.MENTOR);
+        for (UserInfo mentor : allMentors) {
+            if (timeSlot == MIDNIGHT) {
+                isNotTakenByAllMentors = !reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate.plusDays(1), LocalTime.of(0, 0)), mentor.getUserName());
+            } else {
+                isNotTakenByAllMentors = !reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate, LocalTime.of(timeSlot, 0)), mentor.getUserName());
+            }
+        }
+        return isNotTakenByAllMentors;
     }
 
     private void updateReportMessage(ChatType chatType, SendMessage message, String callbackData) throws TelegramApiException {
@@ -286,8 +379,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         return message.getText().contains("Отчёт обновлен");
     }
 
-    private static boolean isReportUpdate(String callbackData) {
-        return callbackData.split(" ")[0].equalsIgnoreCase(CallBack.SET_REPORT_DATE_TIME.getAlias()) && !callbackData.split(" ")[0].equalsIgnoreCase(CallBack.DENY_REPORT.getAlias());
+    private static boolean isNewOrEditedReport(String callbackAlias) {
+        return callbackAlias.equalsIgnoreCase(CallBack.SET_REPORT_DATE_TIME.getAlias()) && !callbackAlias.equalsIgnoreCase(CallBack.DENY_REPORT_DATE_TIME.getAlias());
     }
 
     private Integer extractMessageIdFromCallbackData(String callbackData) {

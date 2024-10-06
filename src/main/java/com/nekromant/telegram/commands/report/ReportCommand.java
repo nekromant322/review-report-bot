@@ -111,8 +111,8 @@ public class ReportCommand extends MentoringReviewWithMessageIdCommand {
         List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
 
         LocalDate currentDay = LocalDate.now(ZoneId.of("Europe/Moscow"));
-        addDateButton(keyboardRows, report, currentDay, messageId);
         addDateButton(keyboardRows, report, currentDay.minusDays(1), messageId);
+        addDateButton(keyboardRows, report, currentDay, messageId);
         addCancelButton(keyboardRows, report);
 
         inlineKeyboardMarkup.setKeyboard(keyboardRows);
@@ -130,7 +130,7 @@ public class ReportCommand extends MentoringReviewWithMessageIdCommand {
     private void addCancelButton(List<List<InlineKeyboardButton>> keyboardRows, Report report) {
         InlineKeyboardButton cancelButton = new InlineKeyboardButton();
         cancelButton.setText("Отмена");
-        cancelButton.setCallbackData(String.join(" ", CallBack.DENY_REPORT.getAlias(), report.getId().toString()));
+        cancelButton.setCallbackData(String.join(" ", CallBack.DENY_REPORT_DATE_TIME.getAlias(), report.getId().toString()));
         keyboardRows.add(Collections.singletonList(cancelButton));
     }
 }
