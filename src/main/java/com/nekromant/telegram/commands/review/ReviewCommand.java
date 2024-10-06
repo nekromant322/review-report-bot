@@ -63,8 +63,13 @@ public class ReviewCommand extends MentoringReviewCommand {
                 reviewRequestRepository.save(reviewRequest);
                 sendDatePicker(absSender, user.getId().toString(), reviewRequest);
             } catch (NumberFormatException e) {
-                log.error("Таймслот должен быть указан целым числом. {}", e.getMessage());
-                message.setText("Таймслот должен быть указан целым числом\n" + REVIEW_HELP_MESSAGE);
+                String firstArgument = arguments[0];
+                if (firstArgument.contains("сегодня") || firstArgument.contains("завтра")) {
+                    message.setText("ФОРМАТ ОБНОВИЛСЯ, НЕ НУЖНО ПИСАТЬ [сегодня|завтра], ПОСМОТРИ ВНИМАТЕЛЬНЕЕ НА ПРИМЕР\n\n" + REVIEW_HELP_MESSAGE);
+                } else {
+                    log.error("Таймслот должен быть указан целым числом. {}", e.getMessage());
+                    message.setText("Таймслот должен быть указан целым числом\n" + REVIEW_HELP_MESSAGE);
+                }
                 execute(absSender, message, user);
             } catch (InvalidParameterException e) {
                 log.error("Неверный аргумент был передан в команду. {}", e.getMessage());
@@ -123,6 +128,7 @@ public class ReviewCommand extends MentoringReviewCommand {
         LocalDate currentDay = LocalDate.now(ZoneId.of("Europe/Moscow"));
         addDateButton(keyboardRows, reviewRequest, currentDay);
         addDateButton(keyboardRows, reviewRequest, currentDay.plusDays(1));
+        addDateButton(keyboardRows, reviewRequest, currentDay.plusDays(2));
         addCancelButton(keyboardRows, reviewRequest);
 
         inlineKeyboardMarkup.setKeyboard(keyboardRows);
