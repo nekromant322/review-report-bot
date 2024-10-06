@@ -68,58 +68,27 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
         ChatMessage currentMessage = chatMessageRepository.findByUserMessageId(messageId);
 
         if (currentMessage != null) {
-            log.debug("Редактирование. Сообщение существует в БД");
+            log.info("Редактирование. Сообщение существует в БД");
             handleExistingMessage(messageForUser, messageForReportsChat, updatedReport, currentMessage);
         } else {
-            log.debug("Новое сообщение. Сообщения не существует в БД");
+            log.info("Новое сообщение. Сообщения не существует в БД");
             handleNewMessage(messageForUser, messageForReportsChat, update, updatedReport, messageId);
         }
     }
 
     private void handleExistingMessage(SendMessage messageForUser, SendMessage messageForReportsChat, Report updatedReport, ChatMessage currentMessage) {
-        if (currentMessage.getReport() != null) {
-            log.debug("К текущему сообщению привязан отчёт");
-            handleExistingReport(messageForUser, messageForReportsChat, updatedReport, currentMessage);
-        } else {
-            log.debug("К текущему сообщению не привязан отчёт");
+        if (currentMessage.getReport() == null) {
+            log.info("К текущему сообщению не привязан отчёт");
             handleNewReportForExistingMessage(messageForUser, messageForReportsChat, updatedReport, currentMessage);
-        }
-    }
-
-    private void handleExistingReport(SendMessage messageForUser, SendMessage messageForReportsChat, Report updatedReport, ChatMessage currentMessage) {
-        Report currentMessageReport = currentMessage.getReport();
-
-        if (reportRepository.existsReportByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName())) {
-            log.debug("Отчёт с новой датой существует");
-            if (isExistingReportEqualsReportFromCurrentMessage(currentMessage, updatedReport)) {
-                log.debug("Это отчёт, привязанный к текущему сообщению (обновить текущий отчёт)");
-                updateReportFromAnotherReport(updatedReport, currentMessageReport);
-
-                deleteNewTemporaryReport(updatedReport);
-
-                setMessageTextReportIsUpdated(messageForUser, updatedReport);
-                setMessageTextReportIsUpdated(messageForReportsChat, updatedReport);
-            } else {
-                log.debug("Это НЕ отчёт, привязанный к текущему сообщению (Написать юзеру, чтобы редактировал соответствующее сообщение)");
-
-                deleteNewTemporaryReport(updatedReport);
-
-                messageForUser.setText("Отчёт-сообщение с такой датой (" + defaultDateFormatter().format(updatedReport.getDate()) + ") уже есть. Отредактируйте его или выберите другую дату.");
-            }
         } else {
-            log.debug("Отчёта с новой датой не существует (обновить отчёт привязанный к текущему сообщению)");
-            updateReportFromAnotherReport(updatedReport, currentMessageReport);
-
-            deleteNewTemporaryReport(updatedReport);
-
-            setMessageTextReportIsUpdated(messageForUser, updatedReport);
-            setMessageTextReportIsUpdated(messageForReportsChat, updatedReport);
+            log.error("К текущему сообщению привязан отчёт. Ошибка в логике исполнения программы, обработка должна быть произведена в методе MentoringReviewBot.processEditedMessageUpdate().");
+            messageForUser.setText("Ошибка в логике исполнения программы. Обратитесь к разработчику.");
         }
     }
 
     private void handleNewReportForExistingMessage(SendMessage messageForUser, SendMessage messageForReportsChat, Report updatedReport, ChatMessage currentMessage) {
         if (reportRepository.existsReportByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName())) {
-            log.debug("Отчёт с новой датой существует (обновить его и привязать к текущему сообщению)");
+            log.info("Отчёт с новой датой существует (обновить его и привязать к текущему сообщению)");
             List<Report> existingReportsOnReceivedDate = reportRepository.findByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName());
             Report reportLikeReceived = existingReportsOnReceivedDate.get(0);
             deleteDuplicateReports(existingReportsOnReceivedDate);
@@ -132,13 +101,11 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
             setMessageTextReportIsUpdated(messageForUser, updatedReport);
             setMessageTextReportIsUpdated(messageForReportsChat, updatedReport);
         } else {
-            log.debug("Отчёта с новой датой не существует (новый отчёт и привязать к текущему сообщению)");
+            log.info("Отчёта с новой датой не существует (новый отчёт и привязать к текущему сообщению)");
 
             Report savedReport = reportRepository.save(updatedReport);
             currentMessage.setReport(savedReport);
             chatMessageRepository.save(currentMessage);
-
-            deleteNewTemporaryReport(updatedReport);
 
             setMessageTextForUserReportDone(messageForUser, updatedReport);
             setMessageTextForReportsChatReportDone(messageForReportsChat, updatedReport);
@@ -147,48 +114,68 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
 
     private void handleNewMessage(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, Report updatedReport, Integer messageId) {
         if (reportRepository.existsReportByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName())) {
-            log.debug("Отчёт с новой датой существует (обновить его, удалить старое сообщение и сохранить новое сообщение с переданным айди в БД с этим отчётом)");
+            log.info("Отчёт с такой датой ({}) существует (обновить его)", updatedReport.getDate().format(defaultDateFormatter()));
             List<Report> existingReportsOnReceivedDate = reportRepository.findByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName());
             Report reportLikeReceived = existingReportsOnReceivedDate.get(0);
             deleteDuplicateReports(existingReportsOnReceivedDate);
+
+            log.info("Старый отчёт обновлён");
             updateReportFromAnotherReport(updatedReport, reportLikeReceived);
 
             ChatMessage oldMessage = chatMessageRepository.findChatMessageByReport(reportLikeReceived);
 
-            ChatMessage newMessage = ChatMessage.builder()
-                    .userMessageId(messageId)
-                    .report(reportLikeReceived)
-                    .build();
-            if (oldMessage.getReportChatBotMessageId() != null) {
-                newMessage.setReportChatBotMessageId(oldMessage.getReportChatBotMessageId());
+            if (oldMessage != null && oldMessage.getReportChatBotMessageId() != null) {
+                log.info("К старому отчёту уже было привязано сообщение в БД");
+                oldMessage.setReport(reportLikeReceived);
+                oldMessage.setUserMessageId(messageId);
+                log.info("К сообщению в БД привязан старый отчёт(с обновлёнными данными) и сообщение-отчёт от пользователя");
+
+                chatMessageRepository.save(oldMessage);
+
+                deleteNewTemporaryReport(updatedReport);
+
+                messageForUser.setText(String.format("Вы обновили существующий отчёт за %s:\n@%s\n%s\n%s\n%s",
+                        reportLikeReceived.getDate().format(defaultDateFormatter()),
+                        updatedReport.getStudentUserName(),
+                        updatedReport.getDate().format(defaultDateFormatter()),
+                        updatedReport.getHours(),
+                        updatedReport.getTitle()
+                ));
+                setMessageTextReportIsUpdated(messageForReportsChat, updatedReport);
+            } else if (oldMessage == null) {
+                log.info("К старому отчёту не было привязано сообщение в БД");
+
+                ChatMessage newMessage = ChatMessage.builder()
+                        .report(reportLikeReceived)
+                        .userMessageId(messageId)
+                        .build();
+                chatMessageRepository.save(newMessage);
+                log.info("К старому отчёту теперь привязано сообщение в БД");
+
+                deleteNewTemporaryReport(updatedReport);
+
+                messageForUser.setText(String.format("Вы обновили существующий отчёт за %s:\n@%s\n%s\n%s\n%s",
+                        reportLikeReceived.getDate().format(defaultDateFormatter()),
+                        updatedReport.getStudentUserName(),
+                        updatedReport.getDate().format(defaultDateFormatter()),
+                        updatedReport.getHours(),
+                        updatedReport.getTitle()
+                ));
+                messageForReportsChat.setText(String.format("Пользователь обновил существующий отчёт за %s:\n@%s\n%s\n%s\n%s",
+                        reportLikeReceived.getDate().format(defaultDateFormatter()),
+                        updatedReport.getStudentUserName(),
+                        updatedReport.getDate().format(defaultDateFormatter()),
+                        updatedReport.getHours(),
+                        updatedReport.getTitle()
+                ));
             }
-            chatMessageRepository.save(newMessage);
-            chatMessageRepository.delete(oldMessage);
-
-            deleteNewTemporaryReport(updatedReport);
-
-            messageForUser.setText(String.format("Вы обновили существующий отчёт за %s:\n@%s\n%s\n%s\n%s",
-                    LocalDate.now().format(defaultDateFormatter()),
-                    updatedReport.getStudentUserName(),
-                    updatedReport.getDate().format(defaultDateFormatter()),
-                    updatedReport.getHours(),
-                    updatedReport.getTitle()
-            ));
-            setMessageTextReportIsUpdated(messageForReportsChat, updatedReport);
         } else {
-            log.debug("Отчёта с новой датой не существует (новый отчёт и сохранить новое сообщение с переданным айди в БД с этим отчётом)");
+            log.info("Отчёта с новой датой не существует (сохранить новый отчёт и новое сообщение в БД)");
             saveNewReport(messageForUser, messageForReportsChat, update, updatedReport, messageId);
 
             setMessageTextForUserReportDone(messageForUser, updatedReport);
             setMessageTextForReportsChatReportDone(messageForReportsChat, updatedReport);
         }
-    }
-
-    private boolean isExistingReportEqualsReportFromCurrentMessage(ChatMessage chatMessage, Report updatedReport) {
-        List<Report> existingReportsWithSuchDate = reportRepository.findByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName());
-        Report reportLikeReceived = existingReportsWithSuchDate.get(0);
-        deleteDuplicateReports(existingReportsWithSuchDate);
-        return chatMessage.getReport().equals(reportLikeReceived);
     }
 
     private void deleteDuplicateReports(List<Report> existingReports) {
@@ -208,7 +195,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
     }
 
     private void deleteNewTemporaryReport(Report report) {
-        reportRepository.deleteById(report.getId());
+        reportRepository.findById(report.getId()).ifPresent(reportRepository::delete);
     }
 
     private void saveNewReport(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, Report report, Integer messageId) {

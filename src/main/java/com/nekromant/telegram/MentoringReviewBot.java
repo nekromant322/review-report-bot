@@ -5,13 +5,16 @@ import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMe
 import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.commands.MentoringReviewWithMessageIdCommand;
+import com.nekromant.telegram.commands.report.ReportDateTimePicker;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.ChatMessage;
+import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ChatMessageRepository;
+import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.repository.UserInfoRepository;
 import com.nekromant.telegram.service.SpecialChatService;
@@ -44,7 +47,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.nekromant.telegram.contants.Command.REPORT;
+import static com.nekromant.telegram.contants.MessageContants.REPORT_HELP_MESSAGE;
 import static com.nekromant.telegram.contants.MessageContants.UNKNOWN_COMMAND;
+import static com.nekromant.telegram.model.Report.getTemporaryReport;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 
@@ -68,8 +74,13 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private ReviewRequestRepository reviewRequestRepository;
     @Autowired
     private UserInfoRepository userInfoRepository;
+    @Autowired
+    private ReportRepository reportRepository;
+    @Autowired
+    private ReportDateTimePicker reportDateTimePicker;
 
     private final Map<CallBack, CallbackStrategy> callbackStrategyMap;
+
 
     @Autowired
     public MentoringReviewBot(List<MentoringReviewCommand> allCommands, List<MentoringReviewWithMessageIdCommand> allWithMessageIdCommands, List<CallbackStrategy> callbackStrategies) {
@@ -125,8 +136,147 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     }
 
     public void processEditedMessageUpdate(Update update) {
-        update.setMessage(update.getEditedMessage());
-        super.onUpdateReceived(update);
+        if (isReportEdited(update)) {
+            log.info("Сообщение с отчётом отредактировано пользователем");
+            String editedText = update.getEditedMessage().getText();
+            Integer reportMessageId = update.getEditedMessage().getMessageId();
+            ChatMessage reportChatMessage = chatMessageRepository.findByUserMessageId(reportMessageId);
+
+            try {
+                if (reportChatMessage != null) {
+                    handleExistingMessage(update, reportChatMessage, editedText);
+                } else {
+                    handleNewMessage(update);
+                }
+            } catch (TelegramApiException e) {
+                log.error("Не удалось обработать сообщение отредактированное пользователем, возникла ошибка при отправке сообщения пользователю {}", e.getMessage(), e);
+            }
+        } else {
+            log.info("Неизвестный тип сообщения отредактирован пользователем");
+            update.setMessage(update.getEditedMessage());
+            super.onUpdateReceived(update);
+        }
+    }
+
+    private void handleExistingMessage(Update update, ChatMessage reportChatMessage, String editedText) throws TelegramApiException {
+        Report report = reportChatMessage.getReport();
+        if (report != null) {
+            log.info("К текущему сообщению привязан отчёт");
+            handleExistingReport(update, reportChatMessage, editedText, report);
+        } else {
+            log.info("К текущему сообщению не привязан отчёт");
+            handleNewReportForExistingMessage(update);
+        }
+    }
+
+    private void handleExistingReport(Update update, ChatMessage reportChatMessage, String editedText, Report report) {
+        Integer userChatBotMessageId = reportChatMessage.getUserChatBotMessageId();
+        Integer reportChatBotMessageId = reportChatMessage.getReportChatBotMessageId();
+
+        Report.updateReportFromEditedMessage(editedText, report);
+        reportRepository.save(report);
+
+
+        String updatedReportText = String.format("Отчёт обновлен %s:\n@%s\n%s\n%s\n%s",
+                LocalDate.now().format(defaultDateFormatter()),
+                report.getStudentUserName(),
+                report.getDate().format(defaultDateFormatter()),
+                report.getHours(),
+                report.getTitle()
+        );
+
+        updateReportBotMessages(update, reportChatMessage, updatedReportText, userChatBotMessageId, reportChatBotMessageId);
+    }
+
+    private void updateReportBotMessages(Update update, ChatMessage reportChatMessage, String updatedReportText, Integer userChatBotMessageId, Integer reportChatBotMessageId) {
+        updateReportBotMessage(update, reportChatMessage, updatedReportText, userChatBotMessageId, ChatType.USER_CHAT);
+        updateReportBotMessage(update, reportChatMessage, updatedReportText, reportChatBotMessageId, ChatType.REPORTS_CHAT);
+    }
+
+    private void updateReportBotMessage(Update update, ChatMessage chatMessage, String updatedReportText, Integer messageId, ChatType chatType) {
+        try {
+            EditMessageText editMessage = new EditMessageText();
+            editMessage.setText(updatedReportText);
+            editMessage.setChatId(getChatId(update, chatType));
+            editMessage.setMessageId(messageId);
+            execute(editMessage);
+        } catch (TelegramApiException e) {
+            if (isMessageNotFound(e)) {
+                sendNewMessage(update, chatMessage, updatedReportText, chatType);
+            } else {
+                log.error("Связанное с редактируемым отчётом сообщение не было найдено в чате отчётов и не удалось отправить новое {}", e.getMessage(), e);
+            }
+        }
+    }
+
+    private void sendNewMessage(Update update, ChatMessage chatMessage, String updatedReportText, ChatType chatType) {
+        try {
+            SendMessage sendMessage = sendMessageFactory.create(getChatId(update, chatType), updatedReportText);
+            Message newMessage = execute(sendMessage);
+            updateChatMessageId(chatType, chatMessage, newMessage.getMessageId());
+            chatMessageRepository.save(chatMessage);
+        } catch (TelegramApiException e) {
+            log.error("Связанное с редактируемым отчётом сообщение не было найдено в чате отчётов и не удалось отправить новое {}", e.getMessage(), e);
+        }
+    }
+
+    private String getChatId(Update update, ChatType chatType) {
+        switch (chatType) {
+            case USER_CHAT:
+                return update.getEditedMessage().getChatId().toString();
+            case REPORTS_CHAT:
+                return specialChatService.getReportsChatId();
+            default:
+                throw new UnsupportedOperationException("Unsupported chat type");
+        }
+    }
+
+    private void handleNewReportForExistingMessage(Update update) throws TelegramApiException {
+        try {
+            Report temporaryReport = getTemporaryReport(update);
+            reportRepository.save(temporaryReport);
+
+            SendMessage sendDatePicker = reportDateTimePicker.sendDatePicker(
+                    update.getEditedMessage().getChatId().toString(),
+                    temporaryReport,
+                    update.getEditedMessage().getMessageId());
+
+            execute(sendMessageFactory.create(update.getEditedMessage().getChatId().toString(),
+                    "К сообщению не привязан отчёт.\n" +
+                            "Нажмите \"отмена\" или укажите дату нового отчёта.\n" +
+                            "Если отчёт с такой датой существует, то он будет обновлён согласно данным в отредактированном сообщении."));
+            execute(sendDatePicker);
+            log.info("Отправлено сообщение с выбором даты отчёта");
+        }  catch (InvalidParameterException e) {
+            log.error("Был передан невалидный отчёт {}", e.getMessage(), e);
+            execute(sendMessageFactory.create(update.getEditedMessage().getChatId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE));
+        }
+    }
+
+    private void handleNewMessage(Update update) throws TelegramApiException {
+        try {
+            Report temporaryReport = getTemporaryReport(update);
+            reportRepository.save(temporaryReport);
+
+            SendMessage sendDatePicker = reportDateTimePicker.sendDatePicker(
+                    update.getEditedMessage().getChatId().toString(),
+                    temporaryReport,
+                    update.getEditedMessage().getMessageId());
+
+            execute(sendMessageFactory.create(update.getEditedMessage().getChatId().toString(),
+                    "Не удалось найти редактируемое сообщение-отчёт в БД.\n" +
+                            "Нажмите \"отмена\" или укажите дату нового отчёта.\n" +
+                            "Если отчёт с такой датой существует, то он будет обновлён согласно данным в отредактированном сообщении."));
+            execute(sendDatePicker);
+            log.info("Отправлено сообщение с выбором даты отчёта");
+        }  catch (InvalidParameterException e) {
+            log.error("Был передан невалидный отчёт {}", e.getMessage(), e);
+            execute(sendMessageFactory.create(update.getEditedMessage().getChatId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE));
+        }
+    }
+
+    private static boolean isReportEdited(Update update) {
+        return update.getEditedMessage().hasText() && update.getEditedMessage().getText().split(" ")[0].equals("/" + REPORT.getAlias());
     }
 
     private boolean isUserMessage(Update update) {
@@ -222,7 +372,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                     } else if (isReviewRequest(callbackAlias)) {
                         execute(message);
                         if (isNotDenyForReviewRequest(callbackAlias)) {
-                            writeMentors(callbackData); // [2]
+                            writeMentors(callbackData);
                         }
                     } else {
                         execute(message);
@@ -346,10 +496,16 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 Message newMessage = execute(message);
                 updateChatMessageId(chatType, chatMessage, newMessage.getMessageId());
                 chatMessageRepository.save(chatMessage);
+            } else if (isMessageNotModified(e)) {
+                log.info("Ни текст сообщения, ни разметка не были изменены в чате {}\n", chatType);
             } else {
                 log.error("Ошибка при обновлении текста сообщения {}", e.getMessage(), e);
             }
         }
+    }
+
+    private boolean isMessageNotModified(TelegramApiException e) {
+        return e.getMessage().contains("message is not modified");
     }
 
     private int getMessageId(ChatType chatType, ChatMessage chatMessage) {
@@ -376,7 +532,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     }
 
     private static boolean isReportUpdated(SendMessage message) {
-        return message.getText().contains("Отчёт обновлен");
+        return message.getText().toLowerCase().contains("Отчёт обновлен".toLowerCase());
     }
 
     private static boolean isNewOrEditedReport(String callbackAlias) {
