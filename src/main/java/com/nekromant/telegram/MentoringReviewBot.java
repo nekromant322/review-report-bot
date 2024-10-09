@@ -137,24 +137,32 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     public void processEditedMessageUpdate(Update update) {
         if (isReportEdited(update)) {
-            log.info("Сообщение с отчётом отредактировано пользователем: {} (user id: {})", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId());
-            String editedText = update.getEditedMessage().getText();
-            Integer reportMessageId = update.getEditedMessage().getMessageId();
-            ChatMessage reportChatMessage = chatMessageRepository.findByUserMessageId(reportMessageId);
-
-            try {
-                if (reportChatMessage != null) {
-                    handleExistingMessage(update, reportChatMessage, editedText);
-                } else {
-                    handleNewMessage(update);
-                }
-            } catch (TelegramApiException e) {
-                log.error("Не удалось обработать сообщение отредактированное пользователем: {} (user id: {}). Возникла ошибка при отправке сообщения пользователю {}", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId(), e.getMessage(), e);
-            }
+            handleEditedReport(update);
         } else {
-            log.info("Неизвестный тип сообщения отредактирован пользователем: {} (user id: {}).", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId());
-            update.setMessage(update.getEditedMessage());
-            super.onUpdateReceived(update);
+            handleUnrecognizedEditedMessageType(update);
+        }
+    }
+
+    private void handleUnrecognizedEditedMessageType(Update update) {
+        log.info("Неизвестный тип сообщения отредактирован пользователем: {} (user id: {}).", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId());
+        update.setMessage(update.getEditedMessage());
+        super.onUpdateReceived(update);
+    }
+
+    private void handleEditedReport(Update update) {
+        log.info("Сообщение с отчётом отредактировано пользователем: {} (user id: {})", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId());
+        String editedText = update.getEditedMessage().getText();
+        Integer reportMessageId = update.getEditedMessage().getMessageId();
+        ChatMessage reportChatMessage = chatMessageRepository.findByUserMessageId(reportMessageId);
+
+        try {
+            if (reportChatMessage != null) {
+                handleExistingMessage(update, reportChatMessage, editedText);
+            } else {
+                handleNewMessage(update);
+            }
+        } catch (TelegramApiException e) {
+            log.error("Не удалось обработать сообщение отредактированное пользователем: {} (user id: {}). Возникла ошибка при отправке сообщения пользователю {}", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId(), e.getMessage(), e);
         }
     }
 
