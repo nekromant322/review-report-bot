@@ -137,7 +137,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     public void processEditedMessageUpdate(Update update) {
         if (isReportEdited(update)) {
-            log.info("Сообщение с отчётом отредактировано пользователем");
+            log.info("Сообщение с отчётом отредактировано пользователем: {} (user id: {})", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId());
             String editedText = update.getEditedMessage().getText();
             Integer reportMessageId = update.getEditedMessage().getMessageId();
             ChatMessage reportChatMessage = chatMessageRepository.findByUserMessageId(reportMessageId);
@@ -149,10 +149,10 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                     handleNewMessage(update);
                 }
             } catch (TelegramApiException e) {
-                log.error("Не удалось обработать сообщение отредактированное пользователем, возникла ошибка при отправке сообщения пользователю {}", e.getMessage(), e);
+                log.error("Не удалось обработать сообщение отредактированное пользователем: {} (user id: {}). Возникла ошибка при отправке сообщения пользователю {}", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId(), e.getMessage(), e);
             }
         } else {
-            log.info("Неизвестный тип сообщения отредактирован пользователем");
+            log.info("Неизвестный тип сообщения отредактирован пользователем: {} (user id: {}).", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId());
             update.setMessage(update.getEditedMessage());
             super.onUpdateReceived(update);
         }
@@ -161,10 +161,10 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private void handleExistingMessage(Update update, ChatMessage reportChatMessage, String editedText) throws TelegramApiException {
         Report report = reportChatMessage.getReport();
         if (report != null) {
-            log.info("К текущему сообщению привязан отчёт");
+            log.info("К текущему сообщению (message id: {}) привязан отчёт", update.getEditedMessage().getMessageId());
             handleExistingReport(update, reportChatMessage, editedText, report);
         } else {
-            log.info("К текущему сообщению не привязан отчёт");
+            log.info("К текущему сообщению (message id: {}) не привязан отчёт", update.getEditedMessage().getMessageId());
             handleNewReportForExistingMessage(update);
         }
     }
@@ -204,7 +204,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             if (isMessageNotFound(e)) {
                 sendNewMessage(update, chatMessage, updatedReportText, chatType);
             } else {
-                log.error("Связанное с редактируемым отчётом сообщение не было найдено в чате отчётов и не удалось отправить новое {}", e.getMessage(), e);
+                log.error("Связанное с редактируемым отчётом сообщение (message id: {}) не было найдено в чате отчётов и не удалось отправить новое {}", messageId, e.getMessage(), e);
             }
         }
     }
@@ -216,7 +216,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             updateChatMessageId(chatType, chatMessage, newMessage.getMessageId());
             chatMessageRepository.save(chatMessage);
         } catch (TelegramApiException e) {
-            log.error("Связанное с редактируемым отчётом сообщение не было найдено в чате отчётов и не удалось отправить новое {}", e.getMessage(), e);
+            log.error("Связанное с редактируемым отчётом сообщение (message id: {}) не было найдено в чате отчётов и не удалось отправить новое {}", update.getEditedMessage().getMessageId(), e.getMessage(), e);
         }
     }
 
@@ -248,7 +248,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             execute(sendDatePicker);
             log.info("Отправлено сообщение с выбором даты отчёта");
         }  catch (InvalidParameterException e) {
-            log.error("Был передан невалидный отчёт {}", e.getMessage(), e);
+            log.error("Пользователем {} (user id: {}) был передан невалидный отчёт ({}) {}", update.getEditedMessage().getFrom().getUserName(), update.getEditedMessage().getFrom().getId(), update.getEditedMessage().getText(), e.getMessage(), e);
             execute(sendMessageFactory.create(update.getEditedMessage().getChatId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE));
         }
     }
@@ -270,7 +270,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             execute(sendDatePicker);
             log.info("Отправлено сообщение с выбором даты отчёта");
         }  catch (InvalidParameterException e) {
-            log.error("Был передан невалидный отчёт {}", e.getMessage(), e);
+            log.error("Пользователем {} (user id: {}) был передан невалидный отчёт ({}) {}", update.getEditedMessage().getFrom().getUserName(), update.getEditedMessage().getFrom().getId(), update.getEditedMessage().getText(), e.getMessage(), e);
             execute(sendMessageFactory.create(update.getEditedMessage().getChatId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE));
         }
     }
@@ -340,7 +340,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         try {
             execute(deleteMessage);
         } catch (TelegramApiException e) {
-            log.error("Failed to delete callback message: {}", e.getMessage(), e);
+            log.error("Failed to delete callback message (message id: {}): {}", message.getMessageId(), e.getMessage(), e);
         }
     }
 
@@ -353,7 +353,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error("Failed to delete message markup: {}", e.getMessage(), e);
+            log.error("Failed to delete message markup (message id: {}): {}", callbackMessage.getMessageId(), e.getMessage(), e);
         }
     }
 
@@ -378,7 +378,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                         execute(message);
                     }
                 } catch (TelegramApiException e) {
-                    log.error("Ошибка при отправке сообщения {}", e.getMessage(), e);
+                    log.error("Ошибка при отправке сообщения для чата {} (chat id: {}) {}", chatType, message.getChatId(), e.getMessage(), e);
                 }
             }
         });
@@ -497,9 +497,9 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 updateChatMessageId(chatType, chatMessage, newMessage.getMessageId());
                 chatMessageRepository.save(chatMessage);
             } else if (isMessageNotModified(e)) {
-                log.info("Ни текст сообщения, ни разметка не были изменены в чате {}\n", chatType);
+                log.info("Ни текст сообщения, ни разметка не были изменены в чате {}", chatType);
             } else {
-                log.error("Ошибка при обновлении текста сообщения {}", e.getMessage(), e);
+                log.error("Ошибка при обновлении текста сообщения для чата {} (chat id: {}) {}", chatType, message.getChatId(), e.getMessage(), e);
             }
         }
     }
@@ -548,7 +548,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            log.error("Ошибка при отправке сообщения {}", e.getMessage(), e);
+            log.error("Ошибка при отправке сообщения (chat id: {}) {}", sendMessage.getChatId(), e.getMessage(), e);
         }
     }
 
@@ -559,7 +559,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         try {
             execute(message);
         } catch (Exception e) {
-            log.error("Ошибка при отправке сообщения {}", e.getMessage());
+            log.error("Ошибка при отправке сообщения (chat id: {}) {}", chatId, e.getMessage(), e);
         }
 
     }
