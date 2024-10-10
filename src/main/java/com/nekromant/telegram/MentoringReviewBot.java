@@ -244,7 +244,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             Report temporaryReport = getTemporaryReport(update);
             reportRepository.save(temporaryReport);
 
-            SendMessage sendDatePicker = reportDateTimePicker.sendDatePicker(
+            SendMessage sendDatePicker = reportDateTimePicker.getDatePickerSendMessage(
                     update.getEditedMessage().getChatId().toString(),
                     temporaryReport,
                     update.getEditedMessage().getMessageId());
@@ -266,7 +266,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
             Report temporaryReport = getTemporaryReport(update);
             reportRepository.save(temporaryReport);
 
-            SendMessage sendDatePicker = reportDateTimePicker.sendDatePicker(
+            SendMessage sendDatePicker = reportDateTimePicker.getDatePickerSendMessage(
                     update.getEditedMessage().getChatId().toString(),
                     temporaryReport,
                     update.getEditedMessage().getMessageId());

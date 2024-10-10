@@ -51,7 +51,7 @@ public class ReportCommand extends MentoringReviewWithMessageIdCommand {
                 Report report = Report.getTemporaryReport(strings, user.getUserName());
 
                 reportRepository.save(report);
-                absSender.execute(reportDateTimePicker.sendDatePicker(user.getId().toString(), report, messageId));
+                absSender.execute(reportDateTimePicker.getDatePickerSendMessage(user.getId().toString(), report, messageId));
             } catch (InvalidParameterException e) {
                 log.error(e.getMessage(), e);
                 sendAnswer(chat.getId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE, absSender, user);
