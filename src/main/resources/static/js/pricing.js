@@ -163,15 +163,13 @@ async function submit_new_client_cv_roasting() {
     const form_data = new FormData();
     form_data.append("form_data", file);
 
-    const headers = {
-        'TG-NAME': tgName,
-        'PHONE': phone
-    };
-
-    if (cvPromocodeId!== null) {
-        headers['CV-PROMOCODE-ID'] = cvPromocodeId;
+    const headers = new Headers();
+    headers.append('TG-NAME', encodeURIComponent(tgName));
+    headers.append('PHONE', encodeURIComponent(phone));
+    if (cvPromocodeId !== null) {
+        headers.append('CV-PROMOCODE-ID', encodeURIComponent(cvPromocodeId))
     } else {
-        headers['CV-PROMOCODE-ID'] = null;
+        headers.append('CV-PROMOCODE-ID', encodeURIComponent(null))
     }
 
     await fetch("./pricing/cv", {
