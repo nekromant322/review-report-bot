@@ -50,7 +50,7 @@ public class ReviewCommand extends MentoringReviewCommand {
 
                 log.info("Сохранение нового реквеста {}", reviewRequest);
                 reviewRequestRepository.save(reviewRequest);
-                absSender.execute(reviewRequestDateTimePicker.sendDatePicker(user.getId().toString(), reviewRequest));
+                absSender.execute(reviewRequestDateTimePicker.getDatePickerSendMessage(user.getId().toString(), reviewRequest));
             } catch (NumberFormatException e) {
                 String firstArgument = arguments[0];
                 if (firstArgument.contains("сегодня") || firstArgument.contains("завтра")) {

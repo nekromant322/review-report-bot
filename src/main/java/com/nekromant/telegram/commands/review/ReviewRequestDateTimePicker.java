@@ -22,7 +22,7 @@ public class ReviewRequestDateTimePicker {
     @Autowired
     private SendMessageFactory sendMessageFactory;
 
-    public SendMessage sendDatePicker(String userChatId, ReviewRequest reviewRequest) {
+    public SendMessage getDatePickerSendMessage(String userChatId, ReviewRequest reviewRequest) {
         InlineKeyboardMarkup inlineKeyboardMarkup = getDatePickerInlineKeyboardMarkup(reviewRequest);
         SendMessage message = sendMessageFactory.create(userChatId, "Выберите дату");
         message.setReplyMarkup(inlineKeyboardMarkup);
