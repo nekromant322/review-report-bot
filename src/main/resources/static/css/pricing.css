@@ -544,6 +544,12 @@ a {
     text-transform: capitalize;
 }
 
+.form__footer__note {
+    font-size: 14px;
+    color: aliceblue;
+    margin-top: 10px;
+}
+
 @media (max-width: 1200px) {
     .first-block .first-block__title {
         width: 378px;

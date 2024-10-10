@@ -185,7 +185,7 @@ async function submit_new_client_cv_roasting() {
             }
             throw new Error('Что-то пошло не так :(');
         })
-        .then(text => window.open(text).focus())
+        .then(text => window.open(text, '_blank'))
         .catch((error => {
             alert(error)
         }));
@@ -253,7 +253,7 @@ async function submit_new_client_mentoringSubscription() {
                 throw new Error('Что-то пошло не так :(');
             }
         })
-        .then(text => window.open(text).focus())
+        .then(text => window.open(text, '_blank'))
         .catch((error => {
             alert(error)
         }));
@@ -321,7 +321,7 @@ async function submit_new_client_personalCall() {
                 throw new Error('Что-то пошло не так :(');
             }
         })
-        .then(text => window.open(text).focus())
+        .then(text => window.open(text, '_blank'))
         .catch((error => {
             alert(error)
         }));
