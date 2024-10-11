@@ -17,6 +17,7 @@ import com.nekromant.telegram.repository.ChatMessageRepository;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.repository.UserInfoRepository;
+import com.nekromant.telegram.service.ReportService;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.SneakyThrows;
@@ -50,7 +51,6 @@ import java.util.stream.Collectors;
 import static com.nekromant.telegram.contants.Command.REPORT;
 import static com.nekromant.telegram.contants.MessageContants.REPORT_HELP_MESSAGE;
 import static com.nekromant.telegram.contants.MessageContants.UNKNOWN_COMMAND;
-import static com.nekromant.telegram.model.Report.getTemporaryReport;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 
@@ -78,6 +78,8 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     private ReportRepository reportRepository;
     @Autowired
     private ReportDateTimePicker reportDateTimePicker;
+    @Autowired
+    private ReportService reportService;
 
     private final Map<CallBack, CallbackStrategy> callbackStrategyMap;
 
@@ -181,7 +183,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
         Integer userChatBotMessageId = reportChatMessage.getUserChatBotMessageId();
         Integer reportChatBotMessageId = reportChatMessage.getReportChatBotMessageId();
 
-        Report.updateReportFromEditedMessage(editedText, report);
+        reportService.updateReportFromEditedMessage(editedText, report);
         reportRepository.save(report);
 
 
@@ -241,7 +243,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     private void handleNewReportForExistingMessage(Update update) throws TelegramApiException {
         try {
-            Report temporaryReport = getTemporaryReport(update);
+            Report temporaryReport = reportService.getTemporaryReport(update);
             reportRepository.save(temporaryReport);
 
             SendMessage sendDatePicker = reportDateTimePicker.getDatePickerSendMessage(
@@ -263,7 +265,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
 
     private void handleNewMessage(Update update) throws TelegramApiException {
         try {
-            Report temporaryReport = getTemporaryReport(update);
+            Report temporaryReport = reportService.getTemporaryReport(update);
             reportRepository.save(temporaryReport);
 
             SendMessage sendDatePicker = reportDateTimePicker.getDatePickerSendMessage(
