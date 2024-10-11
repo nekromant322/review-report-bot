@@ -6,7 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 /**
- * Представляет собой связь между сообщениями чата и отчётом.
+ * Представляет собой связь между сообщением пользователя, отчётом в БД и сообщениями бота в чате пользователя и чате отчётов
  */
 @Entity
 @AllArgsConstructor
