@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @RestController
@@ -30,6 +32,9 @@ public class PricingRestController {
                                                          @RequestHeader("TG-NAME") String tgName,
                                                          @RequestHeader("PHONE") String phone,
                                                          @RequestHeader("CV-PROMOCODE-ID") String CVPromocodeId) throws Exception {
+        tgName = URLDecoder.decode(tgName, StandardCharsets.UTF_8);
+        phone = URLDecoder.decode(phone, StandardCharsets.UTF_8);
+        CVPromocodeId = URLDecoder.decode(CVPromocodeId, StandardCharsets.UTF_8);
         return resumeAnalysisRequestService.save(formData.getBytes(), tgName, phone, CVPromocodeId);
     }
 
