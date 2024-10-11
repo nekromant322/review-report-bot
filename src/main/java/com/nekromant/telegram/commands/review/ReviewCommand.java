@@ -4,6 +4,7 @@ package com.nekromant.telegram.commands.review;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.service.ReviewRequestService;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import com.nekromant.telegram.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,8 @@ public class ReviewCommand extends MentoringReviewCommand {
     private SendMessageFactory sendMessageFactory;
     @Autowired
     private ReviewRequestDateTimePicker reviewRequestDateTimePicker;
+    @Autowired
+    private ReviewRequestService reviewRequestService;
 
     @Autowired
     public ReviewCommand() {
@@ -46,7 +49,7 @@ public class ReviewCommand extends MentoringReviewCommand {
 
             try {
                 ValidationUtils.validateArgumentsNumber(arguments);
-                ReviewRequest reviewRequest = ReviewRequest.getTemporaryReviewRequest(user, arguments, studentChatId);
+                ReviewRequest reviewRequest = reviewRequestService.getTemporaryReviewRequest(user, arguments, studentChatId);
 
                 log.info("Сохранение нового реквеста {}", reviewRequest);
                 reviewRequestRepository.save(reviewRequest);
