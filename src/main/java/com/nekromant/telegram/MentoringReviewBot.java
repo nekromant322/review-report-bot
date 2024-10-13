@@ -146,13 +146,13 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
     }
 
     private void handleUnrecognizedEditedMessageType(Update update) {
-        log.info("Неизвестный тип сообщения отредактирован пользователем: {} (user id: {}).", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId());
+        log.info("Неизвестный тип сообщения отредактирован пользователем: {} (user id: {}).", update.getEditedMessage().getFrom().getUserName(), update.getEditedMessage().getFrom().getId());
         update.setMessage(update.getEditedMessage());
         super.onUpdateReceived(update);
     }
 
     private void handleEditedReport(Update update) {
-        log.info("Сообщение с отчётом отредактировано пользователем: {} (user id: {})", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId());
+        log.info("Сообщение с отчётом отредактировано пользователем: {} (user id: {})", update.getEditedMessage().getFrom().getUserName(), update.getEditedMessage().getFrom().getId());
         String editedText = update.getEditedMessage().getText();
         Integer reportMessageId = update.getEditedMessage().getMessageId();
         ChatMessage reportChatMessage = chatMessageRepository.findByUserMessageId(reportMessageId);
@@ -164,7 +164,7 @@ public class MentoringReviewBot extends TelegramLongPollingCommandBot {
                 handleNewMessage(update);
             }
         } catch (TelegramApiException e) {
-            log.error("Не удалось обработать сообщение отредактированное пользователем: {} (user id: {}). Возникла ошибка при отправке сообщения пользователю {}", update.getMessage().getFrom().getUserName(), update.getMessage().getFrom().getId(), e.getMessage(), e);
+            log.error("Не удалось обработать сообщение отредактированное пользователем: {} (user id: {}). Возникла ошибка при отправке сообщения пользователю {}", update.getEditedMessage().getFrom().getUserName(), update.getEditedMessage().getFrom().getId(), e.getMessage(), e);
         }
     }
 
