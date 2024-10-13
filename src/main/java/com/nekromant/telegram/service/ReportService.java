@@ -5,10 +5,14 @@ import com.nekromant.telegram.model.UserStatistic;
 import com.nekromant.telegram.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -18,6 +22,47 @@ public class ReportService {
 
     @Autowired
     private ReportRepository reportRepository;
+
+    public Report getTemporaryReport(Update update) {
+        String[] strings = update.getEditedMessage().getText().split(" ");
+        strings = Arrays.copyOfRange(strings, 1, strings.length);
+
+        String userName = update.getEditedMessage().getFrom().getUserName();
+        return getTemporaryReport(strings, userName);
+    }
+
+    public Report getTemporaryReport(String[] strings, String userName) {
+        Report report = new Report();
+
+        report.setHours(parseHours(strings));
+        report.setTitle(parseTitle(strings));
+        report.setStudentUserName(userName);
+        return report;
+    }
+
+    public void updateReportFromEditedMessage(String editedText, Report report) {
+        String[] strings = editedText.split(" ");
+        strings = Arrays.copyOfRange(strings, 1, strings.length);
+
+        report.setHours(parseHours(strings));
+        report.setTitle(parseTitle(strings));
+    }
+
+    private int parseHours(String[] strings) {
+        int newHours = Integer.parseInt(strings[0]);
+        validateHoursArgument(newHours);
+        return newHours;
+    }
+
+    private String parseTitle(String[] strings) {
+        return Arrays.stream(strings).skip(1).collect(Collectors.joining(" "));
+    }
+
+    private void validateHoursArgument(int hours) {
+        if (hours < 0 || hours > 24) {
+            throw new InvalidParameterException("Неверное значение часов — должно быть от 0 до 24");
+        }
+    }
 
     public UserStatistic getUserStats(String userName) {
         Integer studyDays = reportRepository.findTotalStudyDays(userName);

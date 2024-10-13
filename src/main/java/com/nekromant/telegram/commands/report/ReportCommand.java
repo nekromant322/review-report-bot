@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands.report;
 import com.nekromant.telegram.commands.MentoringReviewWithMessageIdCommand;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
+import com.nekromant.telegram.service.ReportService;
 import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,8 @@ public class ReportCommand extends MentoringReviewWithMessageIdCommand {
     private SendMessageFactory sendMessageFactory;
     @Autowired
     private ReportDateTimePicker reportDateTimePicker;
+    @Autowired
+    private ReportService reportService;
 
     public ReportCommand() {
         super(REPORT.getAlias(), REPORT.getDescription());
@@ -48,7 +51,7 @@ public class ReportCommand extends MentoringReviewWithMessageIdCommand {
                 //тут убрать когда получу все chatId, оставить только в /start
                 userInfoService.initializeUserInfo(chat, user);
 
-                Report report = Report.getTemporaryReport(strings, user.getUserName());
+                Report report = reportService.getTemporaryReport(strings, user.getUserName());
 
                 reportRepository.save(report);
                 absSender.execute(reportDateTimePicker.getDatePickerSendMessage(user.getId().toString(), report, messageId));
