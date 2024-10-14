@@ -1,9 +1,9 @@
 package com.nekromant.telegram.sheduler;
 
-import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.service.SendMessageService;
 import com.nekromant.telegram.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.List;
 
 import static com.nekromant.telegram.contants.MessageContants.REVIEW_INCOMING;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
@@ -25,15 +25,12 @@ public class ReviewScheduler {
 
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
-
-    @Autowired
-    private MentoringReviewBot mentoringReviewBot;
-
     @Autowired
     private UserInfoService userInfoService;
-
     @Autowired
     private MentorRepository mentorRepository;
+    @Autowired
+    private SendMessageService sendMessageService;
 
     @Scheduled(cron = "0 55 * * * *")
     public void processEveryHour() {
@@ -61,10 +58,10 @@ public class ReviewScheduler {
                     .stream()
                     .filter(x -> !x.getUserName().equals(reviewRequest.getStudentUserName()))
                     .filter(x -> !x.getUserName().equals(reviewRequest.getMentorUserName()))
-                    .forEach(x -> mentoringReviewBot.sendMessage(x.getChatId().toString(), reviewIncomingMessage));
+                    .forEach(x -> sendMessageService.sendMessage(x.getChatId().toString(), reviewIncomingMessage));
 
-            mentoringReviewBot.sendMessage(reviewRequest.getStudentChatId(), reviewIncomingMessage);
-            mentoringReviewBot.sendMessage(userInfoService.getUserInfo(reviewRequest.getMentorUserName()).getChatId().toString(),
+            sendMessageService.sendMessage(reviewRequest.getStudentChatId(), reviewIncomingMessage);
+            sendMessageService.sendMessage(userInfoService.getUserInfo(reviewRequest.getMentorUserName()).getChatId().toString(),
                     reviewIncomingMessage);
         }
     }

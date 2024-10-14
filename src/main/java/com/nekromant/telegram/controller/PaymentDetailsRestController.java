@@ -2,11 +2,10 @@ package com.nekromant.telegram.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
 import com.nekromant.telegram.contants.PayStatus;
-import com.nekromant.telegram.service.*;
 import com.nekromant.telegram.model.PaymentDetails;
+import com.nekromant.telegram.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.AbstractConverter;
 import org.modelmapper.Converter;
@@ -28,8 +27,6 @@ public class PaymentDetailsRestController {
     @Autowired
     private UserInfoService userInfoService;
     @Autowired
-    private MentoringReviewBot mentoringReviewBot;
-    @Autowired
     private ModelMapper modelMapper;
     @Autowired
     private ObjectMapper objectMapper;
@@ -37,6 +34,8 @@ public class PaymentDetailsRestController {
     ClientPaymentRequestServiceProvider paymentRequestServiceProvider;
 
     private ClientPaymentRequestService clientPaymentRequestService;
+    @Autowired
+    private SendMessageService sendMessageService;
 
     @PostMapping(value = "/paymentCallback")
 
@@ -70,7 +69,7 @@ public class PaymentDetailsRestController {
 
     public void sendMessage(PaymentDetails paymentDetails) {
         String messageText = createMessageText(paymentDetails);
-        mentoringReviewBot.sendMessage(userInfoService.getUserInfo(ownerUserName).getChatId().toString(), messageText);
+        sendMessageService.sendMessage(userInfoService.getUserInfo(ownerUserName).getChatId().toString(), messageText);
     }
 
     private String createMessageText(PaymentDetails paymentDetails) {

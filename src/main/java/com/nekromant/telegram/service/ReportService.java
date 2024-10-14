@@ -5,7 +5,7 @@ import com.nekromant.telegram.model.UserStatistic;
 import com.nekromant.telegram.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
@@ -23,11 +23,11 @@ public class ReportService {
     @Autowired
     private ReportRepository reportRepository;
 
-    public Report getTemporaryReport(Update update) {
-        String[] strings = update.getEditedMessage().getText().split(" ");
+    public Report getTemporaryReport(Message message) {
+        String[] strings = message.getText().split(" ");
         strings = Arrays.copyOfRange(strings, 1, strings.length);
 
-        String userName = update.getEditedMessage().getFrom().getUserName();
+        String userName = message.getFrom().getUserName();
         return getTemporaryReport(strings, userName);
     }
 

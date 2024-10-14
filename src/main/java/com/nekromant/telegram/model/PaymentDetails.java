@@ -1,6 +1,7 @@
 package com.nekromant.telegram.model;
 
-import com.nekromant.telegram.commands.dto.*;
+import com.nekromant.telegram.commands.dto.OrderDTO;
+import com.nekromant.telegram.commands.dto.PurchaseDTO;
 import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.converter.OrderJsonType;
@@ -10,7 +11,10 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Entity
 @Getter

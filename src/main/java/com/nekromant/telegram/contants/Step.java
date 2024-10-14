@@ -1,6 +1,6 @@
 package com.nekromant.telegram.contants;
 
-import java.util.*;
+import java.util.Arrays;
 
 public enum Step {
     BEGIN("begin"),

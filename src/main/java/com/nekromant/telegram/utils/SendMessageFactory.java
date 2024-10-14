@@ -5,6 +5,7 @@ import com.nekromant.telegram.service.SpecialChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
@@ -22,10 +23,16 @@ public class SendMessageFactory {
         return sendMessage;
     }
 
-    private void setChatIdForSendMessage(Update update, SendMessage sendMessage, ChatType chatType) {
+    public SendMessage createFromCallbackQuery(CallbackQuery callbackQuery, ChatType chatType) {
+        SendMessage sendMessage = new SendMessage();
+        setChatIdForSendMessage(callbackQuery, sendMessage, chatType);
+        return sendMessage;
+    }
+
+    private void setChatIdForSendMessage(CallbackQuery callbackQuery, SendMessage sendMessage, ChatType chatType) {
         switch (chatType) {
             case USER_CHAT:
-                setChatIdForUser(update, sendMessage);
+                setChatIdForUser(callbackQuery, sendMessage);
                 break;
             case MENTORS_CHAT:
                 setChatIdForMentors(sendMessage);
@@ -36,8 +43,13 @@ public class SendMessageFactory {
         }
     }
 
-    private void setChatIdForUser(Update update, SendMessage messageForUser) {
-        messageForUser.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
+    private void setChatIdForSendMessage(Update update, SendMessage sendMessage, ChatType chatType) {
+        CallbackQuery callbackQuery = update.getCallbackQuery();
+        setChatIdForSendMessage(callbackQuery, sendMessage, chatType);
+    }
+
+    private void setChatIdForUser(CallbackQuery callbackQuery, SendMessage messageForUser) {
+        messageForUser.setChatId(callbackQuery.getMessage().getChatId().toString());
     }
 
     private void setChatIdForMentors(SendMessage messageForMentors) {
