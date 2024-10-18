@@ -4,17 +4,16 @@ import com.nekromant.telegram.commands.report.ReportDateTimePicker;
 import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.model.ChatMessage;
 import com.nekromant.telegram.model.Report;
-import com.nekromant.telegram.repository.ChatMessageRepository;
-import com.nekromant.telegram.repository.ReportRepository;
+import com.nekromant.telegram.service.ChatMessageService;
 import com.nekromant.telegram.service.ReportService;
 import com.nekromant.telegram.service.SendMessageService;
 import com.nekromant.telegram.service.SpecialChatService;
+import com.nekromant.telegram.utils.EditMessageTextFactory;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -32,17 +31,17 @@ public class EditedMessageHandler {
     @Autowired
     private SendMessageService sendMessageService;
     @Autowired
-    private ChatMessageRepository chatMessageRepository;
+    private ChatMessageService chatMessageService;
     @Autowired
     private ReportService reportService;
-    @Autowired
-    private ReportRepository reportRepository; // TODO replace with service
     @Autowired
     private SendMessageFactory sendMessageFactory;
     @Autowired
     private SpecialChatService specialChatService;
     @Autowired
     private ReportDateTimePicker reportDateTimePicker;
+    @Autowired
+    private EditMessageTextFactory editMessageTextFactory;
 
 
     public void handleEditedMessage(Message message) {
@@ -61,7 +60,7 @@ public class EditedMessageHandler {
         log.info("Сообщение с отчётом отредактировано пользователем: {} (user id: {})", message.getFrom().getUserName(), message.getFrom().getId());
         String editedText = message.getText();
         Integer reportMessageId = message.getMessageId();
-        ChatMessage reportChatMessage = chatMessageRepository.findByUserMessageId(reportMessageId);
+        ChatMessage reportChatMessage = chatMessageService.findChatMessageByUserMessageId(reportMessageId);
 
         try {
             if (reportChatMessage != null) {
@@ -97,7 +96,7 @@ public class EditedMessageHandler {
     private void handleNewMessage(Message message) throws TelegramApiException {
         try {
             Report temporaryReport = reportService.getTemporaryReport(message);
-            reportRepository.save(temporaryReport);
+            reportService.save(temporaryReport);
 
             SendMessage sendDatePicker = reportDateTimePicker.getDatePickerSendMessage(
                     message.getChatId().toString(),
@@ -121,7 +120,7 @@ public class EditedMessageHandler {
         Integer reportChatBotMessageId = reportChatMessage.getReportChatBotMessageId();
 
         reportService.updateReportFromEditedMessage(editedText, report);
-        reportRepository.save(report);
+        reportService.save(report);
 
 
         String updatedReportText = String.format("Отчёт обновлен %s:\n@%s\n%s\n%s\n%s",
@@ -138,7 +137,7 @@ public class EditedMessageHandler {
     private void handleNewReportForExistingMessage(Message message) throws TelegramApiException {
         try {
             Report temporaryReport = reportService.getTemporaryReport(message);
-            reportRepository.save(temporaryReport);
+            reportService.save(temporaryReport);
 
             SendMessage sendDatePicker = reportDateTimePicker.getDatePickerSendMessage(
                     message.getChatId().toString(),
@@ -164,11 +163,7 @@ public class EditedMessageHandler {
 
     private void updateReportBotMessage(Message message, ChatMessage chatMessage, String updatedReportText, Integer messageId, ChatType chatType) {
         try {
-            EditMessageText editMessage = new EditMessageText();
-            editMessage.setText(updatedReportText);
-            editMessage.setChatId(getChatId(message, chatType));
-            editMessage.setMessageId(messageId);
-            sendMessageService.sendMessage(editMessage);
+            sendMessageService.sendMessage(editMessageTextFactory.create(getChatId(message, chatType), messageId, updatedReportText));
         } catch (TelegramApiException e) {
             if (isMessageNotFound(e)) {
                 sendNewMessage(message, chatMessage, updatedReportText, chatType);
@@ -198,7 +193,7 @@ public class EditedMessageHandler {
             SendMessage sendMessage = sendMessageFactory.create(getChatId(message, chatType), updatedReportText);
             Message newMessage = sendMessageService.sendMessage(sendMessage);
             updateChatMessageId(chatType, chatMessage, newMessage.getMessageId());
-            chatMessageRepository.save(chatMessage);
+            chatMessageService.save(chatMessage);
         } catch (TelegramApiException e) {
             log.error("Связанное с редактируемым отчётом сообщение (message id: {}) не было найдено в чате отчётов и не удалось отправить новое {}", message.getMessageId(), e.getMessage(), e);
         }

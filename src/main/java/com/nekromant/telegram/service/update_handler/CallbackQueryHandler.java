@@ -6,30 +6,24 @@ import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.ChatMessage;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.model.UserInfo;
-import com.nekromant.telegram.repository.ChatMessageRepository;
-import com.nekromant.telegram.repository.ReviewRequestRepository;
-import com.nekromant.telegram.repository.UserInfoRepository;
-import com.nekromant.telegram.service.SendMessageService;
-import com.nekromant.telegram.service.SpecialChatService;
+import com.nekromant.telegram.service.*;
 import com.nekromant.telegram.service.update_handler.callback_strategy.CallbackStrategy;
 import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
 import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.MessagePart;
+import com.nekromant.telegram.utils.DeleteMessageFactory;
+import com.nekromant.telegram.utils.EditMessageReplyMarkupFactory;
+import com.nekromant.telegram.utils.EditMessageTextFactory;
 import com.nekromant.telegram.utils.SendMessageFactory;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -53,15 +47,21 @@ public class CallbackQueryHandler {
     @Autowired
     private SendMessageFactory sendMessageFactory;
     @Autowired
-    private ChatMessageRepository chatMessageRepository; // TODO replace with service
+    private ChatMessageService chatMessageService;
     @Autowired
     private SpecialChatService specialChatService;
     @Autowired
-    private ReviewRequestRepository reviewRequestRepository; // TODO replace with service
+    private ReviewRequestService reviewRequestService;
     @Autowired
-    private UserInfoRepository userInfoRepository; // TODO replace with service
+    private UserInfoService userInfoService;
     @Autowired
     private SendMessageService sendMessageService;
+    @Autowired
+    private DeleteMessageFactory deleteMessageFactory;
+    @Autowired
+    private EditMessageReplyMarkupFactory editMessageReplyMarkupFactory;
+    @Autowired
+    private EditMessageTextFactory editMessageTextFactory;
 
     @Autowired
     public CallbackQueryHandler(List<CallbackStrategy> callbackStrategies) {
@@ -69,27 +69,24 @@ public class CallbackQueryHandler {
                 .collect(Collectors.toMap(CallbackStrategy::getPrefix, Function.identity()));
     }
 
-
-    // TODO развернуть логику, разбить на отдельные сценарии
     public void handleCallbackQuery(CallbackQuery callbackQuery) {
-
-        Map<ChatType, SendMessage> messageByChatTypeMap = getMessageByChatTypeMap(callbackQuery);
         String callbackData = callbackQuery.getData();
+        Message callbackMessage = callbackQuery.getMessage();
+        Map<ChatType, SendMessage> messageByChatTypeMap = getMessageByChatTypeMap(callbackMessage);
+        DeleteMessageStrategy deleteMessageStrategy = new DeleteMessageStrategy();
 
         CallbackStrategy strategy = getCallbackStrategy(callbackData);
-        DeleteMessageStrategy deleteMessageStrategy = new DeleteMessageStrategy();
         strategy.executeCallbackQuery(callbackQuery, messageByChatTypeMap, deleteMessageStrategy);
 
-        deleteReplyMessage(callbackQuery, deleteMessageStrategy.getMessagePart());
-
+        deleteReplyMessage(callbackMessage, deleteMessageStrategy.getMessagePart());
         sendMessagesIfNotEmpty(messageByChatTypeMap, callbackData);
     }
 
-    private Map<ChatType, SendMessage> getMessageByChatTypeMap(CallbackQuery callbackQuery) {
+    private Map<ChatType, SendMessage> getMessageByChatTypeMap(Message callbackMessage) {
         Map<ChatType, SendMessage> sendMessageMap = new HashMap<>();
-        sendMessageMap.put(ChatType.USER_CHAT, sendMessageFactory.createFromCallbackQuery(callbackQuery, ChatType.USER_CHAT));
-        sendMessageMap.put(ChatType.MENTORS_CHAT, sendMessageFactory.createFromCallbackQuery(callbackQuery, ChatType.MENTORS_CHAT));
-        sendMessageMap.put(ChatType.REPORTS_CHAT, sendMessageFactory.createFromCallbackQuery(callbackQuery, ChatType.REPORTS_CHAT));
+        sendMessageMap.put(ChatType.USER_CHAT, sendMessageFactory.createFromCallbackQuery(callbackMessage, ChatType.USER_CHAT));
+        sendMessageMap.put(ChatType.MENTORS_CHAT, sendMessageFactory.createFromCallbackQuery(callbackMessage, ChatType.MENTORS_CHAT));
+        sendMessageMap.put(ChatType.REPORTS_CHAT, sendMessageFactory.createFromCallbackQuery(callbackMessage, ChatType.REPORTS_CHAT));
         return sendMessageMap;
     }
 
@@ -97,13 +94,13 @@ public class CallbackQueryHandler {
         return callbackStrategyMap.get(CallBack.from(callbackData.split(" ")[0]));
     }
 
-    private void deleteReplyMessage(CallbackQuery callbackQuery, MessagePart messagePart) {
+    private void deleteReplyMessage(Message callbackMessage, MessagePart messagePart) {
         switch (messagePart) {
             case MARKUP:
-                deleteMessageMarkUp(callbackQuery);
+                deleteMessageMarkUp(callbackMessage);
                 break;
             case ENTIRE_MESSAGE:
-                deleteCallbackMessage(callbackQuery);
+                deleteCallbackMessage(callbackMessage);
                 break;
             default:
                 log.error("Unsupported delete message strategy: {}", messagePart.name());
@@ -111,56 +108,32 @@ public class CallbackQueryHandler {
         }
     }
 
-    private void deleteCallbackMessage(CallbackQuery callbackQuery) {
-        // TODO replace with factory like SendMessageFactory
-        DeleteMessage deleteMessage = new DeleteMessage();
-        Message message = callbackQuery.getMessage();
-        deleteMessage.setChatId(message.getChatId().toString());
-        deleteMessage.setMessageId(message.getMessageId());
+    private void deleteCallbackMessage(Message callbackMessage) {
         try {
-            sendMessageService.sendMessage(deleteMessage);
+            sendMessageService.sendMessage(deleteMessageFactory.createFromCallbackMessage(callbackMessage));
         } catch (TelegramApiException e) {
-            log.error("Failed to delete callback message (message id: {}): {}", message.getMessageId(), e.getMessage(), e);
+            log.error("Failed to delete callback message (message id: {}): {}", callbackMessage.getMessageId(), e.getMessage(), e);
         }
     }
 
-    private void deleteMessageMarkUp(CallbackQuery callbackQuery) {
-        // TODO replace with factory like SendMessageFactory
-        EditMessageReplyMarkup message = new EditMessageReplyMarkup();
-        Message callbackMessage = callbackQuery.getMessage();
-        message.setChatId(callbackMessage.getChatId().toString());
-        message.setMessageId(callbackMessage.getMessageId());
-        message.setReplyMarkup(null);
+    private void deleteMessageMarkUp(Message callbackMessage) {
         try {
-            sendMessageService.sendMessage(message);
+            sendMessageService.sendMessage(editMessageReplyMarkupFactory.createFromCallbackMessage(callbackMessage));
         } catch (TelegramApiException e) {
             log.error("Failed to delete message markup (message id: {}): {}", callbackMessage.getMessageId(), e.getMessage(), e);
         }
     }
 
     private void sendMessagesIfNotEmpty(Map<ChatType, SendMessage> messages, String callbackData) {
+        String callbackAlias = callbackData.split(" ")[0];
 
         messages.forEach((chatType, message) -> {
-//            ChatMessage chatMessage = chatMessageRepository.findByUserMessageId(extractMessageIdFromCallbackData(callbackData));
-//            SendObject sendObject = new SendObject(chatType, message, chatMessage); // TODO заменить SendObject c полями ChatType, SendMessage, ChatMessage (создан уже)
-
-            // TODO развернуть логику, разбить на отдельные сценарии? Несколько дней займёт, всё равно что с нуля писать весь MentoringReviewBot.class
-            //  под каждый сценарий свой хендлер
-            //  хэндлеры в список
-            //  у хэндлеров должно быть поле, по которому мы будем искать нужны в списке стрим-фильтром
-            //  метод хэндела возвращат <T extends Serializable, Method extends BotApiMethod<T>> List<Method> или просто Method
-            //  https://javarush.com/en/groups/posts/en.2966.create-a-telegram-bot-using-spring-boot-pt2-quiz-bot
-            //  https://github.com/whiskels/NotifierBot/blob/master/src/main/java/com/whiskels/notifier/infrastructure/admin/telegram/MessageProcessor.java
             if (isNotEmptyMessage(message)) {
                 try {
-                    String callbackAlias = callbackData.split(" ")[0];
                     if (isNewOrEditedReport(callbackAlias)) {
-                        updateReportMessage(chatType, message, callbackData);
+                        handleNewOrEditedReport(chatType, message, callbackData);
                     } else if (isReviewRequest(callbackAlias)) {
-                        sendMessageService.sendMessage(message);
-                        if (isNotDenyForReviewRequest(callbackAlias)) {
-                            writeMentors(callbackData);
-                        }
+                        handleReviewRequest(message, callbackData);
                     } else {
                         sendMessageService.sendMessage(message);
                     }
@@ -171,17 +144,16 @@ public class CallbackQueryHandler {
         });
     }
 
-    private static boolean isNotEmptyMessage(SendMessage sendMessage) {
-        return sendMessage.getText() != null && !sendMessage.getText().isEmpty();
+    private void handleReviewRequest(SendMessage message, String callbackData) throws TelegramApiException {
+        sendMessageService.sendMessage(message);
+        if (isNotDenyForReviewRequest(callbackData)) {
+            writeMentors(callbackData);
+        }
     }
 
-    private static boolean isNewOrEditedReport(String callbackAlias) {
-        return callbackAlias.equalsIgnoreCase(CallBack.SET_REPORT_DATE_TIME.getAlias()) && !callbackAlias.equalsIgnoreCase(CallBack.DENY_REPORT_DATE_TIME.getAlias());
-    }
-
-    private void updateReportMessage(ChatType chatType, SendMessage message, String callbackData) throws TelegramApiException {
+    private void handleNewOrEditedReport(ChatType chatType, SendMessage message, String callbackData) throws TelegramApiException {
         Integer messageId = extractMessageIdFromCallbackData(callbackData);
-        ChatMessage chatMessage = chatMessageRepository.findByUserMessageId(messageId);
+        ChatMessage chatMessage = chatMessageService.findChatMessageByUserMessageId(messageId);
 
         if (chatMessage != null) {
             if (isReportUpdated(message)) {
@@ -194,20 +166,28 @@ public class CallbackQueryHandler {
         }
     }
 
+    private static boolean isNotEmptyMessage(SendMessage sendMessage) {
+        return sendMessage.getText() != null && !sendMessage.getText().isEmpty();
+    }
+
+    private static boolean isNewOrEditedReport(String callbackAlias) {
+        return callbackAlias.equalsIgnoreCase(CallBack.SET_REPORT_DATE_TIME.getAlias()) && !callbackAlias.equalsIgnoreCase(CallBack.DENY_REPORT_DATE_TIME.getAlias());
+    }
+
     private boolean isReviewRequest(String callbackAlias) {
         return callbackAlias.equalsIgnoreCase(CallBack.SET_REVIEW_REQUEST_DATE_TIME.getAlias())
                 || callbackAlias.equalsIgnoreCase(CallBack.DENY_REVIEW_REQUEST_DATE_TIME.getAlias());
     }
 
-    private static boolean isNotDenyForReviewRequest(String callbackAlias) {
+    private static boolean isNotDenyForReviewRequest(String callbackData) {
+        String callbackAlias = callbackData.split(" ")[0];
         return !callbackAlias.equalsIgnoreCase(CallBack.DENY_REVIEW_REQUEST_DATE_TIME.getAlias());
     }
 
-    @SneakyThrows
-    private void writeMentors(String callbackData) {
+    private void writeMentors(String callbackData) throws TelegramApiException {
         String mentorsChatId = specialChatService.getMentorsChatId();
         Long reviewRequestId = Long.parseLong(callbackData.split(" ")[2]);
-        ReviewRequest reviewRequest = reviewRequestRepository.findById(reviewRequestId).orElseThrow(InvalidParameterException::new);
+        ReviewRequest reviewRequest = reviewRequestService.findReviewRequestById(reviewRequestId);
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
@@ -250,7 +230,7 @@ public class CallbackQueryHandler {
         message.setReplyMarkup(inlineKeyboardMarkup);
 
         sendMessageService.sendMessage(message);
-        reviewRequestRepository.save(reviewRequest);
+        reviewRequestService.save(reviewRequest);
     }
 
     private Integer extractMessageIdFromCallbackData(String callbackData) {
@@ -262,19 +242,13 @@ public class CallbackQueryHandler {
     }
 
     private void updateReportText(ChatType chatType, SendMessage message, ChatMessage chatMessage) throws TelegramApiException {
-        EditMessageText editMessageText = new EditMessageText();
-        editMessageText.setText(message.getText());
-        editMessageText.setChatId(message.getChatId());
-        editMessageText.setMessageId(getMessageId(chatType, chatMessage));
-
-        // TODO перенести в TelegramApiExceptionHandler
         try {
-            sendMessageService.sendMessage(editMessageText);
+            sendMessageService.sendMessage(editMessageTextFactory.create(message.getChatId(), getMessageId(chatType, chatMessage), message.getText()));
         } catch (TelegramApiException e) {
             if (isMessageNotFound(e)) {
                 Message newMessage = sendMessageService.sendMessage(message);
                 updateChatMessageId(chatType, chatMessage, newMessage.getMessageId());
-                chatMessageRepository.save(chatMessage);
+                chatMessageService.save(chatMessage);
             } else if (isMessageNotModified(e)) {
                 log.info("Ни текст сообщения, ни разметка не были изменены в чате {}", chatType);
             } else {
@@ -292,17 +266,17 @@ public class CallbackQueryHandler {
             chatMessage.setUserChatBotMessageId(executedMessage.getMessageId());
         }
 
-        chatMessageRepository.save(chatMessage);
+        chatMessageService.save(chatMessage);
     }
 
     private boolean isTimeSlotTakenByAllMentors(Integer timeSlot, LocalDate reviewRequestDate) {
         boolean isNotTakenByAllMentors = true;
-        List<UserInfo> allMentors = userInfoRepository.findAllByUserType(UserType.MENTOR);
+        List<UserInfo> allMentors = userInfoService.findAllByUserType(UserType.MENTOR);
         for (UserInfo mentor : allMentors) {
             if (timeSlot == MIDNIGHT) {
-                isNotTakenByAllMentors = !reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate.plusDays(1), LocalTime.of(0, 0)), mentor.getUserName());
+                isNotTakenByAllMentors = !reviewRequestService.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate.plusDays(1), LocalTime.of(0, 0)), mentor.getUserName());
             } else {
-                isNotTakenByAllMentors = !reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate, LocalTime.of(timeSlot, 0)), mentor.getUserName());
+                isNotTakenByAllMentors = !reviewRequestService.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate, LocalTime.of(timeSlot, 0)), mentor.getUserName());
             }
         }
         return isNotTakenByAllMentors;

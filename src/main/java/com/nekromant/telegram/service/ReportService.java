@@ -23,6 +23,10 @@ public class ReportService {
     @Autowired
     private ReportRepository reportRepository;
 
+    public Report save(Report report) {
+        return reportRepository.save(report);
+    }
+
     public Report getTemporaryReport(Message message) {
         String[] strings = message.getText().split(" ");
         strings = Arrays.copyOfRange(strings, 1, strings.length);

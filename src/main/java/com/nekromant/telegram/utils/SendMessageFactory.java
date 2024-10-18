@@ -5,8 +5,7 @@ import com.nekromant.telegram.service.SpecialChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.Message;
 
 @Component
 public class SendMessageFactory {
@@ -17,22 +16,16 @@ public class SendMessageFactory {
         return new SendMessage(chatId, text);
     }
 
-    public SendMessage createFromUpdate(Update update, ChatType chatType) {
+    public SendMessage createFromCallbackQuery(Message callbackMessage, ChatType chatType) {
         SendMessage sendMessage = new SendMessage();
-        setChatIdForSendMessage(update, sendMessage, chatType);
+        setChatIdForSendMessage(callbackMessage, sendMessage, chatType);
         return sendMessage;
     }
 
-    public SendMessage createFromCallbackQuery(CallbackQuery callbackQuery, ChatType chatType) {
-        SendMessage sendMessage = new SendMessage();
-        setChatIdForSendMessage(callbackQuery, sendMessage, chatType);
-        return sendMessage;
-    }
-
-    private void setChatIdForSendMessage(CallbackQuery callbackQuery, SendMessage sendMessage, ChatType chatType) {
+    private void setChatIdForSendMessage(Message callbackMessage, SendMessage sendMessage, ChatType chatType) {
         switch (chatType) {
             case USER_CHAT:
-                setChatIdForUser(callbackQuery, sendMessage);
+                setChatIdForUser(callbackMessage, sendMessage);
                 break;
             case MENTORS_CHAT:
                 setChatIdForMentors(sendMessage);
@@ -43,13 +36,8 @@ public class SendMessageFactory {
         }
     }
 
-    private void setChatIdForSendMessage(Update update, SendMessage sendMessage, ChatType chatType) {
-        CallbackQuery callbackQuery = update.getCallbackQuery();
-        setChatIdForSendMessage(callbackQuery, sendMessage, chatType);
-    }
-
-    private void setChatIdForUser(CallbackQuery callbackQuery, SendMessage messageForUser) {
-        messageForUser.setChatId(callbackQuery.getMessage().getChatId().toString());
+    private void setChatIdForUser(Message callbackMessage, SendMessage messageForUser) {
+        messageForUser.setChatId(callbackMessage.getChatId().toString());
     }
 
     private void setChatIdForMentors(SendMessage messageForMentors) {
