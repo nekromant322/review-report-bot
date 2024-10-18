@@ -18,14 +18,10 @@ import java.io.Serializable;
 @Service
 public class SendMessageService {
 
-    private final MentoringReviewBot mentoringReviewBot;
-    private final SendMessageFactory sendMessageFactory;
-
     @Autowired
-    public SendMessageService(MentoringReviewBot mentoringReviewBot, SendMessageFactory sendMessageFactory) {
-        this.mentoringReviewBot = mentoringReviewBot;
-        this.sendMessageFactory = sendMessageFactory;
-    }
+    private MentoringReviewBot mentoringReviewBot;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
 
     public Message sendMessage(SendMessage sendMessage) throws TelegramApiException {
         return mentoringReviewBot.execute(sendMessage);

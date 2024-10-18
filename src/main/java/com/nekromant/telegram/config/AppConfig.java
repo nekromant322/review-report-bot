@@ -16,6 +16,4 @@ public class AppConfig {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
-
-    // TODO заменить описание зависимостей в конструкторах для обработчиков не командных апдейтов описанием через бины здесь
 }

@@ -1,15 +1,6 @@
 package com.nekromant.telegram.service.update_handler;
 
-import com.nekromant.telegram.commands.report.ReportDateTimePicker;
-import com.nekromant.telegram.repository.ChatMessageRepository;
-import com.nekromant.telegram.repository.ReportRepository;
-import com.nekromant.telegram.repository.ReviewRequestRepository;
-import com.nekromant.telegram.repository.UserInfoRepository;
-import com.nekromant.telegram.service.ReportService;
-import com.nekromant.telegram.service.SendMessageService;
 import com.nekromant.telegram.service.SpecialChatService;
-import com.nekromant.telegram.service.update_handler.callback_strategy.CallbackStrategy;
-import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,46 +9,18 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.util.List;
-
 @Slf4j
 @Service
 public class NonCommandUpdateHandler {
 
-    private final MessageHandler messageHandler;
-    private final CallbackQueryHandler callbackQueryHandler;
-    private final EditedMessageHandler editedMessageHandler;
-    private final SpecialChatService specialChatService;
-
     @Autowired
-    public NonCommandUpdateHandler(SendMessageService sendMessageService,
-                                   List<CallbackStrategy> callbackStrategies,
-                                   SpecialChatService specialChatService,
-                                   SendMessageFactory sendMessageFactory,
-                                   ChatMessageRepository chatMessageRepository,
-                                   ReviewRequestRepository reviewRequestRepository,
-                                   UserInfoRepository userInfoRepository,
-                                   ReportService reportService,
-                                   ReportRepository reportRepository,
-                                   ReportDateTimePicker reportDateTimePicker) {
-        this.messageHandler = new MessageHandler(sendMessageService,
-                sendMessageFactory);
-        this.callbackQueryHandler = new CallbackQueryHandler(callbackStrategies,
-                sendMessageService,
-                sendMessageFactory,
-                chatMessageRepository,
-                specialChatService,
-                reviewRequestRepository,
-                userInfoRepository);
-        this.editedMessageHandler = new EditedMessageHandler(sendMessageService,
-                chatMessageRepository,
-                reportService,
-                reportRepository,
-                reportDateTimePicker,
-                sendMessageFactory,
-                specialChatService);
-        this.specialChatService = specialChatService;
-    }
+    private MessageHandler messageHandler;
+    @Autowired
+    private CallbackQueryHandler callbackQueryHandler;
+    @Autowired
+    private EditedMessageHandler editedMessageHandler;
+    @Autowired
+    private SpecialChatService specialChatService;
 
 
     public void handleUpdate(Update update) {

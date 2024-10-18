@@ -50,31 +50,25 @@ public class CallbackQueryHandler {
 
     private final Map<CallBack, CallbackStrategy> callbackStrategyMap;
 
-    private final SendMessageFactory sendMessageFactory;
-    private final ChatMessageRepository chatMessageRepository; // TODO replace with service
-    private final SpecialChatService specialChatService;
-    private final ReviewRequestRepository reviewRequestRepository; // TODO replace with service
-    private final UserInfoRepository userInfoRepository; // TODO replace with service
-
-    private final SendMessageService sendMessageService;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
+    @Autowired
+    private ChatMessageRepository chatMessageRepository; // TODO replace with service
+    @Autowired
+    private SpecialChatService specialChatService;
+    @Autowired
+    private ReviewRequestRepository reviewRequestRepository; // TODO replace with service
+    @Autowired
+    private UserInfoRepository userInfoRepository; // TODO replace with service
+    @Autowired
+    private SendMessageService sendMessageService;
 
     @Autowired
-    public CallbackQueryHandler(List<CallbackStrategy> callbackStrategies,
-                                SendMessageService sendMessageService,
-                                SendMessageFactory sendMessageFactory,
-                                ChatMessageRepository chatMessageRepository,
-                                SpecialChatService specialChatService,
-                                ReviewRequestRepository reviewRequestRepository,
-                                UserInfoRepository userInfoRepository) {
+    public CallbackQueryHandler(List<CallbackStrategy> callbackStrategies) {
         this.callbackStrategyMap = callbackStrategies.stream()
                 .collect(Collectors.toMap(CallbackStrategy::getPrefix, Function.identity()));
-        this.sendMessageService = sendMessageService;
-        this.sendMessageFactory = sendMessageFactory;
-        this.chatMessageRepository = chatMessageRepository;
-        this.specialChatService = specialChatService;
-        this.reviewRequestRepository = reviewRequestRepository;
-        this.userInfoRepository = userInfoRepository;
     }
+
 
     // TODO развернуть логику, разбить на отдельные сценарии
     public void handleCallbackQuery(CallbackQuery callbackQuery) {

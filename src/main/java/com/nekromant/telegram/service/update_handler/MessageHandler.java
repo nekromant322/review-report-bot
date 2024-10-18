@@ -15,15 +15,10 @@ import static com.nekromant.telegram.contants.MessageContants.UNKNOWN_COMMAND;
 @Component
 public class MessageHandler {
 
-    private final SendMessageService sendMessageService;
-    private final SendMessageFactory sendMessageFactory;
-
     @Autowired
-    public MessageHandler(SendMessageService sendMessageService,
-                          SendMessageFactory sendMessageFactory) {
-        this.sendMessageService = sendMessageService;
-        this.sendMessageFactory = sendMessageFactory;
-    }
+    private SendMessageService sendMessageService;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
 
 
     public void handleMessage(Message message) {

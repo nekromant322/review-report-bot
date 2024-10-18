@@ -11,6 +11,7 @@ import com.nekromant.telegram.service.SendMessageService;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -28,29 +29,20 @@ import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 @Component
 public class EditedMessageHandler {
 
-    private final SendMessageService sendMessageService;
-    private final ChatMessageRepository chatMessageRepository;
-    private final ReportService reportService;
-    private final ReportRepository reportRepository; // TODO replace with service
-    private final SendMessageFactory sendMessageFactory;
-    private final SpecialChatService specialChatService;
-    private final ReportDateTimePicker reportDateTimePicker;
-
-    public EditedMessageHandler(SendMessageService sendMessageService,
-                                ChatMessageRepository chatMessageRepository,
-                                ReportService reportService,
-                                ReportRepository reportRepository,
-                                ReportDateTimePicker reportDateTimePicker,
-                                SendMessageFactory sendMessageFactory,
-                                SpecialChatService specialChatService) {
-        this.sendMessageService = sendMessageService;
-        this.chatMessageRepository = chatMessageRepository;
-        this.reportService = reportService;
-        this.reportRepository = reportRepository;
-        this.sendMessageFactory = sendMessageFactory;
-        this.specialChatService = specialChatService;
-        this.reportDateTimePicker = reportDateTimePicker;
-    }
+    @Autowired
+    private SendMessageService sendMessageService;
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
+    @Autowired
+    private ReportService reportService;
+    @Autowired
+    private ReportRepository reportRepository; // TODO replace with service
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
+    @Autowired
+    private SpecialChatService specialChatService;
+    @Autowired
+    private ReportDateTimePicker reportDateTimePicker;
 
 
     public void handleEditedMessage(Message message) {
