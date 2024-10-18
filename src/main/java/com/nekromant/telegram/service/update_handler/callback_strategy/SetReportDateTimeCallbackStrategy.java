@@ -1,7 +1,5 @@
-package com.nekromant.telegram.callback_strategy;
+package com.nekromant.telegram.service.update_handler.callback_strategy;
 
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.model.ChatMessage;
@@ -9,11 +7,13 @@ import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ChatMessageRepository;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SpecialChatService;
+import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
+import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.MessagePart;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
@@ -33,11 +33,11 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
     private ChatMessageRepository chatMessageRepository;
 
     @Override
-    public void executeCallbackQuery(Update update, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
+    public void executeCallbackQuery(CallbackQuery callbackQuery, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
         SendMessage messageForUser = messageMap.get(ChatType.USER_CHAT);
         SendMessage messageForReportsChat = messageMap.get(ChatType.REPORTS_CHAT);
 
-        setReportDate(update, messageForUser, messageForReportsChat, deleteMessageStrategy);
+        setReportDate(callbackQuery, messageForUser, messageForReportsChat, deleteMessageStrategy);
     }
 
     @Override
@@ -45,8 +45,8 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
         return CallBack.SET_REPORT_DATE_TIME;
     }
 
-    private void setReportDate(Update update, SendMessage messageForUser, SendMessage messageForReportsChat, DeleteMessageStrategy deleteMessageStrategy) {
-        String callbackData = update.getCallbackQuery().getData();
+    private void setReportDate(CallbackQuery callbackQuery, SendMessage messageForUser, SendMessage messageForReportsChat, DeleteMessageStrategy deleteMessageStrategy) {
+        String callbackData = callbackQuery.getData();
         String[] dataParts = callbackData.split(" ");
         String date = dataParts[1];
         Long reportId = Long.parseLong(callbackData.split(" ")[2]);
@@ -56,7 +56,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
         Report updatedReport = getUpdatedTemporaryReport(reportId);
         updatedReport.setDate(localDate);
 
-        setReportDateAndSave(messageForUser, messageForReportsChat, update, updatedReport, messageId);
+        setReportDateAndSave(messageForUser, messageForReportsChat, callbackQuery, updatedReport, messageId);
         deleteMessageStrategy.setMessagePart(MessagePart.ENTIRE_MESSAGE);
     }
 
@@ -64,7 +64,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
         return reportRepository.findById(reportId).orElseThrow(InvalidParameterException::new);
     }
 
-    private void setReportDateAndSave(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, Report updatedReport, Integer messageId) {
+    private void setReportDateAndSave(SendMessage messageForUser, SendMessage messageForReportsChat, CallbackQuery callbackQuery, Report updatedReport, Integer messageId) {
         ChatMessage currentMessage = chatMessageRepository.findByUserMessageId(messageId);
 
         if (currentMessage != null) {
@@ -72,7 +72,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
             handleExistingMessage(messageForUser, messageForReportsChat, updatedReport, currentMessage);
         } else {
             log.info("Новое сообщение. Сообщения (message id: {}) не существует в БД", messageId);
-            handleNewMessage(messageForUser, messageForReportsChat, update, updatedReport, messageId);
+            handleNewMessage(messageForUser, messageForReportsChat, callbackQuery, updatedReport, messageId);
         }
     }
 
@@ -112,7 +112,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
         }
     }
 
-    private void handleNewMessage(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, Report updatedReport, Integer messageId) {
+    private void handleNewMessage(SendMessage messageForUser, SendMessage messageForReportsChat, CallbackQuery callbackQuery, Report updatedReport, Integer messageId) {
         if (reportRepository.existsReportByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName())) {
             List<Report> existingReportsOnReceivedDate = reportRepository.findByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName());
             Report reportLikeReceived = existingReportsOnReceivedDate.get(0);
@@ -171,7 +171,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
             }
         } else {
             log.info("Отчёта с новой датой ({}) не существует (сохранить новый отчёт и новое сообщение в БД)", updatedReport.getDate().format(defaultDateFormatter()));
-            saveNewReport(messageForUser, messageForReportsChat, update, updatedReport, messageId);
+            saveNewReport(messageForUser, messageForReportsChat, callbackQuery, updatedReport, messageId);
 
             setMessageTextForUserReportDone(messageForUser, updatedReport);
             setMessageTextForReportsChatReportDone(messageForReportsChat, updatedReport);
@@ -198,8 +198,8 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
         reportRepository.findById(report.getId()).ifPresent(reportRepository::delete);
     }
 
-    private void saveNewReport(SendMessage messageForUser, SendMessage messageForReportsChat, Update update, Report report, Integer messageId) {
-        if (!isUserChatEqualsReportsChat(update)) {
+    private void saveNewReport(SendMessage messageForUser, SendMessage messageForReportsChat, CallbackQuery callbackQuery, Report report, Integer messageId) {
+        if (!isUserChatEqualsReportsChat(callbackQuery)) {
             setMessageTextForReportsChatReportDone(messageForReportsChat, report);
         }
         setMessageTextForUserReportDone(messageForUser, report);
@@ -211,8 +211,8 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
         chatMessageRepository.save(chatMessage);
     }
 
-    private boolean isUserChatEqualsReportsChat(Update update) {
-        return update.getCallbackQuery().getMessage().getChatId().toString().equals(specialChatService.getReportsChatId());
+    private boolean isUserChatEqualsReportsChat(CallbackQuery callbackQuery) {
+        return callbackQuery.getMessage().getChatId().toString().equals(specialChatService.getReportsChatId());
     }
 
     private void setMessageTextForUserReportDone(SendMessage messageForUser, Report report) {

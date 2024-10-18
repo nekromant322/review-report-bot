@@ -1,4 +1,4 @@
-package com.nekromant.telegram.callback_strategy.utils;
+package com.nekromant.telegram.service.update_handler.callback_strategy.utils;
 
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;

@@ -1,9 +1,9 @@
 package com.nekromant.telegram.sheduler;
 
-import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.repository.ReportRepository;
+import com.nekromant.telegram.service.SendMessageService;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.nekromant.telegram.contants.MessageContants.MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS;
-import static com.nekromant.telegram.contants.MessageContants.REPORT_REMINDER;
-import static com.nekromant.telegram.contants.MessageContants.STUDENT_REPORT_FORGET_REMINDER;
+import static com.nekromant.telegram.contants.MessageContants.*;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Slf4j
@@ -32,21 +30,17 @@ public class ReportReminderScheduler {
 
     @Value("${reminders.maxDaysWithoutReport}")
     private Integer maxDaysWithoutReport;
-
     @Value("${owner.userName}")
     private String ownerUserName;
 
     @Autowired
     private ReportRepository reportRepository;
-
     @Autowired
     private SpecialChatService specialChatService;
-
-    @Autowired
-    private MentoringReviewBot mentoringReviewBot;
-
     @Autowired
     private UserInfoService userInfoService;
+    @Autowired
+    private SendMessageService sendMessageService;
 
     @Scheduled(cron = "0 0 19 * * *")
     public void everyOneRemindAboutReports() {
@@ -65,7 +59,7 @@ public class ReportReminderScheduler {
         allStudents.removeAll(alreadyWroteReportToday);
 
         if (!allStudents.isEmpty()) {
-            mentoringReviewBot.sendMessage(specialChatService.getReportsChatId(), REPORT_REMINDER +
+            sendMessageService.sendMessage(specialChatService.getReportsChatId(), REPORT_REMINDER +
                 allStudents.stream()
                         .map(username -> "@" + username)
                         .collect(Collectors.joining(", ")));
@@ -111,14 +105,14 @@ public class ReportReminderScheduler {
 
         }
         if (badStudentsUsernames.size() > 0) {
-            mentoringReviewBot.sendMessage(specialChatService.getMentorsChatId(),
+            sendMessageService.sendMessage(specialChatService.getMentorsChatId(),
                     String.format(MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS, maxDaysWithoutReport) +
                             badStudentsUsernames.stream().map(studentName -> "@" + studentName).collect(Collectors.joining(",\n")));
         }
 
         badStudentsUsernames.stream().
                 map(name -> userInfoService.getUserInfo(name).getChatId())
-                .forEach(chatId -> mentoringReviewBot.sendMessage(chatId.toString(), STUDENT_REPORT_FORGET_REMINDER));
+                .forEach(chatId -> sendMessageService.sendMessage(chatId.toString(), STUDENT_REPORT_FORGET_REMINDER));
 
     }
 

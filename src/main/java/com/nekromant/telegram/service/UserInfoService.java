@@ -22,6 +22,10 @@ public class UserInfoService {
     @Autowired
     private MentorRepository mentorRepository;
 
+    public List<UserInfo> findAllByUserType(UserType userType) {
+        return userInfoRepository.findAllByUserType(userType);
+    }
+
     public void initializeUserInfo(Chat chat, User user) {
         if (chat.getType().equalsIgnoreCase("private")
                 && userInfoRepository.findUserInfoByUserName(user.getUserName()) == null) {

@@ -1,7 +1,7 @@
 package com.nekromant.telegram.commands;
 
-import com.nekromant.telegram.commands.feign.LifePayFeign;
 import com.nekromant.telegram.commands.dto.ChequeDTO;
+import com.nekromant.telegram.commands.feign.LifePayFeign;
 import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.service.ContractService;
 import com.nekromant.telegram.utils.ValidationUtils;
@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import javax.management.InstanceNotFoundException;
+
 import static com.nekromant.telegram.contants.Command.PAY;
 
 @Component

@@ -1,16 +1,16 @@
-package com.nekromant.telegram.callback_strategy;
+package com.nekromant.telegram.service.update_handler.callback_strategy;
 
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
+import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.MessagePart;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
@@ -31,14 +31,14 @@ public class SetReviewRequestDateTimeCallbackStrategy implements CallbackStrateg
     }
 
     @Override
-    public void executeCallbackQuery(Update update, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
+    public void executeCallbackQuery(CallbackQuery callbackQuery, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
         SendMessage messageForUser = messageMap.get(ChatType.USER_CHAT);
 
-        setReviewRequestDate(update, messageForUser, deleteMessageStrategy);
+        setReviewRequestDate(callbackQuery, messageForUser, deleteMessageStrategy);
     }
 
-    private void setReviewRequestDate(Update update, SendMessage messageForUser, DeleteMessageStrategy deleteMessageStrategy) {
-        String callbackData = update.getCallbackQuery().getData();
+    private void setReviewRequestDate(CallbackQuery callbackQuery, SendMessage messageForUser, DeleteMessageStrategy deleteMessageStrategy) {
+        String callbackData = callbackQuery.getData();
         String[] dataParts = callbackData.split(" ");
         String date = dataParts[1];
         Long reviewRequestId = Long.parseLong(callbackData.split(" ")[2]);

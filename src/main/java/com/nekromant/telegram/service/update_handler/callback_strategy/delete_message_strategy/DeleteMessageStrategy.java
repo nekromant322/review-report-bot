@@ -1,4 +1,4 @@
-package com.nekromant.telegram.callback_strategy.delete_message_strategy;
+package com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,16 +1,16 @@
-package com.nekromant.telegram.callback_strategy;
+package com.nekromant.telegram.service.update_handler.callback_strategy;
 
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
-import com.nekromant.telegram.callback_strategy.utils.StrategyUtils;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
+import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.MessagePart;
+import com.nekromant.telegram.service.update_handler.callback_strategy.utils.StrategyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,18 +28,18 @@ public class DenyReviewRequestCallbackStrategy implements CallbackStrategy {
     private StrategyUtils strategyUtils;
 
     @Override
-    public void executeCallbackQuery(Update update, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
+    public void executeCallbackQuery(CallbackQuery callbackQuery, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
         SendMessage messageForUser = messageMap.get(ChatType.USER_CHAT);
         SendMessage messageForMentors = messageMap.get(ChatType.MENTORS_CHAT);
 
-        String callbackData = update.getCallbackQuery().getData();
+        String callbackData = callbackQuery.getData();
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
 
         ReviewRequest review = strategyUtils.getReviewRequest(reviewId);
         messageForUser.setChatId(review.getStudentChatId());
 
         setMessageTextDenied(messageForUser, review);
-        setMessageTextDeniedForMentors(messageForMentors, update, review);
+        setMessageTextDeniedForMentors(messageForMentors, callbackQuery, review);
 
         reviewRequestRepository.deleteById(reviewId);
         deleteMessageStrategy.setMessagePart(MessagePart.MARKUP);
@@ -57,8 +57,8 @@ public class DenyReviewRequestCallbackStrategy implements CallbackStrategy {
                         .collect(Collectors.joining(":00, ")) + ":00" + "\n");
     }
 
-    private void setMessageTextDeniedForMentors(SendMessage messageForMentors, Update update, ReviewRequest review) {
-        messageForMentors.setText(String.format(SOMEBODY_DENIED_REVIEW, update.getCallbackQuery().getFrom().getUserName(),
+    private void setMessageTextDeniedForMentors(SendMessage messageForMentors, CallbackQuery callbackQuery, ReviewRequest review) {
+        messageForMentors.setText(String.format(SOMEBODY_DENIED_REVIEW, callbackQuery.getFrom().getUserName(),
                 review.getStudentUserName()));
     }
 }

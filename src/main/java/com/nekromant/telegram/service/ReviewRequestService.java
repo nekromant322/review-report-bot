@@ -1,10 +1,13 @@
 package com.nekromant.telegram.service;
 
 import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.repository.ReviewRequestRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.security.InvalidParameterException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +15,22 @@ import java.util.stream.Collectors;
 
 @Service
 public class ReviewRequestService {
+
+    @Autowired
+    private ReviewRequestRepository reviewRequestRepository;
+
+    public ReviewRequest findReviewRequestById(Long id) {
+        return reviewRequestRepository.findById(id).orElseThrow(InvalidParameterException::new);
+    }
+
+    public ReviewRequest save(ReviewRequest reviewRequest) {
+        return reviewRequestRepository.save(reviewRequest);
+    }
+
+    public boolean existsByBookedDateTimeAndMentorUserName(LocalDateTime bookedDateTime, String userName) {
+        return reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(bookedDateTime, userName);
+    }
+
     public ReviewRequest getTemporaryReviewRequest(User user, String[] arguments, String studentChatId) {
         ReviewRequest reviewRequest = new ReviewRequest();
 
