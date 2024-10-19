@@ -21,7 +21,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.nekromant.telegram.contants.MessageContants.*;
+import static com.nekromant.telegram.contants.MessageContants.MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS;
+import static com.nekromant.telegram.contants.MessageContants.REPORT_REMINDER;
+import static com.nekromant.telegram.contants.MessageContants.STUDENT_REPORT_FORGET_REMINDER;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Slf4j

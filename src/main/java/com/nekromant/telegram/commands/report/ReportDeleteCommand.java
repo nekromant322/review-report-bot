@@ -12,7 +12,9 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import static com.nekromant.telegram.contants.Command.REPORT_DELETE;
-import static com.nekromant.telegram.contants.MessageContants.*;
+import static com.nekromant.telegram.contants.MessageContants.ERROR;
+import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
+import static com.nekromant.telegram.contants.MessageContants.REPORTS_DELETED;
 import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumber;
 
 @Slf4j

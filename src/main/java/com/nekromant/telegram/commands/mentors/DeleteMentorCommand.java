@@ -12,8 +12,8 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import static com.nekromant.telegram.contants.Command.DELETE_MENTOR;
-import static com.nekromant.telegram.contants.MessageContants.MENTORS_LIST_CHANGED;
 import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
+import static com.nekromant.telegram.contants.MessageContants.MENTORS_LIST_CHANGED;
 
 
 @Component

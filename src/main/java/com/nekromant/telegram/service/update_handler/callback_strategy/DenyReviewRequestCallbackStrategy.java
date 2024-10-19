@@ -4,9 +4,9 @@ import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.service.ReviewRequestService;
 import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
 import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.MessagePart;
-import com.nekromant.telegram.service.update_handler.callback_strategy.utils.StrategyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -25,7 +25,7 @@ public class DenyReviewRequestCallbackStrategy implements CallbackStrategy {
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
     @Autowired
-    private StrategyUtils strategyUtils;
+    private ReviewRequestService reviewRequestService;
 
     @Override
     public void executeCallbackQuery(CallbackQuery callbackQuery, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
@@ -35,7 +35,7 @@ public class DenyReviewRequestCallbackStrategy implements CallbackStrategy {
         String callbackData = callbackQuery.getData();
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
 
-        ReviewRequest review = strategyUtils.getReviewRequest(reviewId);
+        ReviewRequest review = reviewRequestService.findReviewRequestById(reviewId);
         messageForUser.setChatId(review.getStudentChatId());
 
         setMessageTextDenied(messageForUser, review);
