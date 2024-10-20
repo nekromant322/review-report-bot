@@ -2,7 +2,6 @@ package com.nekromant.telegram.service;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import com.nekromant.telegram.MentoringReviewBot;
 import com.nekromant.telegram.commands.dto.ChequeDTO;
 import com.nekromant.telegram.commands.dto.LifePayResponseDTO;
 import com.nekromant.telegram.commands.feign.LifePayFeign;
@@ -39,7 +38,7 @@ public class ClientPaymentRequestServiceCommon {
     @Autowired
     private LifePayFeign lifePayFeign;
     @Autowired
-    private MentoringReviewBot mentoringReviewBot;
+    private SendMessageService sendMessageService;
 
 
     public ResponseEntity save(ServiceType serviceType, ChequeDTO chequeDTO, ClientPaymentRequest paymentRequest, CrudRepository repository, String promocodeId) {
@@ -84,7 +83,7 @@ public class ClientPaymentRequestServiceCommon {
         paymentDetailsService.save(paymentDetails);
         log.info("Payment details have been redeemed: {}", paymentDetails);
         String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
-        mentoringReviewBot.sendMessage(receiverId, text);
+        sendMessageService.sendMessage(receiverId, text);
         log.info(text);
     }
 

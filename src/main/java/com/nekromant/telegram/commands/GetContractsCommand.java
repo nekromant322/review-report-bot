@@ -1,6 +1,5 @@
 package com.nekromant.telegram.commands;
 
-import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +9,6 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.GET_CONTRACTS;

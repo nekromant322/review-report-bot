@@ -1,16 +1,16 @@
-package com.nekromant.telegram.callback_strategy;
+package com.nekromant.telegram.service.update_handler.callback_strategy;
 
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
-import com.nekromant.telegram.callback_strategy.delete_message_strategy.MessagePart;
-import com.nekromant.telegram.callback_strategy.utils.StrategyUtils;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.service.ReviewRequestService;
+import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
+import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.MessagePart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -28,18 +28,18 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
     @Autowired
-    private StrategyUtils strategyUtils;
+    private ReviewRequestService reviewRequestService;
 
     @Override
-    public void executeCallbackQuery(Update update, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
+    public void executeCallbackQuery(CallbackQuery callbackQuery, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
         SendMessage messageForUser = messageMap.get(ChatType.USER_CHAT);
         SendMessage messageForMentors = messageMap.get(ChatType.MENTORS_CHAT);
 
-        String callbackData = update.getCallbackQuery().getData();
+        String callbackData = callbackQuery.getData();
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
         int timeSlot = Integer.parseInt(callbackData.split(" ")[2]);
 
-        ReviewRequest review = strategyUtils.getReviewRequest(reviewId);
+        ReviewRequest review = reviewRequestService.findReviewRequestById(reviewId);
         messageForUser.setChatId(review.getStudentChatId());
         LocalDateTime timeSlotDateTime;
         if (timeSlot == MIDNIGHT) {
@@ -47,17 +47,17 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
         } else {
             timeSlotDateTime = LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0));
         }
-        String mentorUsername = update.getCallbackQuery().getFrom().getUserName();
+        String mentorUsername = callbackQuery.getFrom().getUserName();
         if (reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(timeSlotDateTime,
                 mentorUsername)) {
             setMessageTextForMentorsTaken(messageForMentors, timeSlot, mentorUsername);
         } else  {
-            bookTimeSlot(update, review, timeSlotDateTime);
+            bookTimeSlot(callbackQuery, review, timeSlotDateTime);
             review.setTimeSlots(Set.of(timeSlot));
             saveReviewRequest(review);
 
             setMessageTextForUserApproved(messageForUser, review);
-            setMessageTextForMentorsApproved(messageForMentors, update, review);
+            setMessageTextForMentorsApproved(messageForMentors, callbackQuery, review);
         }
         deleteMessageStrategy.setMessagePart(MessagePart.MARKUP);
     }
@@ -67,9 +67,9 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
         return CallBack.APPROVE_REVIEW_REQUEST;
     }
 
-    private void bookTimeSlot(Update update, ReviewRequest review, LocalDateTime timeSlotDateTime) {
+    private void bookTimeSlot(CallbackQuery callbackQuery, ReviewRequest review, LocalDateTime timeSlotDateTime) {
         setBookedDateTime(review, timeSlotDateTime);
-        setMentorUserName(review, update);
+        setMentorUserName(review, callbackQuery);
     }
 
     private void setMessageTextForMentorsTaken(SendMessage messageForMentors, int timeSlot, String mentorUsername) {
@@ -80,8 +80,8 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
         review.setBookedDateTime(timeSlotLDT);
     }
 
-    private void setMentorUserName(ReviewRequest review, Update update) {
-        review.setMentorUserName(update.getCallbackQuery().getFrom().getUserName());
+    private void setMentorUserName(ReviewRequest review, CallbackQuery callbackQuery) {
+        review.setMentorUserName(callbackQuery.getFrom().getUserName());
     }
 
     private void saveReviewRequest(ReviewRequest review) {
@@ -93,8 +93,8 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
                 review.getBookedDateTime().format(defaultDateTimeFormatter()), review.getTitle()));
     }
 
-    private void setMessageTextForMentorsApproved(SendMessage messageForMentors, Update update, ReviewRequest review) {
-        messageForMentors.setText(String.format(REVIEW_APPROVED, update.getCallbackQuery().getFrom().getUserName(),
+    private void setMessageTextForMentorsApproved(SendMessage messageForMentors, CallbackQuery callbackQuery, ReviewRequest review) {
+        messageForMentors.setText(String.format(REVIEW_APPROVED, callbackQuery.getFrom().getUserName(),
                 review.getStudentUserName(), review.getBookedDateTime().format(defaultDateTimeFormatter())));
     }
 }
