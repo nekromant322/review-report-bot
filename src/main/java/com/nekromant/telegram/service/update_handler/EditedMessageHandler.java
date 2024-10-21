@@ -47,8 +47,6 @@ public class EditedMessageHandler {
     public void handleEditedMessage(Message message) {
         if (isReportEdited(message)) {
             handleEditedReport(message);
-        } else {
-            handleUnrecognizedEditedMessageType(message);
         }
     }
 
@@ -70,15 +68,6 @@ public class EditedMessageHandler {
             }
         } catch (TelegramApiException e) {
             log.error("Не удалось обработать сообщение отредактированное пользователем: {} (user id: {}). Возникла ошибка при отправке сообщения пользователю {}", message.getFrom().getUserName(), message.getFrom().getId(), e.getMessage(), e);
-        }
-    }
-
-    private void handleUnrecognizedEditedMessageType(Message message) {
-        try {
-            sendMessageService.sendMessage(sendMessageFactory.create(message.getChatId().toString(), "Неизвестный тип сообщения"));
-            log.info("Неизвестный тип сообщения отредактирован пользователем: {} (user id: {}).", message.getFrom().getUserName(), message.getFrom().getId());
-        } catch (TelegramApiException e) {
-            log.error("Неизвестный тип сообщения отредактирован пользователем, не удалось отправить сообщение о ошибке пользователю: {} (user id: {}).", message.getFrom().getUserName(), message.getFrom().getId());
         }
     }
 
