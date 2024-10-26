@@ -50,6 +50,7 @@ public class ReportReminderScheduler {
         Set<String> allStudents = reportRepository.findAll()
                 .stream()
                 .map(Report::getStudentUserName)
+                .distinct()
                 .filter(this::isNotOwnerOrMentor)
                 .collect(Collectors.toSet());
 
@@ -120,7 +121,7 @@ public class ReportReminderScheduler {
 
     private boolean isNotOwnerOrMentor(String username) {
         return !username.equalsIgnoreCase(ownerUserName)
-                && !userInfoService.getUserInfo(ownerUserName).getUserType().equals(UserType.MENTOR);
+                && !userInfoService.getUserInfo(username).getUserType().equals(UserType.MENTOR);
     }
 
 }
