@@ -56,8 +56,11 @@ public class ReviewCommand extends MentoringReviewCommand {
                 absSender.execute(reviewRequestDateTimePicker.getDatePickerSendMessage(user.getId().toString(), reviewRequest));
             } catch (NumberFormatException e) {
                 String firstArgument = arguments[0];
+                String secondArgument = arguments[1];
                 if (firstArgument.contains("сегодня") || firstArgument.contains("завтра")) {
                     message.setText("ФОРМАТ ОБНОВИЛСЯ, НЕ НУЖНО ПИСАТЬ [сегодня|завтра], ПОСМОТРИ ВНИМАТЕЛЬНЕЕ НА ПРИМЕР\n\n" + REVIEW_HELP_MESSAGE);
+                } else if (!secondArgument.contains("тема:")) {
+                    message.setText("Посмотри внимательнее на формат сообщения, возможно ты не указал \"Тема: \".\n\n" + REVIEW_HELP_MESSAGE);
                 } else {
                     log.error("Таймслот должен быть указан целым числом. {}", e.getMessage());
                     message.setText("Таймслот должен быть указан целым числом\n" + REVIEW_HELP_MESSAGE);

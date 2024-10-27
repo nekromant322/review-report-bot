@@ -49,6 +49,8 @@ public class ReviewRequestService {
                 if (Integer.parseInt(string) > 24 || Integer.parseInt(string) < 0) {
                     throw new InvalidParameterException("Неверное значение часов — должно быть от 0 до 23");
                 }
+            } else if (timeSlots.isEmpty()) {
+                throw new InvalidParameterException("Вы не указали время ревью.");
             } else {
                 return timeSlots;
             }
