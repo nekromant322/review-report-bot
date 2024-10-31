@@ -5,9 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -15,9 +13,13 @@ import javax.persistence.Id;
 @Builder
 @AllArgsConstructor
 public class Mentor {
-
     @Id
-    private String userName;
+    private Long mentorInfoChatId;
+
+    @MapsId
+    @JoinColumn(name = "mentor_info_chat_id")
+    @ManyToOne
+    private UserInfo mentorInfo;
 
     @Column
     private Boolean isActive = true;

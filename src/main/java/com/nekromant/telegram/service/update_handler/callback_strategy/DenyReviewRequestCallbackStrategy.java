@@ -36,7 +36,7 @@ public class DenyReviewRequestCallbackStrategy implements CallbackStrategy {
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
 
         ReviewRequest review = reviewRequestService.findReviewRequestById(reviewId);
-        messageForUser.setChatId(review.getStudentChatId());
+        messageForUser.setChatId(review.getStudentInfo().getChatId().toString());
 
         setMessageTextDenied(messageForUser, review);
         setMessageTextDeniedForMentors(messageForMentors, callbackQuery, review);
@@ -59,6 +59,6 @@ public class DenyReviewRequestCallbackStrategy implements CallbackStrategy {
 
     private void setMessageTextDeniedForMentors(SendMessage messageForMentors, CallbackQuery callbackQuery, ReviewRequest review) {
         messageForMentors.setText(String.format(SOMEBODY_DENIED_REVIEW, callbackQuery.getFrom().getUserName(),
-                review.getStudentUserName()));
+                review.getStudentInfo().getUserName()));
     }
 }

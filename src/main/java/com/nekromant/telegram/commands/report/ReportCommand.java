@@ -48,13 +48,12 @@ public class ReportCommand extends MentoringReviewWithMessageIdCommand {
 
                 validateArgumentsNumber(strings);
 
-                //тут убрать когда получу все chatId, оставить только в /start
                 userInfoService.initializeUserInfo(chat, user);
 
-                Report report = reportService.getTemporaryReport(strings, user.getUserName());
+                Report report = reportService.getTemporaryReport(strings, user);
 
                 reportRepository.save(report);
-                absSender.execute(reportDateTimePicker.getDatePickerSendMessage(user.getId().toString(), report, messageId));
+                absSender.execute(reportDateTimePicker.getDatePickerSendMessage(report, messageId));
             } catch (InvalidParameterException e) {
                 log.error(e.getMessage(), e);
                 sendAnswer(chat.getId().toString(), e.getMessage() + "\n" + REPORT_HELP_MESSAGE, absSender, user);

@@ -32,7 +32,7 @@ public class MyOnCommand extends MentoringReviewCommand {
         message.setChatId(chatId);
         message.disableNotification();
         try {
-            Mentor mentor = mentorRepository.findMentorByUserNameIgnoreCase(user.getUserName());
+            Mentor mentor = mentorRepository.findMentorByMentorInfo_ChatId(user.getId());
             if (mentor == null) {
                 message.setText("Ты не ментор");
                 execute(absSender, message, user);

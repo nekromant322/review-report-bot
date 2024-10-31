@@ -3,8 +3,8 @@ package com.nekromant.telegram.commands.review;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.ReviewRequest;
-import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.ReviewRequestService;
+import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import com.nekromant.telegram.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +25,13 @@ import static com.nekromant.telegram.contants.MessageContants.*;
 public class ReviewCommand extends MentoringReviewCommand {
 
     @Autowired
-    private ReviewRequestRepository reviewRequestRepository;
-    @Autowired
     private SendMessageFactory sendMessageFactory;
     @Autowired
     private ReviewRequestDateTimePicker reviewRequestDateTimePicker;
     @Autowired
     private ReviewRequestService reviewRequestService;
+    @Autowired
+    private UserInfoService userInfoService;
 
     @Autowired
     public ReviewCommand() {
@@ -40,6 +40,8 @@ public class ReviewCommand extends MentoringReviewCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+        userInfoService.initializeUserInfo(chat, user);
+
         if (chat.isGroupChat() || chat.isSuperGroupChat()) {
             sendAnswer(chat.getId().toString(), GROUP_CHAT_IS_NOT_SUPPORTED, absSender, user);
         } else {
@@ -49,11 +51,11 @@ public class ReviewCommand extends MentoringReviewCommand {
 
             try {
                 ValidationUtils.validateArgumentsNumber(arguments);
-                ReviewRequest reviewRequest = reviewRequestService.getTemporaryReviewRequest(user, arguments, studentChatId);
+                ReviewRequest reviewRequest = reviewRequestService.getTemporaryReviewRequest(user, arguments);
 
                 log.info("Сохранение нового реквеста {}", reviewRequest);
-                reviewRequestRepository.save(reviewRequest);
-                absSender.execute(reviewRequestDateTimePicker.getDatePickerSendMessage(user.getId().toString(), reviewRequest));
+                reviewRequestService.save(reviewRequest);
+                absSender.execute(reviewRequestDateTimePicker.getDatePickerSendMessage(reviewRequest));
             } catch (NumberFormatException e) {
                 String firstArgument = arguments[0];
                 if (firstArgument.contains("сегодня") || firstArgument.contains("завтра")) {

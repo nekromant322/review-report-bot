@@ -47,7 +47,7 @@ public class GetContractsCommand extends MentoringReviewCommand {
     private String createMessageText() {
         return contractService.getAllContracts().stream()
                 .map(contract ->
-                        "@" + contract.getUsername() + " | " + contract.getContractId() + " | " + contract.getDate())
+                        "@" + contract.getStudentInfo().getUserName() + " | " + contract.getContractId() + " | " + contract.getDate())
                 .collect(Collectors.joining(DELIMETER));
     }
 }

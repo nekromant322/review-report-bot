@@ -63,15 +63,15 @@ public class SchedulePeriodService {
         Stream<BookedReviewDTO> streamReviews = reviewRequestRepository
                 .findAllByBookedDateTimeBetween(startDateTime, endDateTime)
                 .stream()
-                .filter(x -> x.getMentorUserName().equals(mentor))
+                .filter(x -> x.getMentorInfo().getUserName().equals(mentor))
                 .map(x -> new BookedReviewDTO(
-                        x.getStudentUserName(),
-                        "https://t.me/" + x.getStudentUserName(),
-                        x.getMentorUserName(),
+                        x.getStudentInfo().getUserName(),
+                        "https://t.me/" + x.getStudentInfo().getUserName(),
+                        x.getMentorInfo().getUserName(),
                         x.getTitle().replace("Тема:", ""),
                         x.getBookedDateTime().toString().replace("T", " "),
                         false,
-                        mentorRepository.findMentorByUserNameIgnoreCase(x.getMentorUserName()).getRoomUrl(),
+                        mentorRepository.findMentorByMentorInfo(x.getMentorInfo()).getRoomUrl(),
                         true
                 ))
                 .sorted(Comparator.comparing(BookedReviewDTO::getBookedDateTime));

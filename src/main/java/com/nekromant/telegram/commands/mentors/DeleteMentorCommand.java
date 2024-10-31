@@ -45,7 +45,7 @@ public class DeleteMentorCommand extends MentoringReviewCommand {
         try {
             ValidationUtils.validateArgumentsNumber(arguments);
             String deleteMentorUserName = arguments[0].replaceAll("@", "");
-            userInfoService.demoteMentorToUser(deleteMentorUserName);
+            userInfoService.demoteMentorToDev(userInfoService.getUserInfo(deleteMentorUserName).getChatId());
         } catch (Exception e) {
             message.setText(e.getMessage() + "\n" + "Пример: /delete_mentor @Mentor_Telegram_UserName");
             execute(absSender, message, user);

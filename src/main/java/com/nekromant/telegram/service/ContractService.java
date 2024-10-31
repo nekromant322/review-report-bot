@@ -20,10 +20,14 @@ public class ContractService {
     }
 
     public Contract getContractByUsername(String username) throws InstanceNotFoundException {
-        return contractRepository.findById(username).orElseThrow(() -> new InstanceNotFoundException("No contract bound to this username"));
+        return contractRepository.findContractByStudentInfo_UserName(username).orElseThrow(() -> new InstanceNotFoundException("No contract bound to this username"));
     }
 
-    public void updateContract(String username, String contractId, LocalDate date) throws InstanceNotFoundException {
+    public Contract getContractByUserId(Long chatId) throws InstanceNotFoundException {
+        return contractRepository.findContractByStudentInfo_chatId(chatId).orElseThrow(() -> new InstanceNotFoundException("No contract bound to this user"));
+    }
+
+    public void updateContractByUsername(String username, String contractId, LocalDate date) throws InstanceNotFoundException {
         Contract contract = getContractByUsername(username);
         contract.setContractId(contractId);
         contract.setDate(date);
