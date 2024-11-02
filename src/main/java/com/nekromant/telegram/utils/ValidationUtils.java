@@ -11,4 +11,11 @@ public class ValidationUtils {
             throw new InvalidParameterException(WRONG_ARGUMENTS_COUNT);
         }
     }
+
+    public static void validateArgumentsNumber(String[] strings, Integer min) {
+        validateArgumentsNumber(strings);
+        if (strings.length < min) {
+            throw new InvalidParameterException(WRONG_ARGUMENTS_COUNT);
+        }
+    }
 }

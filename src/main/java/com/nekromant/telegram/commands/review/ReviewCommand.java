@@ -48,7 +48,7 @@ public class ReviewCommand extends MentoringReviewCommand {
             message.setChatId(studentChatId);
 
             try {
-                ValidationUtils.validateArgumentsNumber(arguments);
+                ValidationUtils.validateArgumentsNumber(arguments, 2);
                 ReviewRequest reviewRequest = reviewRequestService.getTemporaryReviewRequest(user, arguments, studentChatId);
 
                 log.info("Сохранение нового реквеста {}", reviewRequest);
