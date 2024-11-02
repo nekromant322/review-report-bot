@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands.mentors;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.Mentor;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
@@ -49,7 +50,8 @@ public class AddMentorCommand extends MentoringReviewCommand {
             ValidationUtils.validateArgumentsNumber(arguments);
             String newMentorUserName = arguments[0].replaceAll("@", "");
             String newMentorRoom = arguments[1];
-            mentorRepository.save(new Mentor(newMentorUserName, true, newMentorRoom));
+            UserInfo mentorInfo = userInfoService.getUserInfo(newMentorUserName);
+            mentorRepository.save(Mentor.builder().mentorInfo(mentorInfo).userName(newMentorUserName).isActive(true).roomUrl(newMentorRoom).build());
             userInfoService.promoteUserToMentor(newMentorUserName);
 
         } catch (Exception e) {

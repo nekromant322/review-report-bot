@@ -87,8 +87,8 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
     }
 
     private void handleNewReportForExistingMessage(SendMessage messageForUser, SendMessage messageForReportsChat, Report updatedReport, ChatMessage currentMessage) {
-        if (reportRepository.existsReportByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName())) {
-            List<Report> existingReportsOnReceivedDate = reportRepository.findByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName());
+        if (reportRepository.existsReportByDateAndUserInfo(updatedReport.getDate(), updatedReport.getUserInfo())) {
+            List<Report> existingReportsOnReceivedDate = reportRepository.findByDateAndUserInfo(updatedReport.getDate(), updatedReport.getUserInfo());
             Report reportLikeReceived = existingReportsOnReceivedDate.get(0);
             log.info("Отчёт (report id: {}) с новой датой ({}) существует (обновить его и привязать к текущему сообщению)", reportLikeReceived.getId(), updatedReport.getDate().format(defaultDateFormatter()));
             deleteDuplicateReports(existingReportsOnReceivedDate);
@@ -113,8 +113,8 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
     }
 
     private void handleNewMessage(SendMessage messageForUser, SendMessage messageForReportsChat, CallbackQuery callbackQuery, Report updatedReport, Integer messageId) {
-        if (reportRepository.existsReportByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName())) {
-            List<Report> existingReportsOnReceivedDate = reportRepository.findByDateAndStudentUserName(updatedReport.getDate(), updatedReport.getStudentUserName());
+        if (reportRepository.existsReportByDateAndUserInfo(updatedReport.getDate(), updatedReport.getUserInfo())) {
+            List<Report> existingReportsOnReceivedDate = reportRepository.findByDateAndUserInfo(updatedReport.getDate(), updatedReport.getUserInfo());
             Report reportLikeReceived = existingReportsOnReceivedDate.get(0);
             log.info("Отчёт с такой датой ({}) существует (report id: {}, обновить его)", updatedReport.getDate().format(defaultDateFormatter()), reportLikeReceived.getId());
             deleteDuplicateReports(existingReportsOnReceivedDate);
@@ -136,7 +136,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
 
                 messageForUser.setText(String.format("Вы обновили существующий отчёт за %s:\n@%s\n%s\n%s\n%s",
                         reportLikeReceived.getDate().format(defaultDateFormatter()),
-                        updatedReport.getStudentUserName(),
+                        updatedReport.getUserInfo().getUserName(),
                         updatedReport.getDate().format(defaultDateFormatter()),
                         updatedReport.getHours(),
                         updatedReport.getTitle()
@@ -156,14 +156,14 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
 
                 messageForUser.setText(String.format("Вы обновили существующий отчёт за %s:\n@%s\n%s\n%s\n%s",
                         reportLikeReceived.getDate().format(defaultDateFormatter()),
-                        updatedReport.getStudentUserName(),
+                        updatedReport.getUserInfo().getUserName(),
                         updatedReport.getDate().format(defaultDateFormatter()),
                         updatedReport.getHours(),
                         updatedReport.getTitle()
                 ));
                 messageForReportsChat.setText(String.format("Пользователь обновил существующий отчёт за %s:\n@%s\n%s\n%s\n%s",
                         reportLikeReceived.getDate().format(defaultDateFormatter()),
-                        updatedReport.getStudentUserName(),
+                        updatedReport.getUserInfo().getUserName(),
                         updatedReport.getDate().format(defaultDateFormatter()),
                         updatedReport.getHours(),
                         updatedReport.getTitle()
@@ -217,7 +217,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
 
     private void setMessageTextForUserReportDone(SendMessage messageForUser, Report report) {
         messageForUser.setText(String.format("@%s\n%s\n%s\n%s",
-                report.getStudentUserName(),
+                report.getUserInfo().getUserName(),
                 report.getDate().format(defaultDateFormatter()),
                 report.getHours(),
                 report.getTitle()));
@@ -225,7 +225,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
 
     private void setMessageTextForReportsChatReportDone(SendMessage messageTextForReportsChat, Report report) {
         messageTextForReportsChat.setText(String.format("@%s\n%s\n%s\n%s",
-                report.getStudentUserName(),
+                report.getUserInfo().getUserName(),
                 report.getDate().format(defaultDateFormatter()),
                 report.getHours(),
                 report.getTitle()));
@@ -234,7 +234,7 @@ public class SetReportDateTimeCallbackStrategy implements CallbackStrategy {
     private static void setMessageTextReportIsUpdated(SendMessage sendMessage, Report updatedReport) {
         sendMessage.setText(String.format("Отчёт обновлен %s:\n@%s\n%s\n%s\n%s",
                 LocalDate.now().format(defaultDateFormatter()),
-                updatedReport.getStudentUserName(),
+                updatedReport.getUserInfo().getUserName(),
                 updatedReport.getDate().format(defaultDateFormatter()),
                 updatedReport.getHours(),
                 updatedReport.getTitle()

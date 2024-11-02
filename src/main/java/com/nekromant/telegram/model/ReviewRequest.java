@@ -18,6 +18,12 @@ public class ReviewRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    private UserInfo studentInfo;
+
+    @ManyToOne
+    private UserInfo mentorInfo;
+
     @Column
     private String studentChatId;
 

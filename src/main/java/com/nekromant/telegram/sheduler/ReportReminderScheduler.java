@@ -2,6 +2,7 @@ package com.nekromant.telegram.sheduler;
 
 import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.Report;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.service.SendMessageService;
 import com.nekromant.telegram.service.SpecialChatService;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,16 +49,17 @@ public class ReportReminderScheduler {
     @Scheduled(cron = "0 0 19 * * *")
     public void everyOneRemindAboutReports() {
         log.info("Процессинг напоминаний об отчетах");
-        Set<String> allStudents = reportRepository.findAll()
+        Set<UserInfo> allStudents = reportRepository.findAll()
                 .stream()
-                .map(Report::getStudentUserName)
+                .map(Report::getUserInfo)
                 .distinct()
+                .filter(Objects::nonNull)
                 .filter(this::isNotOwnerOrMentor)
                 .collect(Collectors.toSet());
 
-        Set<String> alreadyWroteReportToday = reportRepository.findAllByDateIs(LocalDate.now(ZoneId.of("Europe/Moscow")))
+        Set<UserInfo> alreadyWroteReportToday = reportRepository.findAllByDateIs(LocalDate.now(ZoneId.of("Europe/Moscow")))
                 .stream()
-                .map(Report::getStudentUserName)
+                .map(Report::getUserInfo)
                 .collect(Collectors.toSet());
 
         allStudents.removeAll(alreadyWroteReportToday);
@@ -64,7 +67,7 @@ public class ReportReminderScheduler {
         if (!allStudents.isEmpty()) {
             sendMessageService.sendMessage(specialChatService.getReportsChatId(), REPORT_REMINDER +
                 allStudents.stream()
-                        .map(username -> "@" + username)
+                        .map(userInfo -> "@" + userInfo.getUserName())
                         .collect(Collectors.joining(", ")));
         }
     }
@@ -72,17 +75,17 @@ public class ReportReminderScheduler {
     @Scheduled(cron = "0 0 8 * * *")
     public void reminderAboutStudentsWithoutReports() {
 
-        Set<String> allStudentsUsernames = reportRepository.findAll()
+        Set<UserInfo> allStudents = reportRepository.findAll()
                 .stream()
-                .map(Report::getStudentUserName)
+                .map(Report::getUserInfo)
+                .distinct()
+                .filter(Objects::nonNull)
                 .filter(this::isNotOwnerOrMentor)
                 .collect(Collectors.toSet());
 
         List<String> badStudentsUsernames = new ArrayList<>();
-        for (String username : allStudentsUsernames) {
-
-
-            List<LocalDate> hotestReportsDates = reportRepository.findAllByStudentUserNameIgnoreCase(username).stream()
+        for (UserInfo userInfo : allStudents) {
+            List<LocalDate> hotestReportsDates = reportRepository.findAllByUserInfo(userInfo).stream()
                     .sorted(Comparator.comparing(Report::getDate).reversed())
                     .limit(maxDaysWithoutReport)
                     .map(Report::getDate)
@@ -98,16 +101,17 @@ public class ReportReminderScheduler {
             for (LocalDate recentDate : recentDates) {
                 if (hotestReportsDates.contains(recentDate)) {
                     hasRecentReport = true;
+                    break;
                 }
             }
 
             if (!hasRecentReport) {
-                badStudentsUsernames.add(username);
+                badStudentsUsernames.add(userInfo.getUserName());
             }
 
 
         }
-        if (badStudentsUsernames.size() > 0) {
+        if (!badStudentsUsernames.isEmpty()) {
             sendMessageService.sendMessage(specialChatService.getMentorsChatId(),
                     String.format(MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS, maxDaysWithoutReport) +
                             badStudentsUsernames.stream().map(studentName -> "@" + studentName).collect(Collectors.joining(",\n")));
@@ -119,9 +123,9 @@ public class ReportReminderScheduler {
 
     }
 
-    private boolean isNotOwnerOrMentor(String username) {
-        return !username.equalsIgnoreCase(ownerUserName)
-                && !userInfoService.getUserInfo(username).getUserType().equals(UserType.MENTOR);
+    private boolean isNotOwnerOrMentor(UserInfo userInfo) {
+        return !userInfo.getUserName().equalsIgnoreCase(ownerUserName)
+                && !userInfo.getUserType().equals(UserType.MENTOR);
     }
 
 }

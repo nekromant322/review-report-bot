@@ -1,12 +1,14 @@
 package com.nekromant.telegram.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
+@Builder
 @Data
 @Entity
 @AllArgsConstructor
@@ -14,10 +16,14 @@ import java.time.LocalDate;
 public class Contract {
 
     @Id
-    private String username;
-
     @Column
     private String contractId;
+
+    @Column
+    private String username;
+
+    @ManyToOne
+    private UserInfo studentInfo;
 
     @Column
     private LocalDate date;
