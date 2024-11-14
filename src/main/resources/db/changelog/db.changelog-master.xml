@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <include file="/db/changelog/v1.0.0/001-db.changelog-deleteDuplicatesFromUserInfo.xml"/>
+    <include file="/db/changelog/v1.0.0/002-db.changelog-setChatIdAsPKForUserInfo.xml"/>
+    <include file="/db/changelog/v1.0.0/003-db.changelog-addUserInfoFKColumnToReport.xml"/>
+    <include file="/db/changelog/v1.0.0/004-db.changelog-addUserInfoFKColumnsToReviewRequest.xml"/>
+    <include file="/db/changelog/v1.0.0/005-db.changelog-addUserInfoFKColumnToMentorAndSetItAsPK.xml"/>
+    <include file="/db/changelog/v1.0.0/006-db.changelog-addUserInfoFKColumnToStepPassed.xml"/>
+    <include file="/db/changelog/v1.0.0/007-db.changelog-addUserInfoFKColumnToSalary.xml"/>
+    <include file="/db/changelog/v1.0.0/008-db.changelog-addUserInfoFKColumnToContract.xml"/>
+</databaseChangeLog>

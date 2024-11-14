@@ -11,7 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserInfoService {
@@ -28,10 +27,10 @@ public class UserInfoService {
 
     public void initializeUserInfo(Chat chat, User user) {
         if (chat.getType().equalsIgnoreCase("private")
-                && userInfoRepository.findUserInfoByUserName(user.getUserName()) == null) {
+                && (userInfoRepository.findUserInfoByChatId(user.getId()) == null || userInfoRepository.findUserInfoByUserName(user.getUserName()) == null)) {
             UserInfo userInfo = UserInfo.builder()
                     .userName(user.getUserName())
-                    .chatId(chat.getId())
+                    .chatId(user.getId())
                     .userType(UserType.STUDENT)
                     .build();
             userInfoRepository.save(userInfo);
@@ -39,33 +38,29 @@ public class UserInfoService {
     }
 
     public void promoteUserToMentor(String userName) {
-        UserInfo userInfo = userInfoRepository.findUserInfoByUserName(userName);
+        UserInfo userInfo = getUserInfo(userName);
         if (userInfo.getUserType() != UserType.MENTOR) {
             userInfo.setUserType(UserType.MENTOR);
             userInfoRepository.save(userInfo);
         }
     }
 
-    public void demoteMentorToUser(String userName) throws Exception {
-        UserInfo userInfo = userInfoRepository.findUserInfoByUserName(userName);
+    public void demoteMentorToDev(Long userChatId) {
+        UserInfo userInfo = userInfoRepository.findUserInfoByChatId(userChatId);
         if (userInfo.getUserType() == UserType.MENTOR) {
-            Mentor deleteMentor = mentorRepository.findMentorByUserNameIgnoreCase(userName);
+            Mentor deleteMentor = mentorRepository.findMentorByMentorInfo(userInfo);
             mentorRepository.delete(deleteMentor);
             userInfo.setUserType(UserType.DEV);
             userInfoRepository.save(userInfo);
         }
     }
 
-    public List<String> getAllStudentUsernames() {
-        return userInfoRepository.findAll().stream()
-                .filter(userInfo -> userInfo.getUserType() == UserType.STUDENT)
-                .map(UserInfo::getUserName)
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
     public UserInfo getUserInfo(String userName) {
         return userInfoRepository.findUserInfoByUserName(userName);
+    }
+
+    public UserInfo getUserInfo(Long userId) {
+        return userInfoRepository.findUserInfoByChatId(userId);
     }
 
     public void save(UserInfo userInfo) {

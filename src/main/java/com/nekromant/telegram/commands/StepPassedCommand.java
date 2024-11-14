@@ -53,20 +53,20 @@ public class StepPassedCommand extends MentoringReviewCommand {
             ValidationUtils.validateArgumentsNumber(arguments);
 
             String userName = arguments[0].replaceAll("@", "");
+            UserInfo userInfo = userInfoService.getUserInfo(userName);
             Step step = Step.getStepByAlias(arguments[1]);
             StepPassed stepPassed = StepPassed.builder()
                     .id(null)
-                    .studentUserName(userName)
+                    .studentInfo(userInfo)
                     .step(step)
                     .date(parseDate(arguments))
                     .build();
             stepPassedRepository.save(stepPassed);
             if (step == Step.JOB) {
-                UserInfo userInfo = userInfoService.getUserInfo(userName);
                 userInfo.setUserType(UserType.DEV);
                 userInfoService.save(userInfo);
             }
-            message.setText("Шаг " + stepPassed.getStep().getAlias() + " пройден для студента @" + stepPassed.getStudentUserName());
+            message.setText("Шаг " + stepPassed.getStep().getAlias() + " пройден для студента @" + userInfo.getUserName());
 
         } catch (Exception e) {
             message.setText("Пример: \n" +

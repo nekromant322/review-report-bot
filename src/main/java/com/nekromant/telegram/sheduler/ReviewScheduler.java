@@ -49,20 +49,19 @@ public class ReviewScheduler {
 
         for (ReviewRequest reviewRequest : sudenReviews) {
             String reviewIncomingMessage = String.format(REVIEW_INCOMING,
-                    reviewRequest.getStudentUserName(), reviewRequest.getMentorUserName(),
+                    reviewRequest.getStudentInfo().getUserName(), reviewRequest.getMentorInfo().getUserName(),
                     reviewRequest.getBookedDateTime().format(defaultDateTimeFormatter()),
                     reviewRequest.getTitle(),
-                    mentorRepository.findMentorByUserNameIgnoreCase(reviewRequest.getMentorUserName()).getRoomUrl());
+                    mentorRepository.findMentorByMentorInfo(reviewRequest.getMentorInfo()).getRoomUrl());
 
             userInfoService.getAllUsersReportNotificationsEnabled()
                     .stream()
-                    .filter(x -> !x.getUserName().equals(reviewRequest.getStudentUserName()))
-                    .filter(x -> !x.getUserName().equals(reviewRequest.getMentorUserName()))
+                    .filter(x -> !x.equals(reviewRequest.getStudentInfo()))
+                    .filter(x -> !x.equals(reviewRequest.getMentorInfo()))
                     .forEach(x -> sendMessageService.sendMessage(x.getChatId().toString(), reviewIncomingMessage));
 
-            sendMessageService.sendMessage(reviewRequest.getStudentChatId(), reviewIncomingMessage);
-            sendMessageService.sendMessage(userInfoService.getUserInfo(reviewRequest.getMentorUserName()).getChatId().toString(),
-                    reviewIncomingMessage);
+            sendMessageService.sendMessage(reviewRequest.getStudentInfo().getChatId().toString(), reviewIncomingMessage);
+            sendMessageService.sendMessage(reviewRequest.getMentorInfo().getChatId().toString(), reviewIncomingMessage);
         }
     }
 

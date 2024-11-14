@@ -88,7 +88,6 @@ public class EditedMessageHandler {
             reportService.save(temporaryReport);
 
             SendMessage sendDatePicker = reportDateTimePicker.getDatePickerSendMessage(
-                    message.getChatId().toString(),
                     temporaryReport,
                     message.getMessageId());
 
@@ -114,7 +113,7 @@ public class EditedMessageHandler {
 
         String updatedReportText = String.format("Отчёт обновлен %s:\n@%s\n%s\n%s\n%s",
                 LocalDate.now().format(defaultDateFormatter()),
-                report.getStudentUserName(),
+                report.getUserInfo().getUserName(),
                 report.getDate().format(defaultDateFormatter()),
                 report.getHours(),
                 report.getTitle()
@@ -129,7 +128,6 @@ public class EditedMessageHandler {
             reportService.save(temporaryReport);
 
             SendMessage sendDatePicker = reportDateTimePicker.getDatePickerSendMessage(
-                    message.getChatId().toString(),
                     temporaryReport,
                     message.getMessageId());
 

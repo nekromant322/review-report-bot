@@ -1,6 +1,7 @@
 package com.nekromant.telegram.repository;
 
 import com.nekromant.telegram.model.Report;
+import com.nekromant.telegram.model.UserInfo;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -9,23 +10,26 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ReportRepository extends CrudRepository<Report, Long> {
-    Boolean existsReportByDateAndStudentUserName(LocalDate date, String studentUserName);
+    boolean existsReportByDateAndUserInfo(LocalDate date, UserInfo userInfo);
 
-    List<Report> findByDateAndStudentUserName(LocalDate date, String studentUserName);
+    List<Report> findByDateAndUserInfo(LocalDate date, UserInfo userInfo);
 
     List<Report> findAll(); //todo переписать на норм запрос для получения первого отчета
 
-    List<Report> findAllByStudentUserNameIgnoreCase(String studentUsername);
+    List<Report> findAllByUserInfo_UserNameIgnoreCase(String studentUsername);
 
-    @Query("SELECT sum(r.hours) FROM Report r WHERE r.studentUserName = ?1")
-    Integer findTotalHours(String studentUsername);
+    List<Report> findAllByUserInfo(UserInfo userInfo);
 
-    @Query("SELECT count(r) FROM Report r WHERE (r.studentUserName = ?1 AND r.hours > 0)")
-    Integer findTotalStudyDays(String studentUsername);
+    List<Report> findAllByUserInfo_ChatId(Long studentChatId);
+
+    @Query("SELECT sum(r.hours) FROM Report r WHERE r.userInfo.chatId = ?1")
+    Integer findTotalHoursByUserInfo_ChatId(Long studentChatId);
+
+    @Query("SELECT count(r) FROM Report r WHERE (r.userInfo.chatId = ?1 AND r.hours > 0)")
+    Integer findTotalStudyDaysByUserInfo_ChatId(Long studentChatId);
 
     List<Report> findAllByDateIs(LocalDate date);
 
     @Transactional
-    void deleteByStudentUserName(String studentUserName);
-
+    void deleteByUserInfo_UserNameIgnoreCase(String studentUserName);
 }

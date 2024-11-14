@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands.stat;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.UserStatistic;
 import com.nekromant.telegram.service.ReportService;
+import com.nekromant.telegram.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,8 @@ public class MyStatCommand extends MentoringReviewCommand {
 
     @Autowired
     private ReportService reportService;
+    @Autowired
+    private UserInfoService userInfoService;
 
     public MyStatCommand() {
         super(MY_STAT.getAlias(), MY_STAT.getDescription());
@@ -29,9 +32,10 @@ public class MyStatCommand extends MentoringReviewCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         try {
+            userInfoService.initializeUserInfo(chat, user);
 
 
-            UserStatistic userStats = reportService.getUserStats(user.getUserName());
+            UserStatistic userStats = reportService.getUserStats(user.getId());
             SendMessage message = new SendMessage();
             message.setChatId(chat.getId().toString());
             message.setText(String.format(USER_STAT_MESSAGE, userStats.getUserName(), userStats.getTotalDays(), userStats.getStudyDays(),

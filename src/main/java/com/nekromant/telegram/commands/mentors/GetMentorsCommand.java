@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands.mentors;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.model.Mentor;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,7 +43,8 @@ public class GetMentorsCommand extends MentoringReviewCommand {
         }
         message.setText("Список активных менторов:\n" +
                 activeMentors.stream()
-                        .map(Mentor::getUserName)
+                        .map(Mentor::getMentorInfo)
+                        .map(UserInfo::getUserName)
                         .map(x -> "@" + x)
                         .collect(Collectors.joining("\n")));
         execute(absSender, message, user);

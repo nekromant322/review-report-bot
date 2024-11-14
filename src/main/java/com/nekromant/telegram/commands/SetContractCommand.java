@@ -2,6 +2,7 @@ package com.nekromant.telegram.commands;
 
 import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.service.ContractService;
+import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,8 @@ public class SetContractCommand extends MentoringReviewCommand {
 
     @Autowired
     private ContractService contractService;
+    @Autowired
+    private UserInfoService userInfoService;
 
     public SetContractCommand() {
         super(SET_CONTRACT.getAlias(), SET_CONTRACT.getDescription());
@@ -59,13 +62,13 @@ public class SetContractCommand extends MentoringReviewCommand {
         }
         try {
             Contract contract = contractService.getContractByUsername(studentUserName);
-            contractService.updateContract(studentUserName, contractId, date);
+            contractService.updateContractByUsername(studentUserName, contractId, date);
             message.setText("Было изменено для " + studentUserName +
                     " с " + contract.getContractId() + " " + contract.getDate().format(defaultDateFormatter()) +
                     " на " + contractId + " " + date.format(defaultDateFormatter()));
 
         } catch (InstanceNotFoundException e) {
-            contractService.saveContract(new Contract(studentUserName, contractId, date));
+            contractService.saveContract(Contract.builder().studentInfo(userInfoService.getUserInfo(studentUserName)).contractId(contractId).date(date).build());
             message.setText("Заданы новые данные для " + studentUserName + " " + contractId + " " + date.format(defaultDateFormatter()));
         }
         execute(absSender, message, user);

@@ -4,6 +4,7 @@ import com.nekromant.telegram.commands.feign.LifePayFeign;
 import com.nekromant.telegram.commands.dto.ChequeDTO;
 import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.service.ContractService;
+import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class PayCommand extends MentoringReviewCommand {
     private ContractService contractService;
     @Autowired
     private LifePayFeign lifePayFeign;
+    @Autowired
+    private UserInfoService userInfoService;
 
 
     @Autowired
@@ -39,6 +42,8 @@ public class PayCommand extends MentoringReviewCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+        userInfoService.initializeUserInfo(chat, user);
+
         SendMessage message = new SendMessage();
         String studentChatId = chat.getId().toString();
         message.setChatId(studentChatId);
@@ -78,7 +83,7 @@ public class PayCommand extends MentoringReviewCommand {
     }
 
     private String createDescription(User user) throws InstanceNotFoundException {
-        final Contract contract = contractService.getContractByUsername(user.getUserName());
+        final Contract contract = contractService.getContractByUserId(user.getId());
         return "Оплата по договору " + contract.getContractId() + " от " +
                 contract.getDate() + " за консультации по разработке ПО";
     }

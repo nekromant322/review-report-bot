@@ -225,7 +225,7 @@ public class CallbackQueryHandler {
         message.setChatId(mentorsChatId);
 
 
-        message.setText("@" + reviewRequest.getStudentUserName() + "\n" + reviewRequest.getTitle() + "\n" +
+        message.setText("@" + reviewRequest.getStudentInfo().getUserName() + "\n" + reviewRequest.getTitle() + "\n" +
                 reviewRequest.getDate().format(defaultDateFormatter()) + "\n");
         message.setReplyMarkup(inlineKeyboardMarkup);
 
@@ -274,9 +274,9 @@ public class CallbackQueryHandler {
         List<UserInfo> allMentors = userInfoService.findAllByUserType(UserType.MENTOR);
         for (UserInfo mentor : allMentors) {
             if (timeSlot == MIDNIGHT) {
-                isNotTakenByAllMentors = !reviewRequestService.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate.plusDays(1), LocalTime.of(0, 0)), mentor.getUserName());
+                isNotTakenByAllMentors = !reviewRequestService.existsByBookedDateTimeAndMentorUserInfo(LocalDateTime.of(reviewRequestDate.plusDays(1), LocalTime.of(0, 0)), mentor);
             } else {
-                isNotTakenByAllMentors = !reviewRequestService.existsByBookedDateTimeAndMentorUserName(LocalDateTime.of(reviewRequestDate, LocalTime.of(timeSlot, 0)), mentor.getUserName());
+                isNotTakenByAllMentors = !reviewRequestService.existsByBookedDateTimeAndMentorUserInfo(LocalDateTime.of(reviewRequestDate, LocalTime.of(timeSlot, 0)), mentor);
             }
         }
         return isNotTakenByAllMentors;

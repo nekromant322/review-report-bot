@@ -1,11 +1,13 @@
 package com.nekromant.telegram.service;
 
 import com.nekromant.telegram.model.Report;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.model.UserStatistic;
 import com.nekromant.telegram.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
@@ -13,6 +15,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -22,6 +25,8 @@ public class ReportService {
 
     @Autowired
     private ReportRepository reportRepository;
+    @Autowired
+    private UserInfoService userInfoService;
 
     public Report save(Report report) {
         return reportRepository.save(report);
@@ -31,16 +36,15 @@ public class ReportService {
         String[] strings = message.getText().split(" ");
         strings = Arrays.copyOfRange(strings, 1, strings.length);
 
-        String userName = message.getFrom().getUserName();
-        return getTemporaryReport(strings, userName);
+        return getTemporaryReport(strings, message.getFrom());
     }
 
-    public Report getTemporaryReport(String[] strings, String userName) {
+    public Report getTemporaryReport(String[] strings, User user) {
         Report report = new Report();
 
         report.setHours(parseHours(strings));
         report.setTitle(parseTitle(strings));
-        report.setStudentUserName(userName);
+        report.setUserInfo(userInfoService.getUserInfo(user.getId()));
         return report;
     }
 
@@ -68,11 +72,11 @@ public class ReportService {
         }
     }
 
-    public UserStatistic getUserStats(String userName) {
-        Integer studyDays = reportRepository.findTotalStudyDays(userName);
-        Integer totalHours = reportRepository.findTotalHours(userName);
+    public UserStatistic getUserStats(Long chatId) {
+        Integer studyDays = reportRepository.findTotalStudyDaysByUserInfo_ChatId(chatId);
+        Integer totalHours = reportRepository.findTotalHoursByUserInfo_ChatId(chatId);
         Report firstReport =
-                reportRepository.findAllByStudentUserNameIgnoreCase(userName).stream()
+                reportRepository.findAllByUserInfo_ChatId(chatId).stream()
                         .filter(this::hasRequiredFields)
                         .min(Comparator.comparing(Report::getDate))
                         .orElse(Report.builder()
@@ -82,7 +86,7 @@ public class ReportService {
         long totalDays = DAYS.between(firstReport.getDate(), LocalDate.now(ZoneId.of("Europe/Moscow")));
 
         return UserStatistic.builder()
-                .userName(userName)
+                .userName(userInfoService.getUserInfo(chatId).getUserName())
                 .totalDays((int) totalDays)
                 .studyDays(studyDays)
                 .totalHours(totalHours)
@@ -93,7 +97,9 @@ public class ReportService {
     public List<UserStatistic> getAllUsersStats() {
         return reportRepository.findAll()
                 .stream()
-                .map(Report::getStudentUserName)
+                .map(Report::getUserInfo)
+                .filter(Objects::nonNull)
+                .map(UserInfo::getChatId)
                 .distinct()
                 .map(this::getUserStats)
                 .collect(Collectors.toList());

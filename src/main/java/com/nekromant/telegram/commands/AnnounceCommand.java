@@ -56,12 +56,12 @@ public class AnnounceCommand extends MentoringReviewCommand {
                     execute(absSender, message, user);
                 }
             });
+            message.setText(ANNOUNCE_SENT);
+            execute(absSender, message, user);
         } catch (Exception e) {
             message.setText(e.getClass() + "\n" + ANNOUNCE_HELP_MESSAGE);
             execute(absSender, message, user);
         }
-        message.setText(ANNOUNCE_SENT);
-        execute(absSender, message, user);
     }
 
     private String parseAnnounce(String[] args) {
