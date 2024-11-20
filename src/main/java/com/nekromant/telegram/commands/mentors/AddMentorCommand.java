@@ -2,8 +2,7 @@ package com.nekromant.telegram.commands.mentors;
 
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
-import com.nekromant.telegram.model.Mentor;
-import com.nekromant.telegram.repository.MentorRepository;
+import com.nekromant.telegram.service.MentorService;
 import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +24,9 @@ public class AddMentorCommand extends MentoringReviewCommand {
     private String ownerUserName;
 
     @Autowired
-    private MentorRepository mentorRepository;
-
-    @Autowired
     private UserInfoService userInfoService;
+    @Autowired
+    private MentorService mentorService;
 
     @Autowired
     public AddMentorCommand() {
@@ -49,15 +47,15 @@ public class AddMentorCommand extends MentoringReviewCommand {
             ValidationUtils.validateArgumentsNumber(arguments);
             String newMentorUserName = arguments[0].replaceAll("@", "");
             String newMentorRoom = arguments[1];
-            mentorRepository.save(new Mentor(newMentorUserName, true, newMentorRoom));
+
+            mentorService.saveMentor(newMentorUserName, newMentorRoom);
             userInfoService.promoteUserToMentor(newMentorUserName);
 
+            message.setText(MENTORS_LIST_CHANGED);
+            execute(absSender, message, user);
         } catch (Exception e) {
             message.setText(e.getMessage() + "\n" + "Пример: /add_mentor @Marandyuk_Anatolii https://meet.google.com/yfp-haps-mtz");
             execute(absSender, message, user);
         }
-
-        message.setText(MENTORS_LIST_CHANGED);
-        execute(absSender, message, user);
     }
 }

@@ -39,13 +39,13 @@ public class ReportHistoryCommand extends MentoringReviewCommand {
             validateArgumentsNumber(strings);
             int limitCount = strings.length > 1 ? Integer.parseInt(strings[1]) : 5;
             String studentUserName = parseUserName(strings);
-            String messageWithHistory = reportRepository.findAllByStudentUserNameIgnoreCase(studentUserName)
+            String messageWithHistory = reportRepository.findAllByUserInfo_UserNameIgnoreCase(studentUserName)
                     .stream()
                     .filter(this::hasRequiredFields)
                     .sorted(Comparator.comparing(Report::getDate).reversed())
                     .limit(limitCount)
                     .sorted(Comparator.comparing(Report::getDate))
-                    .map(report -> report.getStudentUserName() + "\n" + report.getDate() + "\n" + report.getHours() + "\n" +
+                    .map(report -> report.getUserInfo().getUserName() + "\n" + report.getDate() + "\n" + report.getHours() + "\n" +
                             report.getTitle())
                     .collect(Collectors.joining("\n-----------------\n"));
 

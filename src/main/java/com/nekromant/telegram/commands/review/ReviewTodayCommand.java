@@ -74,11 +74,11 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
                         reviewsToday.stream()
                                 .sorted(Comparator.comparing(ReviewRequest::getBookedDateTime))
                                 .map(review ->
-                                        "@" + review.getStudentUserName() + "\n" +
+                                        "@" + review.getStudentInfo().getUserName() + "\n" +
                                                 review.getBookedDateTime().format(defaultDateTimeFormatter()) + "\n" +
                                                 review.getTitle() + "\n" +
-                                                "@" + review.getMentorUserName() + "\n" +
-                                                mentorRepository.findMentorByUserNameIgnoreCase(review.getMentorUserName()).getRoomUrl() + "\n")
+                                                "@" + review.getStudentInfo().getUserName() + "\n" +
+                                                mentorRepository.findMentorByMentorInfo(review.getMentorInfo()).getRoomUrl() + "\n")
                                 .collect(Collectors.joining("\n"));
                 message.setText(messageWithReviewsToday);
             }
@@ -105,7 +105,7 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
             message.setChatId(specialChatService.getMentorsChatId());
 
 
-            message.setText("Ревью @" + x.getStudentUserName() + " c @" + x.getMentorUserName() + " " +
+            message.setText("Ревью @" + x.getStudentInfo().getUserName() + " c @" + x.getMentorInfo().getUserName() + " " +
                     x.getBookedDateTime().format(defaultDateTimeFormatter()));
             message.setReplyMarkup(inlineKeyboardMarkup);
 

@@ -3,6 +3,7 @@ package com.nekromant.telegram.commands;
 
 import com.nekromant.telegram.model.Salary;
 import com.nekromant.telegram.repository.SalaryRepository;
+import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,8 @@ public class SetSalaryCommand extends MentoringReviewCommand {
 
     @Autowired
     private SalaryRepository salaryRepository;
+    @Autowired
+    private UserInfoService userInfoService;
 
     @Autowired
     public SetSalaryCommand() {
@@ -34,6 +37,8 @@ public class SetSalaryCommand extends MentoringReviewCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+        userInfoService.initializeUserInfo(chat, user);
+
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
@@ -47,7 +52,7 @@ public class SetSalaryCommand extends MentoringReviewCommand {
 
             Salary salary = Salary.builder()
                     .id(null)
-                    .userName(arguments[0].replaceAll("@", ""))
+                    .userInfo(userInfoService.getUserInfo(arguments[0].replaceAll("@", "")))
                     .salary(Integer.parseInt(arguments[1]))
                     .date(parseDate(arguments))
                     .build();

@@ -3,8 +3,9 @@ package com.nekromant.telegram.service.update_handler.callback_strategy;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.model.ReviewRequest;
-import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.service.ReviewRequestService;
+import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
 import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.MessagePart;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,9 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
 
     private static final int MIDNIGHT = 24;
     @Autowired
-    private ReviewRequestRepository reviewRequestRepository;
-    @Autowired
     private ReviewRequestService reviewRequestService;
+    @Autowired
+    private UserInfoService userInfoService;
 
     @Override
     public void executeCallbackQuery(CallbackQuery callbackQuery, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
@@ -40,17 +41,17 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
         int timeSlot = Integer.parseInt(callbackData.split(" ")[2]);
 
         ReviewRequest review = reviewRequestService.findReviewRequestById(reviewId);
-        messageForUser.setChatId(review.getStudentChatId());
+        messageForUser.setChatId(review.getStudentInfo().getChatId().toString());
         LocalDateTime timeSlotDateTime;
         if (timeSlot == MIDNIGHT) {
             timeSlotDateTime = LocalDateTime.of(review.getDate().plusDays(1), LocalTime.of(0, 0));
         } else {
             timeSlotDateTime = LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0));
         }
-        String mentorUsername = callbackQuery.getFrom().getUserName();
-        if (reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(timeSlotDateTime,
-                mentorUsername)) {
-            setMessageTextForMentorsTaken(messageForMentors, timeSlot, mentorUsername);
+        UserInfo mentorInfo = userInfoService.getUserInfo(callbackQuery.getFrom().getId());
+        if (reviewRequestService.existsByBookedDateTimeAndMentorUserInfo(timeSlotDateTime,
+                mentorInfo)) {
+            setMessageTextForMentorsTaken(messageForMentors, timeSlot, mentorInfo.getUserName());
         } else  {
             bookTimeSlot(callbackQuery, review, timeSlotDateTime);
             review.setTimeSlots(Set.of(timeSlot));
@@ -69,7 +70,7 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
 
     private void bookTimeSlot(CallbackQuery callbackQuery, ReviewRequest review, LocalDateTime timeSlotDateTime) {
         setBookedDateTime(review, timeSlotDateTime);
-        setMentorUserName(review, callbackQuery);
+        setMentor(review, callbackQuery);
     }
 
     private void setMessageTextForMentorsTaken(SendMessage messageForMentors, int timeSlot, String mentorUsername) {
@@ -80,21 +81,21 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
         review.setBookedDateTime(timeSlotLDT);
     }
 
-    private void setMentorUserName(ReviewRequest review, CallbackQuery callbackQuery) {
-        review.setMentorUserName(callbackQuery.getFrom().getUserName());
+    private void setMentor(ReviewRequest review, CallbackQuery callbackQuery) {
+        review.setMentorInfo(userInfoService.getUserInfo(callbackQuery.getFrom().getId()));
     }
 
     private void saveReviewRequest(ReviewRequest review) {
-        reviewRequestRepository.save(review);
+        reviewRequestService.save(review);
     }
 
     private void setMessageTextForUserApproved(SendMessage messageForUser, ReviewRequest review) {
-        messageForUser.setText(String.format(REVIEW_BOOKED, review.getMentorUserName(),
+        messageForUser.setText(String.format(REVIEW_BOOKED, review.getMentorInfo().getUserName(),
                 review.getBookedDateTime().format(defaultDateTimeFormatter()), review.getTitle()));
     }
 
     private void setMessageTextForMentorsApproved(SendMessage messageForMentors, CallbackQuery callbackQuery, ReviewRequest review) {
         messageForMentors.setText(String.format(REVIEW_APPROVED, callbackQuery.getFrom().getUserName(),
-                review.getStudentUserName(), review.getBookedDateTime().format(defaultDateTimeFormatter())));
+                review.getStudentInfo().getUserName(), review.getBookedDateTime().format(defaultDateTimeFormatter())));
     }
 }

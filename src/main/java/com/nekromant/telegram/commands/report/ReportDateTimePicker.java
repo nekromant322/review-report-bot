@@ -22,9 +22,9 @@ public class ReportDateTimePicker {
     @Autowired
     private SendMessageFactory sendMessageFactory;
 
-    public SendMessage getDatePickerSendMessage(String userChatId, Report report, Integer messageId) {
+    public SendMessage getDatePickerSendMessage(Report report, Integer messageId) {
         InlineKeyboardMarkup inlineKeyboardMarkup = getDatePickerInlineKeyboardMarkup(report, messageId);
-        SendMessage message = sendMessageFactory.create(userChatId, "Выберите дату");
+        SendMessage message = sendMessageFactory.create(report.getUserInfo().getChatId().toString(), "Выберите дату");
         message.setReplyMarkup(inlineKeyboardMarkup);
         return message;
     }

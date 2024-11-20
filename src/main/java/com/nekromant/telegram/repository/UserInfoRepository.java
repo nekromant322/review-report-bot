@@ -6,11 +6,13 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.*;
 
-public interface UserInfoRepository extends CrudRepository<UserInfo, String> {
+public interface UserInfoRepository extends CrudRepository<UserInfo, Long> {
     List<UserInfo> findAll();
 
     UserInfo findUserInfoByUserName(String userName);
 
     List<UserInfo> findAllByNotifyAboutReportsIsTrue();
     List<UserInfo> findAllByUserType(UserType userType);
+
+    UserInfo findUserInfoByChatId(Long chatId);
 }

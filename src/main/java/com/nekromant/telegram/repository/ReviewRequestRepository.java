@@ -1,6 +1,7 @@
 package com.nekromant.telegram.repository;
 
 import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.model.UserInfo;
 import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;
@@ -12,5 +13,6 @@ public interface ReviewRequestRepository extends CrudRepository<ReviewRequest, L
     List<ReviewRequest> findAllByBookedDateTimeBetween(LocalDateTime from, LocalDateTime to);
 
     List<ReviewRequest> findAll();
-    boolean existsByBookedDateTimeAndMentorUserName(LocalDateTime dateTime, String mentorUserName);
+
+    boolean existsByBookedDateTimeAndMentorInfo(LocalDateTime dateTime, UserInfo userInfo);
 }

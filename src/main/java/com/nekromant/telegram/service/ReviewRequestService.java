@@ -1,6 +1,7 @@
 package com.nekromant.telegram.service;
 
 import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ public class ReviewRequestService {
 
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
+    @Autowired
+    private UserInfoService userInfoService;
 
     public ReviewRequest findReviewRequestById(Long id) {
         return reviewRequestRepository.findById(id).orElseThrow(InvalidParameterException::new);
@@ -27,15 +30,14 @@ public class ReviewRequestService {
         return reviewRequestRepository.save(reviewRequest);
     }
 
-    public boolean existsByBookedDateTimeAndMentorUserName(LocalDateTime bookedDateTime, String userName) {
-        return reviewRequestRepository.existsByBookedDateTimeAndMentorUserName(bookedDateTime, userName);
+    public boolean existsByBookedDateTimeAndMentorUserInfo(LocalDateTime bookedDateTime, UserInfo mentorInfo) {
+        return reviewRequestRepository.existsByBookedDateTimeAndMentorInfo(bookedDateTime, mentorInfo);
     }
 
-    public ReviewRequest getTemporaryReviewRequest(User user, String[] arguments, String studentChatId) {
+    public ReviewRequest getTemporaryReviewRequest(User user, String[] arguments) {
         ReviewRequest reviewRequest = new ReviewRequest();
 
-        reviewRequest.setStudentUserName(user.getUserName());
-        reviewRequest.setStudentChatId(studentChatId);
+        reviewRequest.setStudentInfo(userInfoService.getUserInfo(user.getId()));
         reviewRequest.setTitle(parseTitle(arguments));
         reviewRequest.setTimeSlots(parseTimeSlots(arguments));
         return reviewRequest;
@@ -49,8 +51,6 @@ public class ReviewRequestService {
                 if (Integer.parseInt(string) > 24 || Integer.parseInt(string) < 0) {
                     throw new InvalidParameterException("Неверное значение часов — должно быть от 0 до 23");
                 }
-            } else if (timeSlots.isEmpty()) {
-                throw new InvalidParameterException("Вы не указали время ревью.");
             } else {
                 return timeSlots;
             }

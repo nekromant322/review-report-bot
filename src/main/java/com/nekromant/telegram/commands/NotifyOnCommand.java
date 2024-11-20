@@ -32,7 +32,7 @@ public class NotifyOnCommand extends MentoringReviewCommand {
 
         try {
 
-            UserInfo userInfo = userInfoService.getUserInfo(user.getUserName());
+            UserInfo userInfo = userInfoService.getUserInfo(user.getId());
             userInfo.setNotifyAboutReports(true);
             userInfoService.save(userInfo);
 

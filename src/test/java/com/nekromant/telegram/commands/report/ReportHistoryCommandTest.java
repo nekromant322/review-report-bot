@@ -1,6 +1,7 @@
 package com.nekromant.telegram.commands.report;
 
 import com.nekromant.telegram.model.Report;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ReportRepository;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,18 +43,18 @@ class ReportHistoryCommandTest {
     @Mock
     private SendMessageFactory sendMessageFactory;
 
-    private static final String studentUserName0 = "nickname";
     private static final String studentUserName1 = "@Nickname";
 
-    private final String commandStudentName = studentUserName0;
+    private final String commandStudentName = "nickname";
     private final String commandReportLimit = "20";
     private final String[] strings = new String[]{commandStudentName, commandReportLimit};
+    private static final UserInfo USER_INFO = UserInfo.builder().chatId(0L).userName(studentUserName1).build();
 
     @ParameterizedTest
     @MethodSource("provideReportListArguments")
     void executeWithReportList_DoesntShowError(List<Report> reportList) {
         // Given - arrange
-        given(reportRepository.findAllByStudentUserNameIgnoreCase(anyString())).willReturn(reportList);
+        given(reportRepository.findAllByUserInfo_UserNameIgnoreCase(anyString())).willReturn(reportList);
         given(sendMessageFactory.create(anyString(), anyString())).willReturn(new SendMessage());
 
         // When - act
@@ -65,19 +66,19 @@ class ReportHistoryCommandTest {
 
     private static Stream<Arguments> provideReportListArguments() {
         List<Report> reportListWithoutNulls = new ArrayList<>();
-        reportListWithoutNulls.add(new Report(0L, studentUserName1, 2, LocalDate.now(), "title"));
-
-        List<Report> reportListWithNullStudentName = new ArrayList<>(reportListWithoutNulls);
-        reportListWithNullStudentName.add(new Report(4L, null, 2, LocalDate.now(), "title"));
+        reportListWithoutNulls.add(new Report(0L, USER_INFO, 2, LocalDate.now(), "title"));
 
         List<Report> reportListWithNullHours = new ArrayList<>(reportListWithoutNulls);
-        reportListWithNullHours.add(new Report(5L, studentUserName1, null, LocalDate.now(), "title"));
+        reportListWithNullHours.add(new Report(1L, USER_INFO, null, LocalDate.now(), "title"));
 
         List<Report> reportListWithNullDate = new ArrayList<>(reportListWithoutNulls);
-        reportListWithNullDate.add(new Report(9L, studentUserName1, 2, null, "title"));
+        reportListWithNullDate.add(new Report(2L, USER_INFO, 2, null, "title"));
 
         List<Report> reportListWithNullTitle = new ArrayList<>(reportListWithoutNulls);
-        reportListWithNullTitle.add(new Report(13L, studentUserName1, 2, LocalDate.now(), null));
+        reportListWithNullTitle.add(new Report(3L, USER_INFO, 2, LocalDate.now(), null));
+
+        List<Report> reportListWithNullStudentName = new ArrayList<>(reportListWithoutNulls);
+        reportListWithNullStudentName.add(new Report(4L, UserInfo.builder().userName(null).build(), 2, LocalDate.now(), "title"));
 
 
         return Stream.of(

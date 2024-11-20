@@ -2,22 +2,25 @@ package com.nekromant.telegram.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
 public class Mentor {
-
     @Id
-    private String userName;
+    private Long mentorInfoChatId;
+
+    @MapsId
+    @OneToOne
+    private UserInfo mentorInfo;
 
     @Column
     private Boolean isActive = true;

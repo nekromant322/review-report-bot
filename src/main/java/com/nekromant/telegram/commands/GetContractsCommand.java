@@ -1,5 +1,6 @@
 package com.nekromant.telegram.commands;
 
+import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +48,11 @@ public class GetContractsCommand extends MentoringReviewCommand {
     private String createMessageText() {
         return contractService.getAllContracts().stream()
                 .map(contract ->
-                        "@" + contract.getUsername() + " | " + contract.getContractId() + " | " + contract.getDate())
+                        getUserName(contract) + " | " + contract.getContractId() + " | " + contract.getDate())
                 .collect(Collectors.joining(DELIMETER));
+    }
+
+    private String getUserName(Contract contract) {
+        return contract.getStudentInfo() == null ? "Пользователя нет в БД" : "@" + contract.getStudentInfo().getUserName();
     }
 }
