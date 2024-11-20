@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 import static com.nekromant.telegram.contants.MessageContants.MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS;
 import static com.nekromant.telegram.contants.MessageContants.REPORT_REMINDER;
 import static com.nekromant.telegram.contants.MessageContants.STUDENT_REPORT_FORGET_REMINDER;
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Slf4j
 @Component
@@ -64,7 +63,6 @@ public class ReportReminderScheduler {
 
         allStudents.removeAll(alreadyWroteReportToday);
 
-        // TODO Bad Request: chat not found
         if (!allStudents.isEmpty()) {
             sendMessageService.sendMessage(specialChatService.getReportsChatId(), REPORT_REMINDER +
                 allStudents.stream()
@@ -86,21 +84,22 @@ public class ReportReminderScheduler {
 
         List<String> badStudentsUsernames = new ArrayList<>();
         for (UserInfo userInfo : allStudents) {
-            List<LocalDate> hotestReportsDates = reportRepository.findAllByUserInfo(userInfo).stream()
-                    .sorted(Comparator.comparing(Report::getDate).reversed())
-                    .limit(maxDaysWithoutReport)
+            List<LocalDate> hottestReportsDates = reportRepository.findAllByUserInfo(userInfo).stream()
                     .map(Report::getDate)
+                    .filter(Objects::nonNull)
+                    .sorted(Comparator.reverseOrder())
+                    .limit(maxDaysWithoutReport)
                     .collect(Collectors.toList());
 
 
             List<LocalDate> recentDates = Stream.iterate(LocalDate.now(ZoneId.of("Europe/Moscow")),
-                    date -> date.minus(1, DAYS))
+                    date -> date.minusDays(1))
                     .limit(maxDaysWithoutReport)
                     .collect(Collectors.toList());
 
             boolean hasRecentReport = false;
             for (LocalDate recentDate : recentDates) {
-                if (hotestReportsDates.contains(recentDate)) {
+                if (hottestReportsDates.contains(recentDate)) {
                     hasRecentReport = true;
                     break;
                 }
