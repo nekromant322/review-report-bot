@@ -1,7 +1,7 @@
 package com.nekromant.telegram.commands.report;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
-import com.nekromant.telegram.repository.ReportRepository;
+import com.nekromant.telegram.service.ReportService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +25,7 @@ public class ReportDeleteCommand extends MentoringReviewCommand {
     private String ownerUserName;
 
     @Autowired
-    private ReportRepository reportRepository;
+    private ReportService reportService;
 
     public ReportDeleteCommand() {
         super(REPORT_DELETE.getAlias(), REPORT_DELETE.getDescription());
@@ -44,7 +44,7 @@ public class ReportDeleteCommand extends MentoringReviewCommand {
                 execute(absSender, message, user);
                 return;
             }
-            reportRepository.deleteByUserInfo_UserNameIgnoreCase(strings[0].replaceAll("@", ""));
+            reportService.deleteByUserName(strings[0].replaceAll("@", ""));
             message.setText(REPORTS_DELETED);
             execute(absSender, message, user);
         } catch (Exception e) {
