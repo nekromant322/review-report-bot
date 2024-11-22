@@ -6,6 +6,7 @@ import com.nekromant.telegram.model.UserStatistic;
 import com.nekromant.telegram.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -27,9 +28,20 @@ public class ReportService {
     private ReportRepository reportRepository;
     @Autowired
     private UserInfoService userInfoService;
+    @Autowired
+    private ChatMessageService chatMessageService;
 
     public Report save(Report report) {
         return reportRepository.save(report);
+    }
+
+    @Transactional
+    public void deleteByUserName(String userName) {
+        UserInfo userInfo = userInfoService.getUserInfo(userName);
+        reportRepository.findAllByUserInfo(userInfo).forEach(report -> {
+            chatMessageService.deleteByReport(report);
+            reportRepository.delete(report);
+        });
     }
 
     public Report getTemporaryReport(Message message) {
