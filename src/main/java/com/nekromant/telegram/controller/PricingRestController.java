@@ -39,8 +39,8 @@ public class PricingRestController {
     }
 
     @PostMapping("/mentoring")
-    public ResponseEntity submitNewMentoringSubscription(@RequestBody Map mentoring_data) {
-        return mentoringSubscriptionRequestService.save(mentoring_data);
+    public ResponseEntity submitNewMentoringSubscription(@RequestBody Map mentoringData) {
+        return mentoringSubscriptionRequestService.save(mentoringData);
     }
 
     @PostMapping("/call")
