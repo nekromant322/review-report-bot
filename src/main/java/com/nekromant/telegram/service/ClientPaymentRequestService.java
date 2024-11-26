@@ -4,10 +4,10 @@ import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.model.PaymentDetails;
 
 public interface ClientPaymentRequestService {
-    
-    public void notifyMentor(PaymentDetails paymentDetails);
 
-    public void rejectApplication(PaymentDetails paymentDetails);
+    void notifyMentor(PaymentDetails paymentDetails);
 
-    public ServiceType getType();
+    void rejectApplication(PaymentDetails paymentDetails);
+
+    ServiceType getType();
 }
