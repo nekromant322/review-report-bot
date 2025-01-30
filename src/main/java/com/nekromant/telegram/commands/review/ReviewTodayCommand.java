@@ -77,7 +77,7 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
                                         "@" + review.getStudentInfo().getUserName() + "\n" +
                                                 review.getBookedDateTime().format(defaultDateTimeFormatter()) + "\n" +
                                                 review.getTitle() + "\n" +
-                                                "@" + review.getStudentInfo().getUserName() + "\n" +
+                                                "@" + review.getMentorInfo().getUserName() + "\n" +
                                                 mentorRepository.findMentorByMentorInfo(review.getMentorInfo()).getRoomUrl() + "\n")
                                 .collect(Collectors.joining("\n"));
                 message.setText(messageWithReviewsToday);
