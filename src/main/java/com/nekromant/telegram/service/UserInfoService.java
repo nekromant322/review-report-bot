@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserInfoService {
@@ -69,5 +70,10 @@ public class UserInfoService {
 
     public List<UserInfo> getAllUsersReportNotificationsEnabled() {
         return userInfoRepository.findAllByNotifyAboutReportsIsTrue();
+    }
+
+    public List<UserInfo> findAllMentors() {
+        List<Mentor> allMentors = mentorRepository.findAll();
+        return allMentors.stream().map(Mentor::getMentorInfo).collect(Collectors.toList());
     }
 }

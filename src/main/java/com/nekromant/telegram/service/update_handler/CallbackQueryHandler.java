@@ -2,7 +2,6 @@ package com.nekromant.telegram.service.update_handler;
 
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.contants.ChatType;
-import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.ChatMessage;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.model.UserInfo;
@@ -271,7 +270,7 @@ public class CallbackQueryHandler {
 
     private boolean isTimeSlotTakenByAllMentors(Integer timeSlot, LocalDate reviewRequestDate) {
         boolean isNotTakenByAllMentors = true;
-        List<UserInfo> allMentors = userInfoService.findAllByUserType(UserType.MENTOR);
+        List<UserInfo> allMentors = userInfoService.findAllMentors();
         for (UserInfo mentor : allMentors) {
             if (timeSlot == MIDNIGHT) {
                 isNotTakenByAllMentors = !reviewRequestService.existsByBookedDateTimeAndMentorUserInfo(LocalDateTime.of(reviewRequestDate.plusDays(1), LocalTime.of(0, 0)), mentor);
