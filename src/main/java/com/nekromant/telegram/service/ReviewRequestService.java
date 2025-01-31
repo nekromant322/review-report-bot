@@ -3,6 +3,7 @@ package com.nekromant.telegram.service;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 public class ReviewRequestService {
 
+    private static final String TITLE_BEGINS_WITH = "тема";
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
     @Autowired
@@ -46,7 +48,7 @@ public class ReviewRequestService {
     private Set<Integer> parseTimeSlots(String[] strings) {
         Set<Integer> timeSlots = new HashSet<>();
         for (String string : strings) {
-            if (!string.toLowerCase().contains("тема")) {
+            if (!string.toLowerCase().contains(TITLE_BEGINS_WITH)) {
                 timeSlots.add(Integer.parseInt(string));
                 if (Integer.parseInt(string) > 24 || Integer.parseInt(string) < 0) {
                     throw new InvalidParameterException("Неверное значение часов — должно быть от 0 до 23");
@@ -59,15 +61,21 @@ public class ReviewRequestService {
     }
 
     private String parseTitle(String[] strings) {
-        for (int i = 0; i < strings.length; i++) {
-            if (strings[i].toLowerCase().contains("тема")) {
-                String title = Arrays.stream(strings).skip(i).collect(Collectors.joining(" "));
-                if (title.endsWith("тема") || title.endsWith("тема:")) {
-                    throw new InvalidParameterException("Не указана тема ревью.");
-                }
-                return title;
-            }
+        String title = extractTitle(strings);
+        isTitlePresent(title);
+        return title;
+    }
+
+    private String extractTitle(String[] strings) {
+        return Arrays.stream(strings)
+                .dropWhile(s -> !s.toLowerCase().contains(TITLE_BEGINS_WITH))
+                .skip(1)
+                .collect(Collectors.joining(" "));
+    }
+
+    private void isTitlePresent(String title) {
+        if (title.isEmpty()) {
+            throw new InvalidParameterException("Не указана тема ревью.");
         }
-        throw new InvalidParameterException("Не указана тема ревью.");
     }
 }
