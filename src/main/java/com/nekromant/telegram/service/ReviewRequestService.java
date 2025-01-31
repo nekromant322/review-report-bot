@@ -61,9 +61,13 @@ public class ReviewRequestService {
     private String parseTitle(String[] strings) {
         for (int i = 0; i < strings.length; i++) {
             if (strings[i].toLowerCase().contains("тема")) {
-                return Arrays.stream(strings).skip(i).collect(Collectors.joining(" "));
+                String title = Arrays.stream(strings).skip(i).collect(Collectors.joining(" "));
+                if (title.endsWith("тема") || title.endsWith("тема:")) {
+                    throw new InvalidParameterException("Не указана тема ревью.");
+                }
+                return title;
             }
         }
-        return "";
+        throw new InvalidParameterException("Не указана тема ревью.");
     }
 }
