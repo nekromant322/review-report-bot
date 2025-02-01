@@ -1,6 +1,7 @@
 package com.nekromant.telegram.commands;
 
 import com.nekromant.telegram.model.Contract;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.service.ContractService;
 import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.utils.ValidationUtils;
@@ -24,6 +25,8 @@ public class SetContractCommand extends MentoringReviewCommand {
 
     @Value("${owner.userName}")
     private String ownerUserName;
+    @Value("${bot.name}")
+    private String botName;
 
     @Autowired
     private ContractService contractService;
@@ -68,8 +71,13 @@ public class SetContractCommand extends MentoringReviewCommand {
                     " на " + contractId + " " + date.format(defaultDateFormatter()));
 
         } catch (InstanceNotFoundException e) {
-            contractService.saveContract(Contract.builder().studentInfo(userInfoService.getUserInfo(studentUserName)).contractId(contractId).date(date).build());
-            message.setText("Заданы новые данные для " + studentUserName + " " + contractId + " " + date.format(defaultDateFormatter()));
+            UserInfo userInfo = userInfoService.getUserInfo(studentUserName);
+            if (userInfo == null) {
+                message.setText("Попросите пользователя @" + studentUserName + " пройти инициализацию в боте @" + botName);
+            } else {
+                contractService.saveContract(userInfo, contractId, date);
+                message.setText("Создан новый контракт для " + studentUserName + " " + contractId + " " + date.format(defaultDateFormatter()));
+            }
         }
         execute(absSender, message, user);
     }

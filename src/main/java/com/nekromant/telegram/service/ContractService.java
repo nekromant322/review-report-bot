@@ -1,6 +1,7 @@
 package com.nekromant.telegram.service;
 
 import com.nekromant.telegram.model.Contract;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ContractRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,11 @@ public class ContractService {
     }
 
     public void saveContract(Contract contract) {
+        contractRepository.save(contract);
+    }
+
+    public void saveContract(UserInfo userInfo, String contractId, LocalDate date) {
+        Contract contract = Contract.builder().studentInfoChatId(userInfo.getChatId()).studentInfo(userInfo).contractId(contractId).date(date).build();
         contractRepository.save(contract);
     }
 }
