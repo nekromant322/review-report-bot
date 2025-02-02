@@ -5,6 +5,7 @@ import com.nekromant.telegram.model.Mentor;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.UserInfoRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -13,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserInfoService {
 
@@ -22,20 +24,31 @@ public class UserInfoService {
     @Autowired
     private MentorRepository mentorRepository;
 
-    public List<UserInfo> findAllByUserType(UserType userType) {
-        return userInfoRepository.findAllByUserType(userType);
-    }
-
     public void initializeUserInfo(Chat chat, User user) {
-        if (chat.getType().equalsIgnoreCase("private")
-                && (userInfoRepository.findUserInfoByChatId(user.getId()) == null || userInfoRepository.findUserInfoByUserName(user.getUserName()) == null)) {
+        log.info("Инициализация нового пользователя: {}", user.getUserName());
+        if (isPrivateChat(chat)
+                && isNewUserOrUserWithoutName(user)) {
+            log.info("Инициализация пользователя {} идёт в приватном чате, пользователя не существует или его имя не существует в БД", user.getUserName());
             UserInfo userInfo = UserInfo.builder()
                     .userName(user.getUserName())
                     .chatId(user.getId())
                     .userType(UserType.STUDENT)
                     .build();
             userInfoRepository.save(userInfo);
+            log.info("Был создан новый пользователь: {}", userInfo.getUserName());
         }
+    }
+
+    private boolean isNewUserOrUserWithoutName(User user) {
+        UserInfo userInfoByChatId = userInfoRepository.findUserInfoByChatId(user.getId());
+        log.info("userInfoByChatId: {}", userInfoByChatId);
+        UserInfo userInfoByUserName = userInfoRepository.findUserInfoByUserName(user.getUserName());
+        log.info("userInfoByUserName: {}", userInfoByUserName);
+        return userInfoByChatId == null || userInfoByUserName == null;
+    }
+
+    private static boolean isPrivateChat(Chat chat) {
+        return chat.getType().equalsIgnoreCase("private");
     }
 
     public void promoteUserToMentor(String userName) {
