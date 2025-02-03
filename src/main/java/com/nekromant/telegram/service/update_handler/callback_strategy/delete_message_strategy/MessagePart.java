@@ -2,5 +2,6 @@ package com.nekromant.telegram.service.update_handler.callback_strategy.delete_m
 
 public enum MessagePart {
     MARKUP,
-    ENTIRE_MESSAGE
+    ENTIRE_MESSAGE,
+    NONE
 }

@@ -52,6 +52,7 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
         if (reviewRequestService.existsByBookedDateTimeAndMentorUserInfo(timeSlotDateTime,
                 mentorInfo)) {
             setMessageTextForMentorsTaken(messageForMentors, timeSlot, mentorInfo.getUserName());
+            deleteMessageStrategy.setMessagePart(MessagePart.NONE);
         } else  {
             bookTimeSlot(callbackQuery, review, timeSlotDateTime);
             review.setTimeSlots(Set.of(timeSlot));
@@ -59,8 +60,8 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
 
             setMessageTextForUserApproved(messageForUser, review);
             setMessageTextForMentorsApproved(messageForMentors, callbackQuery, review);
+            deleteMessageStrategy.setMessagePart(MessagePart.MARKUP);
         }
-        deleteMessageStrategy.setMessagePart(MessagePart.MARKUP);
     }
 
     @Override
