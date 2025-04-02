@@ -105,6 +105,8 @@ public class CallbackQueryHandler {
             case ENTIRE_MESSAGE:
                 deleteCallbackMessage(callbackMessage);
                 break;
+            case NONE:
+                break;
             default:
                 log.error("Unsupported delete message strategy: {}", messagePart.name());
                 throw new RuntimeException("Unsupported delete message strategy: " + messagePart.name());
