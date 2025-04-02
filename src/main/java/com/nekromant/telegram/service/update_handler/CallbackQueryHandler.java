@@ -15,6 +15,7 @@ import com.nekromant.telegram.utils.EditMessageTextFactory;
 import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -26,18 +27,21 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+
+import static com.nekromant.telegram.contants.MessageContants.REVIEW_BOOKED;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
+import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 
 @Slf4j
 @Component
 public class CallbackQueryHandler {
+
+    @Value("${owner.userName}")
+    private String ownerUserName;
 
     private static final Integer MIDNIGHT = 24;
 
@@ -188,49 +192,91 @@ public class CallbackQueryHandler {
         Long reviewRequestId = Long.parseLong(callbackData.split(" ")[2]);
         ReviewRequest reviewRequest = reviewRequestService.findReviewRequestById(reviewRequestId);
 
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-
-        LocalDate reviewRequestDate = reviewRequest.getDate();
-        reviewRequest.getTimeSlots().
-                stream().
-                filter(timeSlot -> isTimeSlotTakenByAllMentors(timeSlot, reviewRequestDate)).
-                sorted(Integer::compareTo).
-                forEach(x -> {
-                    List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
-                    InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-                    if (x == MIDNIGHT) {
-                        inlineKeyboardButton.setText("00" + ":00 (" + reviewRequestDate.plusDays(1).format(defaultDateFormatter()) + ")");
-                    } else {
-                        inlineKeyboardButton.setText(x + ":00");
-                    }
-                    inlineKeyboardButton.setCallbackData(CallBack.APPROVE_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId() + " " + x);
-
-                    keyboardButtonRow.add(inlineKeyboardButton);
-                    rowList.add(keyboardButtonRow);
-                });
-
-        List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
-        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-        inlineKeyboardButton.setText("Отменить");
-        inlineKeyboardButton.setCallbackData(CallBack.DENY_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId());
-
-        keyboardButtonRow.add(inlineKeyboardButton);
-        rowList.add(keyboardButtonRow);
-
-        inlineKeyboardMarkup.setKeyboard(rowList);
-
-        SendMessage message = new SendMessage();
-        message.setChatId(mentorsChatId);
+        if (reviewRequest.getStudentInfo().getUserName().equals(ownerUserName)) {
+            autoApproved(reviewRequest);
+        } else {
 
 
-        message.setText("@" + reviewRequest.getStudentInfo().getUserName() + "\n" + reviewRequest.getTitle() + "\n" +
-                reviewRequest.getDate().format(defaultDateFormatter()) + "\n");
-        message.setReplyMarkup(inlineKeyboardMarkup);
+            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
 
-        sendMessageService.sendMessage(message);
-        reviewRequestService.save(reviewRequest);
+            LocalDate reviewRequestDate = reviewRequest.getDate();
+            reviewRequest.getTimeSlots().
+                    stream().
+                    filter(timeSlot -> isTimeSlotTakenByAllMentors(timeSlot, reviewRequestDate)).
+                    sorted(Integer::compareTo).
+                    forEach(x -> {
+                        List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
+                        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+                        if (x == MIDNIGHT) {
+                            inlineKeyboardButton.setText("00" + ":00 (" + reviewRequestDate.plusDays(1).format(defaultDateFormatter()) + ")");
+                        } else {
+                            inlineKeyboardButton.setText(x + ":00");
+                        }
+                        inlineKeyboardButton.setCallbackData(CallBack.APPROVE_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId() + " " + x);
+
+                        keyboardButtonRow.add(inlineKeyboardButton);
+                        rowList.add(keyboardButtonRow);
+                    });
+
+            List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
+            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            inlineKeyboardButton.setText("Отменить");
+            inlineKeyboardButton.setCallbackData(CallBack.DENY_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId());
+
+            keyboardButtonRow.add(inlineKeyboardButton);
+            rowList.add(keyboardButtonRow);
+
+            inlineKeyboardMarkup.setKeyboard(rowList);
+
+            SendMessage message = new SendMessage();
+            message.setChatId(mentorsChatId);
+
+
+            message.setText("@" + reviewRequest.getStudentInfo().getUserName() + "\n" + reviewRequest.getTitle() + "\n" +
+                    reviewRequest.getDate().format(defaultDateFormatter()) + "\n");
+            message.setReplyMarkup(inlineKeyboardMarkup);
+
+            sendMessageService.sendMessage(message);
+            reviewRequestService.save(reviewRequest);
+        }
     }
+
+    private void autoApproved(ReviewRequest reviewRequest) throws TelegramApiException {
+        SendMessage sendMessage = new SendMessage();
+        String chatId = reviewRequest.getStudentInfo().getChatId().toString();
+        sendMessage.setChatId(chatId);
+
+        if (reviewRequest.getTimeSlots().size() != 1) {
+            sendMessage.setText("Ошибка: Для данного ревью должен быть один таймслот");
+            sendMessageService.sendMessage(sendMessage);
+            return;
+        }
+
+        int timeSlot = reviewRequest.getTimeSlots().iterator().next();
+        LocalDateTime timeSlotDateTime = (timeSlot == MIDNIGHT)
+                ? LocalDateTime.of(reviewRequest.getDate().plusDays(1), LocalTime.of(0, 0))
+                : LocalDateTime.of(reviewRequest.getDate(), LocalTime.of(timeSlot, 0));
+
+        UserInfo mentorInfo = userInfoService.getUserInfo(reviewRequest.getStudentInfo().getChatId());
+
+        if (reviewRequestService.existsByBookedDateTimeAndMentorUserInfo(timeSlotDateTime, mentorInfo)) {
+            sendMessage.setText("Данное время у тебя уже занято");
+        } else {
+            reviewRequest.setBookedDateTime(timeSlotDateTime);
+            reviewRequest.setMentorInfo(reviewRequest.getStudentInfo());
+            reviewRequestService.save(reviewRequest);
+
+            sendMessage.setText(String.format(REVIEW_BOOKED,
+                    reviewRequest.getMentorInfo().getUserName(),
+                    reviewRequest.getStudentInfo().getUserName(),
+                    reviewRequest.getBookedDateTime().format(defaultDateTimeFormatter()))
+            );
+        }
+
+        sendMessageService.sendMessage(sendMessage);
+    }
+
 
     private Integer extractMessageIdFromCallbackData(String callbackData) {
         return Integer.parseInt(callbackData.split(" ")[3]);
