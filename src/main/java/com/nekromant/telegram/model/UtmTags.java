@@ -33,25 +33,7 @@ public class UtmTags {
     @Column(name = "value_clicks")
     private Integer valueClicks;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "section")
-    private Section section;
+    @Column(name="section_site")
+    private String section;
 
-
-    public static enum Section {
-        MAIN_PAGE,
-        PRICE_PAGE;
-    }
-
-    public static Section parseSection(String section){
-        switch (section){
-            case "main":
-                return Section.MAIN_PAGE;
-            case "price":
-                return Section.PRICE_PAGE;
-            default:
-                log.error("Значение для определения страницы получения меток не расознано, значение: " + section);
-                throw new RuntimeException("Значение не распознанно");
-        }
-    }
 }

@@ -16,8 +16,6 @@ public class UtmDTO {
 
     private String section;
 
-
-
     public static String[] utmKeys = {"utm_source", "utm_medium", "utm_campaign", "utm_content"};
 }
 

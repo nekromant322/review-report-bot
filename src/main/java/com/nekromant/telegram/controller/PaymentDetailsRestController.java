@@ -3,6 +3,7 @@ package com.nekromant.telegram.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
+import com.nekromant.telegram.config.EnableUtmTracking;
 import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.service.*;
 import com.nekromant.telegram.model.PaymentDetails;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+@EnableUtmTracking
 @Slf4j
 public class PaymentDetailsRestController {
     @Value("${owner.userName}")
