@@ -35,6 +35,7 @@ public class UtmInterceptor implements HandlerInterceptor {
             utmDto.setSection(controllerName + "-" + methodName);
         }
 
+
         Arrays.stream(UtmDTO.utmKeys).forEach(keys -> {
 
             String urlValue = request.getParameter(keys);
@@ -48,10 +49,11 @@ public class UtmInterceptor implements HandlerInterceptor {
         });
 
         if (validateDTO(utmDto)) {
-            saveUtmTag(utmDto);
             log.info("UTM-метки распаршены и сохранены UtmDTO: " + utmDto);
+            request.setAttribute("utmDto", utmDto.toString());
         } else {
             log.info("UTM-метки не найдены");
+            request.setAttribute("utmDto", "notSet");
         }
 
 
@@ -98,10 +100,27 @@ public class UtmInterceptor implements HandlerInterceptor {
 
 
     private boolean validateDTO(UtmDTO utmDTO) {
-        if (true) {
-            saveUtmTag(utmDTO);
+        boolean allNullOrEmpty = isNullOrEmpty(utmDTO.getUtmSource()) &&
+                isNullOrEmpty(utmDTO.getUtmMedium()) &&
+                isNullOrEmpty(utmDTO.getUtmContent()) &&
+                isNullOrEmpty(utmDTO.getUtmCampaign()) &&
+                isNullOrEmpty(utmDTO.getSection());
+
+        if (allNullOrEmpty) {
+            return false;
         }
+
+        if (isNullOrEmpty(utmDTO.getUtmSource())) utmDTO.setUtmSource("notSet");
+        if (isNullOrEmpty(utmDTO.getUtmMedium())) utmDTO.setUtmMedium("notSet");
+        if (isNullOrEmpty(utmDTO.getUtmContent())) utmDTO.setUtmContent("notSet");
+        if (isNullOrEmpty(utmDTO.getUtmCampaign())) utmDTO.setUtmCampaign("notSet");
+        if (isNullOrEmpty(utmDTO.getSection())) utmDTO.setSection("notSet");
+        saveUtmTag(utmDTO);
         return true;
+    }
+
+    private boolean isNullOrEmpty(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
 

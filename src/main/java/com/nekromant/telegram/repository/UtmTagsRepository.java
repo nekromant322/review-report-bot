@@ -9,4 +9,7 @@ public interface UtmTagsRepository extends JpaRepository<UtmTags, Long> {
 
     Optional<UtmTags> findByUtmSourceAndUtmMediumAndUtmContentAndUtmCampaign
             (String source, String medium, String content, String campaign);
+
+    Optional<UtmTags> findByUtmSourceAndUtmMediumAndUtmContentAndUtmCampaignAndSection
+            (String source, String medium, String content, String campaign, String section);
 }
