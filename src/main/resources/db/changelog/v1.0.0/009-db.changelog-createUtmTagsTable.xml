@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="createUtmTagsTable" author="m004ka">
+        <createTable tableName="utm_tags">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="utm_source" type="varchar(255)"/>
+            <column name="utm_medium" type="varchar(255)"/>
+            <column name="utm_content" type="varchar(255)"/>
+            <column name="utm_campaign" type="varchar(255)"/>
+            <column name="value_clicks" type="integer"/>
+            <column name="section_site" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

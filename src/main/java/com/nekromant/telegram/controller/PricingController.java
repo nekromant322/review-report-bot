@@ -1,9 +1,11 @@
 package com.nekromant.telegram.controller;
 
+import com.nekromant.telegram.config.EnableUtmTracking;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
+@EnableUtmTracking
 public class PricingController {
 
     @GetMapping
