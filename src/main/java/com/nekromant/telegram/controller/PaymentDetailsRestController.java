@@ -3,7 +3,6 @@ package com.nekromant.telegram.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
-import com.nekromant.telegram.config.EnableUtmTracking;
 import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.service.*;
 import com.nekromant.telegram.model.PaymentDetails;
@@ -17,11 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-
 
 @RestController
-@EnableUtmTracking
 @Slf4j
 public class PaymentDetailsRestController {
     @Value("${owner.userName}")
@@ -42,8 +38,8 @@ public class PaymentDetailsRestController {
     private SendMessageService sendMessageService;
 
     @PostMapping(value = "/paymentCallback")
-    public void paymentCallback(@RequestParam("data") String json, HttpServletRequest request) throws JsonProcessingException {
-        String prCompany = request.getAttribute("utmDto").toString();
+
+    public void paymentCallback(@RequestParam("data") String json) throws JsonProcessingException {
         Converter<String, PayStatus> stringPayStatusConverter = new AbstractConverter<String, PayStatus>() {
             @Override
             public PayStatus convert(String status) {
@@ -54,15 +50,10 @@ public class PaymentDetailsRestController {
 
         PaymentDetailsDTO paymentDetailsDTO = objectMapper.readValue(json, PaymentDetailsDTO.class);
         PaymentDetails paymentDetails = modelMapper.map(paymentDetailsDTO, PaymentDetails.class);
-        paymentDetailsService.addUtmTags(prCompany, paymentDetails);
         sendMessage(paymentDetails);
 
-
         PaymentDetails pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
-
-
         if (pendingPay != null && pendingPay.getStatus() != PayStatus.SUCCESS) {
-            paymentDetailsService.addUtmTags(prCompany, pendingPay);
             paymentDetails.setServiceType(pendingPay.getServiceType());
             clientPaymentRequestService = paymentRequestServiceProvider.getClientPaymentRequestService(pendingPay.getServiceType());
             if (paymentDetails.getStatus() == PayStatus.FAIL) {
@@ -76,7 +67,6 @@ public class PaymentDetailsRestController {
         paymentDetailsService.save(paymentDetails);
     }
 
-
     public void sendMessage(PaymentDetails paymentDetails) {
         String messageText = createMessageText(paymentDetails);
         sendMessageService.sendMessage(userInfoService.getUserInfo(ownerUserName).getChatId().toString(), messageText);
@@ -88,9 +78,6 @@ public class PaymentDetailsRestController {
                 .append("Сумма: ").append(paymentDetails.getAmount()).append("\n")
                 .append("Номер телефона плательщика: ").append(paymentDetails.getPhone()).append("\n")
                 .append("Имя плательщика: ").append(paymentDetails.getCardHolder()).append("\n")
-                .append("Дата транзакции: ").append(paymentDetails.getCreated()).append("\n")
-                .append("Реклама: ").append(paymentDetails.getUtmTags().getUtmSource()).append(" ")
-                .append(paymentDetails.getUtmTags().getUtmMedium()).append("\n")
-                .toString();
+                .append("Дата транзакции: ").append(paymentDetails.getCreated()).append("\n").toString();
     }
 }
