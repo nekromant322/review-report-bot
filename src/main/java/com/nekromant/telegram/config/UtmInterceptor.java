@@ -5,6 +5,7 @@ import com.nekromant.telegram.model.UtmTags;
 import com.nekromant.telegram.repository.UtmTagsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -12,53 +13,63 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-
 public class UtmInterceptor implements HandlerInterceptor {
 
     private final UtmTagsRepository utmRepository;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
+        log.info("Перехватили запрос");
+        boolean[] cookieTag = {false};
         UtmDTO utmDto = new UtmDTO();
-
+        String controllerName;
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            String controllerName = handlerMethod.getBeanType().getSimpleName();
+            controllerName = handlerMethod.getBeanType().getSimpleName();
             String methodName = handlerMethod.getMethod().getName();
             log.info("Запрос обработан в контроллере: " + controllerName + ", метод: " + methodName);
             utmDto.setSection(controllerName + "-" + methodName);
         }
 
-
         Arrays.stream(UtmDTO.utmKeys).forEach(keys -> {
-
             String urlValue = request.getParameter(keys);
             String cookiesValue = getCookiesValue(request, keys);
             if (urlValue != null) {
                 setCookie(response, keys, urlValue);
                 setUtmField(utmDto, keys, urlValue);
             } else if (cookiesValue != null) {
+                log.warn("cookiesValue: " + cookiesValue);
+                cookieTag[0] = true;
                 setUtmField(utmDto, keys, cookiesValue);
             }
         });
 
-        if (validateDTO(utmDto)) {
-            log.info("UTM-метки распаршены и сохранены UtmDTO: " + utmDto);
-            request.setAttribute("utmDto", utmDto.toString());
+        if (cookieTag[0]) {
+            log.info("UTM-метки получены из файлов cookies");
         } else {
-            log.info("UTM-метки не найдены");
-            request.setAttribute("utmDto", "notSet");
+            UtmDTO validatedDto = validateDTO(utmDto);
+            if (validatedDto != null) {
+                saveUtmTag(validatedDto);
+                log.info("UTM-метки распаршены и сохранены UtmDTO: {}", validatedDto);
+            } else {
+                log.info("UTM-метки не найдены");
+                request.setAttribute("utmDto", "notSet");
+                log.info("Передаем запрос контроллеру после парсинга меток");
+                return true;
+            }
         }
 
-
+        request.setAttribute("utmDto", utmDto.toString());
         log.info("Передаем запрос контроллеру после парсинга меток");
         return true;
+
     }
 
 
@@ -99,15 +110,14 @@ public class UtmInterceptor implements HandlerInterceptor {
     }
 
 
-    private boolean validateDTO(UtmDTO utmDTO) {
+    private UtmDTO validateDTO(UtmDTO utmDTO) {
         boolean allNullOrEmpty = isNullOrEmpty(utmDTO.getUtmSource()) &&
                 isNullOrEmpty(utmDTO.getUtmMedium()) &&
                 isNullOrEmpty(utmDTO.getUtmContent()) &&
-                isNullOrEmpty(utmDTO.getUtmCampaign()) &&
-                isNullOrEmpty(utmDTO.getSection());
+                isNullOrEmpty(utmDTO.getUtmCampaign());
 
         if (allNullOrEmpty) {
-            return false;
+            return null;
         }
 
         if (isNullOrEmpty(utmDTO.getUtmSource())) utmDTO.setUtmSource("notSet");
@@ -115,8 +125,7 @@ public class UtmInterceptor implements HandlerInterceptor {
         if (isNullOrEmpty(utmDTO.getUtmContent())) utmDTO.setUtmContent("notSet");
         if (isNullOrEmpty(utmDTO.getUtmCampaign())) utmDTO.setUtmCampaign("notSet");
         if (isNullOrEmpty(utmDTO.getSection())) utmDTO.setSection("notSet");
-        saveUtmTag(utmDTO);
-        return true;
+        return utmDTO;
     }
 
     private boolean isNullOrEmpty(String value) {
@@ -125,7 +134,7 @@ public class UtmInterceptor implements HandlerInterceptor {
 
 
     private void saveUtmTag(UtmDTO utmDTO) {
-        UtmTags tags = null;
+        UtmTags tags;
         Optional<UtmTags> utmTags = utmRepository.findByUtmSourceAndUtmMediumAndUtmContentAndUtmCampaign(utmDTO.getUtmSource(),
                 utmDTO.getUtmMedium(),
                 utmDTO.getUtmContent(),
@@ -143,6 +152,7 @@ public class UtmInterceptor implements HandlerInterceptor {
                     .utmCampaign(utmDTO.getUtmCampaign())
                     .section(utmDTO.getSection())
                     .valueClicks(1)
+                    .payments(new ArrayList<>())
                     .build();
             utmRepository.save(tags);
         }

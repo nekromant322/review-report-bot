@@ -1,8 +1,6 @@
 package com.nekromant.telegram.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -12,7 +10,8 @@ import java.util.List;
 @Builder
 @Slf4j
 @Entity
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class UtmTags {
 
     @Id
@@ -37,7 +36,7 @@ public class UtmTags {
     @Column(name="section_site")
     private String section;
 
+    @Column(name  = "payments")
     @OneToMany(mappedBy = "utmTags")
     private List<PaymentDetails> payments;
-
 }
