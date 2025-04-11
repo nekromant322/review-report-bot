@@ -1,6 +1,5 @@
 package com.nekromant.telegram.controller;
 
-import com.nekromant.telegram.config.EnableUtmTracking;
 import com.nekromant.telegram.config.PriceProperties;
 import com.nekromant.telegram.service.MentoringSubscriptionRequestService;
 import com.nekromant.telegram.service.PersonalCallRequestService;
@@ -16,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @RestController
-@EnableUtmTracking
 @RequestMapping("/pricing")
 public class PricingRestController {
     @Autowired

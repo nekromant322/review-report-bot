@@ -26,16 +26,17 @@ public class UtmInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
-        log.info("Перехватили запрос");
         boolean[] cookieTag = {false};
         UtmDTO utmDto = new UtmDTO();
-        String controllerName;
+
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            controllerName = handlerMethod.getBeanType().getSimpleName();
+            Class<?> controllerClass = handlerMethod.getBeanType();
+            String controllerName = controllerClass.getSimpleName();
             String methodName = handlerMethod.getMethod().getName();
-            log.info("Запрос обработан в контроллере: " + controllerName + ", метод: " + methodName);
             utmDto.setSection(controllerName + "-" + methodName);
+        } else {
+            return true;
         }
 
         Arrays.stream(UtmDTO.utmKeys).forEach(keys -> {
@@ -45,31 +46,23 @@ public class UtmInterceptor implements HandlerInterceptor {
                 setCookie(response, keys, urlValue);
                 setUtmField(utmDto, keys, urlValue);
             } else if (cookiesValue != null) {
-                log.warn("cookiesValue: " + cookiesValue);
                 cookieTag[0] = true;
                 setUtmField(utmDto, keys, cookiesValue);
             }
         });
 
-        if (cookieTag[0]) {
-            log.info("UTM-метки получены из файлов cookies");
-        } else {
+        if (!cookieTag[0]) {
             UtmDTO validatedDto = validateDTO(utmDto);
             if (validatedDto != null) {
                 saveUtmTag(validatedDto);
-                log.info("UTM-метки распаршены и сохранены UtmDTO: {}", validatedDto);
             } else {
-                log.info("UTM-метки не найдены");
                 request.setAttribute("utmDto", "notSet");
-                log.info("Передаем запрос контроллеру после парсинга меток");
                 return true;
             }
         }
 
         request.setAttribute("utmDto", utmDto.toString());
-        log.info("Передаем запрос контроллеру после парсинга меток");
         return true;
-
     }
 
 
