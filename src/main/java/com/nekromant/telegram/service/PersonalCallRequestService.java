@@ -26,7 +26,7 @@ public class PersonalCallRequestService extends ClientPaymentRequestServiceCommo
     @Autowired
     private PriceProperties priceProperties;
 
-    public ResponseEntity save(Map callData) {
+    public ResponseEntity save(Map callData, String prCompany) {
         PersonalCallRequest personalCallRequest = PersonalCallRequest.builder()
                 .tgName(callData.get("TG-NAME").toString())
                 .customerPhone(callData.get("PHONE").toString())
@@ -39,7 +39,7 @@ public class PersonalCallRequestService extends ClientPaymentRequestServiceCommo
                 callData.get("PHONE").toString(),
                 lifePayProperties.getMethod());
 
-        return save(ServiceType.CALL, chequeDTO, personalCallRequest, personalCallRequestRepository, promocodeId);
+        return save(ServiceType.CALL, chequeDTO, personalCallRequest, personalCallRequestRepository, promocodeId, prCompany);
     }
 
     @Override

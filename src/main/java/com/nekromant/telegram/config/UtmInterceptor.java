@@ -26,44 +26,54 @@ public class UtmInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
-        boolean[] cookieTag = {false};
-        UtmDTO utmDto = new UtmDTO();
-
-        if (handler instanceof HandlerMethod) {
-            HandlerMethod handlerMethod = (HandlerMethod) handler;
-            Class<?> controllerClass = handlerMethod.getBeanType();
-            String controllerName = controllerClass.getSimpleName();
-            String methodName = handlerMethod.getMethod().getName();
-            utmDto.setSection(controllerName + "-" + methodName);
-        } else {
+        if (!(handler instanceof HandlerMethod)) {
             return true;
         }
 
-        Arrays.stream(UtmDTO.utmKeys).forEach(keys -> {
-            String urlValue = request.getParameter(keys);
-            String cookiesValue = getCookiesValue(request, keys);
-            if (urlValue != null) {
-                setCookie(response, keys, urlValue);
-                setUtmField(utmDto, keys, urlValue);
-            } else if (cookiesValue != null) {
-                cookieTag[0] = true;
-                setUtmField(utmDto, keys, cookiesValue);
-            }
-        });
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
+        String methodName = handlerMethod.getMethod().getName();
+        String controllerName = handlerMethod.getBeanType().getSimpleName();
 
-        if (!cookieTag[0]) {
-            UtmDTO validatedDto = validateDTO(utmDto);
-            if (validatedDto != null) {
-                saveUtmTag(validatedDto);
-            } else {
-                request.setAttribute("utmDto", "notSet");
-                return true;
+        UtmDTO utmDto = new UtmDTO();
+        utmDto.setSection(controllerName + "-" + methodName);
+
+        boolean hasCookieValue = false;
+
+
+        for (String key : UtmDTO.utmKeys) {
+            String urlValue = request.getParameter(key);
+            String cookieValue = getCookiesValue(request, key);
+
+            if (urlValue != null) {
+                setCookie(response, key, urlValue);
+                setUtmField(utmDto, key, urlValue);
+            } else if (cookieValue != null) {
+                setUtmField(utmDto, key, cookieValue);
+                hasCookieValue = true;
             }
         }
 
-        request.setAttribute("utmDto", utmDto.toString());
+        boolean isPostRequest = "POST".equalsIgnoreCase(request.getMethod());
+
+        boolean shouldSave = (!hasCookieValue && !controllerName.equals("PaymentDetailsRestController"))
+                || (hasCookieValue && isPostRequest && !methodName.equals("paymentCallback"));
+
+
+        if (shouldSave) {
+            UtmDTO validatedDto = validateDTO(utmDto);
+            if (validatedDto != null) {
+                saveUtmTag(validatedDto);
+                request.setAttribute("utmDto", validatedDto.toString());
+            } else {
+                request.setAttribute("utmDto", "notSet");
+            }
+        } else {
+            request.setAttribute("utmDto", utmDto.toString());
+        }
+
         return true;
     }
+
 
 
     private String getCookiesValue(HttpServletRequest request, String param) {

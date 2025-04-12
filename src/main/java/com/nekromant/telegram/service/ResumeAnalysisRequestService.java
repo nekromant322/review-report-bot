@@ -39,7 +39,7 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestServiceCom
     @Autowired
     private PriceProperties priceProperties;
 
-    public ResponseEntity save(byte[] CVPdf, String tgName, String phone, String promocodeId) {
+    public ResponseEntity save(byte[] CVPdf, String tgName, String phone, String promocodeId, String prCompany) {
         ResumeAnalysisRequest resumeAnalysisRequest = ResumeAnalysisRequest.builder()
                 .CVPdf(CVPdf)
                 .tgName(tgName)
@@ -53,7 +53,7 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestServiceCom
                 phone,
                 lifePayProperties.getMethod());
 
-        return save(ServiceType.RESUME, chequeDTO, resumeAnalysisRequest, resumeAnalysisRequestRepository, promocodeId);
+        return save(ServiceType.RESUME, chequeDTO, resumeAnalysisRequest, resumeAnalysisRequestRepository, promocodeId, prCompany);
     }
 
     public void notifyMentor(PaymentDetails paymentDetails) {
