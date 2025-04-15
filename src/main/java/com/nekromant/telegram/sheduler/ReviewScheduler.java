@@ -60,8 +60,11 @@ public class ReviewScheduler {
                     .filter(x -> !x.equals(reviewRequest.getMentorInfo()))
                     .forEach(x -> sendMessageService.sendMessage(x.getChatId().toString(), reviewIncomingMessage));
 
-            sendMessageService.sendMessage(reviewRequest.getStudentInfo().getChatId().toString(), reviewIncomingMessage);
-            sendMessageService.sendMessage(reviewRequest.getMentorInfo().getChatId().toString(), reviewIncomingMessage);
+            sendNotification(
+                    reviewRequest.getStudentInfo().getChatId().toString(),
+                    reviewRequest.getMentorInfo().getChatId().toString(),
+                    reviewIncomingMessage
+            );
         }
     }
 
@@ -69,5 +72,14 @@ public class ReviewScheduler {
         log.info("Удаление старых запросов");
         LocalDateTime nowInMoscow = ZonedDateTime.now(ZoneId.of("Europe/Moscow")).toLocalDateTime();
         reviewRequestRepository.deleteAllByBookedDateTimeIsBefore(nowInMoscow.minus(1, ChronoUnit.DAYS));
+    }
+
+    private void sendNotification(String studentChatId, String mentorChatId, String text) {
+        if (studentChatId.equals(mentorChatId)) {
+            sendMessageService.sendMessage(studentChatId, text);
+        } else {
+            sendMessageService.sendMessage(mentorChatId, text);
+            sendMessageService.sendMessage(studentChatId, text);
+        }
     }
 }
