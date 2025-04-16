@@ -7,10 +7,13 @@ import com.nekromant.telegram.commands.dto.LifePayResponseDTO;
 import com.nekromant.telegram.commands.feign.LifePayFeign;
 import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.contants.ServiceType;
+import com.nekromant.telegram.dto.UtmDTO;
 import com.nekromant.telegram.model.ClientPaymentRequest;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.Promocode;
+import com.nekromant.telegram.model.UtmTags;
 import com.nekromant.telegram.repository.PaymentDetailsRepository;
+import com.nekromant.telegram.repository.UtmTagsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +22,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -40,8 +44,12 @@ public class ClientPaymentRequestServiceCommon {
     @Autowired
     private SendMessageService sendMessageService;
 
+    @Autowired
+    private UtmTagsRepository utmTagsRepository;
 
-    public ResponseEntity save(ServiceType serviceType, ChequeDTO chequeDTO, ClientPaymentRequest paymentRequest, CrudRepository repository, String promocodeId) {
+
+    public ResponseEntity save(ServiceType serviceType, ChequeDTO chequeDTO, ClientPaymentRequest paymentRequest, CrudRepository repository, String promocodeId, String prCompany) {
+        Optional<UtmTags> utmTags = utmTagsRepository.findByDto(UtmDTO.fromString(prCompany));
 
         try {
             log.info("Sending request to LifePay: {}", chequeDTO);
@@ -52,6 +60,7 @@ public class ClientPaymentRequestServiceCommon {
                     .number(lifePayResponse.getData().getNumber())
                     .status(PayStatus.UNREDEEMED)
                     .serviceType(serviceType)
+                    .utmTags(utmTags.orElse(null))
                     .build();
             paymentDetailsRepository.save(paymentDetails);
             log.info("Unredeemed payment created: {}", paymentDetails);

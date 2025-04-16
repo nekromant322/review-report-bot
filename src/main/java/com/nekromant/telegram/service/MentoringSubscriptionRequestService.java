@@ -27,7 +27,8 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
     @Autowired
     private PriceProperties priceProperties;
 
-    public ResponseEntity save(Map mentoringData) {
+    public ResponseEntity save(Map mentoringData, String prCompany) {
+        log.warn("ВОТ " + mentoringData);
         MentoringSubscriptionRequest mentoringSubscriptionRequest = MentoringSubscriptionRequest.builder()
                 .tgName(mentoringData.get("TG-NAME").toString())
                 .customerPhone(mentoringData.get("PHONE").toString())
@@ -40,7 +41,7 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
                 mentoringData.get("PHONE").toString(),
                 lifePayProperties.getMethod());
 
-        return save(ServiceType.MENTORING, chequeDTO, mentoringSubscriptionRequest, mentoringSubscriptionRequestRepository, promocodeId);
+        return save(ServiceType.MENTORING, chequeDTO, mentoringSubscriptionRequest, mentoringSubscriptionRequestRepository, promocodeId, prCompany);
     }
 
     public void notifyMentor(PaymentDetails paymentDetails) {

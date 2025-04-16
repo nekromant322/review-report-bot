@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -31,21 +32,24 @@ public class PricingRestController {
     public ResponseEntity submitNewResumeAnalysisRequest(@RequestParam("form_data") MultipartFile formData,
                                                          @RequestHeader("TG-NAME") String tgName,
                                                          @RequestHeader("PHONE") String phone,
-                                                         @RequestHeader("CV-PROMOCODE-ID") String CVPromocodeId) throws Exception {
+                                                         @RequestHeader("CV-PROMOCODE-ID") String CVPromocodeId, HttpServletRequest request) throws Exception {
         tgName = URLDecoder.decode(tgName, StandardCharsets.UTF_8);
         phone = URLDecoder.decode(phone, StandardCharsets.UTF_8);
         CVPromocodeId = URLDecoder.decode(CVPromocodeId, StandardCharsets.UTF_8);
-        return resumeAnalysisRequestService.save(formData.getBytes(), tgName, phone, CVPromocodeId);
+        String prCompany = request.getAttribute("utmDto").toString();
+        return resumeAnalysisRequestService.save(formData.getBytes(), tgName, phone, CVPromocodeId, prCompany);
     }
 
     @PostMapping("/mentoring")
-    public ResponseEntity submitNewMentoringSubscription(@RequestBody Map mentoringData) {
-        return mentoringSubscriptionRequestService.save(mentoringData);
+    public ResponseEntity submitNewMentoringSubscription(@RequestBody Map mentoringData, HttpServletRequest request) {
+        String prCompany = request.getAttribute("utmDto").toString();
+        return mentoringSubscriptionRequestService.save(mentoringData, prCompany);
     }
 
     @PostMapping("/call")
-    public ResponseEntity submitNewCall(@RequestBody Map callData) {
-        return personalCallRequestService.save(callData);
+    public ResponseEntity submitNewCall(@RequestBody Map callData, HttpServletRequest request) {
+        String prCompany = request.getAttribute("utmDto").toString();
+        return personalCallRequestService.save(callData, prCompany);
     }
 
     @GetMapping("/cv/price")
