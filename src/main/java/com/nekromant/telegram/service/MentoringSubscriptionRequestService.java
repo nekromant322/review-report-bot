@@ -6,6 +6,7 @@ import com.nekromant.telegram.config.PriceProperties;
 import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.model.MentoringSubscriptionRequest;
 import com.nekromant.telegram.model.PaymentDetails;
+import com.nekromant.telegram.model.UtmTag;
 import com.nekromant.telegram.repository.MentoringSubscriptionRequestRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
     @Autowired
     private PriceProperties priceProperties;
 
-    public ResponseEntity save(Map mentoringData) {
+    public ResponseEntity save(Map mentoringData, UtmTag tag) {
         MentoringSubscriptionRequest mentoringSubscriptionRequest = MentoringSubscriptionRequest.builder()
                 .tgName(mentoringData.get("TG-NAME").toString())
                 .customerPhone(mentoringData.get("PHONE").toString())
@@ -40,7 +41,7 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
                 mentoringData.get("PHONE").toString(),
                 lifePayProperties.getMethod());
 
-        return save(ServiceType.MENTORING, chequeDTO, mentoringSubscriptionRequest, mentoringSubscriptionRequestRepository, promocodeId);
+        return save(ServiceType.MENTORING, chequeDTO, mentoringSubscriptionRequest, mentoringSubscriptionRequestRepository, promocodeId, tag);
     }
 
     public void notifyMentor(PaymentDetails paymentDetails) {

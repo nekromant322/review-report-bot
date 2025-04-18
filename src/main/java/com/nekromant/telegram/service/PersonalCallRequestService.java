@@ -6,6 +6,7 @@ import com.nekromant.telegram.config.PriceProperties;
 import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.PersonalCallRequest;
+import com.nekromant.telegram.model.UtmTag;
 import com.nekromant.telegram.repository.PersonalCallRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class PersonalCallRequestService extends ClientPaymentRequestServiceCommo
     @Autowired
     private PriceProperties priceProperties;
 
-    public ResponseEntity save(Map callData) {
+    public ResponseEntity save(Map callData, UtmTag utmTag) {
         PersonalCallRequest personalCallRequest = PersonalCallRequest.builder()
                 .tgName(callData.get("TG-NAME").toString())
                 .customerPhone(callData.get("PHONE").toString())
@@ -39,7 +40,7 @@ public class PersonalCallRequestService extends ClientPaymentRequestServiceCommo
                 callData.get("PHONE").toString(),
                 lifePayProperties.getMethod());
 
-        return save(ServiceType.CALL, chequeDTO, personalCallRequest, personalCallRequestRepository, promocodeId);
+        return save(ServiceType.CALL, chequeDTO, personalCallRequest, personalCallRequestRepository, promocodeId, utmTag);
     }
 
     @Override
