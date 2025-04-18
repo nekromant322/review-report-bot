@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="add-utm-tag-to-payment-details" author="m004ka">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="payment_details" columnName="utm_tag_id"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="payment_details">
+            <column name="utm_tag_id" type="BIGINT"/>
+        </addColumn>
+
+        <addForeignKeyConstraint
+                baseTableName="payment_details"
+                baseColumnNames="utm_tag_id"
+                referencedTableName="utm_tag"
+                referencedColumnNames="id"
+                constraintName="fk_payment_details_utm_tag"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -80,4 +80,4 @@ public class PaymentDetailsRestController {
                 .append("Имя плательщика: ").append(paymentDetails.getCardHolder()).append("\n")
                 .append("Дата транзакции: ").append(paymentDetails.getCreated()).append("\n").toString();
     }
-}
+}   
