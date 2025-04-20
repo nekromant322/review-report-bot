@@ -25,6 +25,9 @@ public class UserInfo {
     @Column
     private Boolean notifyAboutReports;
 
+    @Column
+    private String timezone;
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
