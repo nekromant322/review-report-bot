@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import static com.nekromant.telegram.contants.MessageContants.UNKNOWN_COMMAND;
+import static com.nekromant.telegram.contants.MessageContants.TRUE_SET_LOCATION;
+import static com.nekromant.telegram.contants.MessageContants.FALSE_SET_LOCATION;
 
 @Slf4j
 @Component
@@ -26,14 +28,17 @@ public class MessageHandler {
 
 
     public void handleMessage(Message message) {
-        if(message.hasLocation()){
-            locationService.setLocationUser(message);
+        if (message.hasLocation()) {
             try {
-                sendMessageService.sendMessage(getSendLocationMessage(message));
-            }catch (TelegramApiException e){
+                if (locationService.setLocationUser(message)) {
+                    sendMessageService.sendMessage(getSendLocationMessage(message));
+                } else {
+                    sendMessageService.sendMessage(getErrorSendLocationMessage(message));
+                }
+            } catch (TelegramApiException e) {
                 log.error("Ошибка при отправке сообщения {}", e.getMessage(), e);
             }
-        }else{
+        } else {
             try {
                 sendMessageService.sendMessage(getSendMessage(message));
             } catch (TelegramApiException e) {
@@ -47,7 +52,11 @@ public class MessageHandler {
         return sendMessageFactory.create(String.valueOf(message.getChatId()), UNKNOWN_COMMAND);
     }
 
-    private SendMessage getSendLocationMessage(Message message){
-        return sendMessageFactory.create(String.valueOf(message.getChatId()), "Часовой пояс успешно установлен");
+    private SendMessage getSendLocationMessage(Message message) {
+        return sendMessageFactory.create(String.valueOf(message.getChatId()), TRUE_SET_LOCATION);
+    }
+
+    private SendMessage getErrorSendLocationMessage(Message message) {
+        return sendMessageFactory.create(String.valueOf(message.getChatId()), FALSE_SET_LOCATION);
     }
 }

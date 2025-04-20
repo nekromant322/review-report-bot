@@ -56,4 +56,8 @@ public class MessageContants {
     public static final String RESPONSE_FOR_PERSONAL_CALL = "Зарегистрирован и оплачен заказ %s на личный созвон: \nтелефон: %s \nTelegram nickname: %s";
     public static final String PERSONAL_CALL_DESCRIPTION = "Оплата за персональный созвон ПО ДОГОВОРУ ПУБЛ ОФЕРТЫ";
 
+    public static final String TRUE_SET_LOCATION = "Часовой пояс успешно установлен";
+
+    public static final String FALSE_SET_LOCATION = "Не удалось установить часовой пояс";
+
 }

@@ -69,10 +69,16 @@ public class UserInfoService {
         }
     }
 
-    public void updateTimezone(Long chatId, String timezone) {
+    public boolean updateTimezone(Long chatId, String timezone) {
         UserInfo userInfo = userInfoRepository.findUserInfoByChatId(chatId);
         userInfo.setTimezone(timezone);
-        userInfoRepository.save(userInfo);
+
+        if (timezone != null) {
+            userInfoRepository.save(userInfo);
+            return true;
+        }
+
+        return false;
     }
 
     public UserInfo getUserInfo(String userName) {
