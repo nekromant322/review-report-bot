@@ -14,7 +14,7 @@ public class LocationService {
     private final UserInfoService userInfoService;
 
 
-    public void setLocationUser(Message message) {
+    public boolean setLocationUser(Message message) {
         log.info("Установка локации пользователя: " + message.getChat().getUserName());
 
         Location location = message.getLocation();
@@ -25,6 +25,6 @@ public class LocationService {
 
         String timezone = TimezoneService.getTimezone(lat, lon);
 
-        userInfoService.updateTimezone(chatId, timezone);
+        return userInfoService.updateTimezone(chatId, timezone);
     }
 }
