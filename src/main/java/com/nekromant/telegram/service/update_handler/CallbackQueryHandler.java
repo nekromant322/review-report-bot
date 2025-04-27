@@ -80,7 +80,6 @@ public class CallbackQueryHandler {
 
         CallbackStrategy strategy = getCallbackStrategy(callbackData);
         strategy.executeCallbackQuery(callbackQuery, messageByChatTypeMap, deleteMessageStrategy);
-
         deleteReplyMessage(callbackMessage, deleteMessageStrategy.getMessagePart());
         sendMessagesIfNotEmpty(messageByChatTypeMap, callbackData);
     }
@@ -196,7 +195,6 @@ public class CallbackQueryHandler {
             autoApproved(reviewRequest);
         } else {
 
-
             InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
 
@@ -209,11 +207,20 @@ public class CallbackQueryHandler {
                         List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
                         InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
                         if (x == MIDNIGHT) {
-                            inlineKeyboardButton.setText("00" + ":00 (" + reviewRequestDate.plusDays(1).format(defaultDateFormatter()) + ")");
+                            inlineKeyboardButton.setText("00" + ":00  " + reviewRequestDate.plusDays(1).format(defaultDateFormatter()));
+                            inlineKeyboardButton.setCallbackData(CallBack.APPROVE_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId() + " " + x + " " + reviewRequestDate.plusDays(1).format(defaultDateFormatter()));
+                        } else if (x < 0) {
+                            x = x * -1;
+                            inlineKeyboardButton.setText(x + ":00" + "  " + reviewRequestDate.minusDays(1).format(defaultDateFormatter()));
+                            inlineKeyboardButton.setCallbackData(CallBack.APPROVE_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId() + " " + x + " " + reviewRequestDate.minusDays(1).format(defaultDateFormatter()));
+                        } else if (x > 24) {
+                            x = x - 24;
+                            inlineKeyboardButton.setText(x + ":00" + "  " + reviewRequestDate.plusDays(1).format(defaultDateFormatter()));
+                            inlineKeyboardButton.setCallbackData(CallBack.APPROVE_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId() + " " + x + " " + reviewRequestDate.plusDays(1).format(defaultDateFormatter()));
                         } else {
-                            inlineKeyboardButton.setText(x + ":00");
+                            inlineKeyboardButton.setText(x + ":00" + "  " + reviewRequestDate.format(defaultDateFormatter()));
+                            inlineKeyboardButton.setCallbackData(CallBack.APPROVE_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId() + " " + x + " " + reviewRequestDate);
                         }
-                        inlineKeyboardButton.setCallbackData(CallBack.APPROVE_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId() + " " + x);
 
                         keyboardButtonRow.add(inlineKeyboardButton);
                         rowList.add(keyboardButtonRow);
