@@ -102,4 +102,8 @@ public class PaymentDetails {
     @Type(type = "OrderJsonType")
     @Column(name = "td_order")
     private OrderDTO order;
+
+    @ManyToOne
+    @JoinColumn(name = "utm_tag_id")
+    private UtmTag utmTag;
 }

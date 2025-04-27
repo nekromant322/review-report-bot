@@ -7,6 +7,7 @@ import com.nekromant.telegram.config.PriceProperties;
 import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.ResumeAnalysisRequest;
+import com.nekromant.telegram.model.UtmTag;
 import com.nekromant.telegram.repository.ResumeAnalysisRequestRepository;
 import feign.form.FormData;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestServiceCom
     @Autowired
     private PriceProperties priceProperties;
 
-    public ResponseEntity save(byte[] CVPdf, String tgName, String phone, String promocodeId) {
+    public ResponseEntity save(byte[] CVPdf, String tgName, String phone, String promocodeId, UtmTag utmTag) {
         ResumeAnalysisRequest resumeAnalysisRequest = ResumeAnalysisRequest.builder()
                 .CVPdf(CVPdf)
                 .tgName(tgName)
@@ -53,7 +54,7 @@ public class ResumeAnalysisRequestService extends ClientPaymentRequestServiceCom
                 phone,
                 lifePayProperties.getMethod());
 
-        return save(ServiceType.RESUME, chequeDTO, resumeAnalysisRequest, resumeAnalysisRequestRepository, promocodeId);
+        return save(ServiceType.RESUME, chequeDTO, resumeAnalysisRequest, resumeAnalysisRequestRepository, promocodeId, utmTag);
     }
 
     public void notifyMentor(PaymentDetails paymentDetails) {
