@@ -207,7 +207,7 @@ public class CallbackQueryHandler {
                         List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
                         InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
                         if (x == MIDNIGHT) {
-                            inlineKeyboardButton.setText("00" + ":00  " + reviewRequestDate.plusDays(1).format(defaultDateFormatter()));
+                            inlineKeyboardButton.setText("00" + ":00"  + "  " + reviewRequestDate.plusDays(1).format(defaultDateFormatter()));
                             inlineKeyboardButton.setCallbackData(CallBack.APPROVE_REVIEW_REQUEST.getAlias() + " " + reviewRequest.getId() + " " + x + " " + reviewRequestDate.plusDays(1).format(defaultDateFormatter()));
                         } else if (x < 0) {
                             x = x * -1;
