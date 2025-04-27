@@ -69,3 +69,6 @@ management:
 logging:
   level:
     org.zalando.logbook: TRACE
+
+timezone:
+  api-key: ${TIMEZONE_API_KEY}

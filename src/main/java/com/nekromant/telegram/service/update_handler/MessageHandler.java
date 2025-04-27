@@ -28,24 +28,29 @@ public class MessageHandler {
 
 
     public void handleMessage(Message message) {
-        if (message.hasLocation()) {
-            try {
-                if (locationService.setLocationUser(message)) {
-                    sendMessageService.sendMessage(getSendLocationMessage(message));
-                } else {
-                    sendMessageService.sendMessage(getErrorSendLocationMessage(message));
-                }
-            } catch (TelegramApiException e) {
-                log.error("Ошибка при отправке сообщения {}", e.getMessage(), e);
+        try {
+            if (message.hasLocation()) {
+                handleLocationMessage(message);
+            } else {
+                handleTextMessage(message);
             }
-        } else {
-            try {
-                sendMessageService.sendMessage(getSendMessage(message));
-            } catch (TelegramApiException e) {
-                log.error("Ошибка при отправке сообщения {}", e.getMessage(), e);
-            }
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при отправке сообщения: {}", e.getMessage(), e);
         }
+    }
 
+    private void handleLocationMessage(Message message) throws TelegramApiException {
+        boolean locationSet = locationService.setLocationUser(message);
+
+        if (locationSet) {
+            sendMessageService.sendMessage(getSendLocationMessage(message));
+        } else {
+            sendMessageService.sendMessage(getErrorSendLocationMessage(message));
+        }
+    }
+
+    private void handleTextMessage(Message message) throws TelegramApiException {
+        sendMessageService.sendMessage(getSendMessage(message));
     }
 
     private SendMessage getSendMessage(Message message) {

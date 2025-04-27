@@ -4,9 +4,12 @@ package com.nekromant.telegram.commands.review;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
+import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
 import com.nekromant.telegram.service.SpecialChatService;
+import com.nekromant.telegram.service.TimezoneService;
+import com.nekromant.telegram.service.UserInfoService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +48,12 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
     private SpecialChatService specialChatService;
 
     @Autowired
+    private TimezoneService timezoneService;
+
+    @Autowired
+    private UserInfoService userInfoService;
+
+    @Autowired
     public ReviewTodayCommand() {
         super(REVIEW_TODAY.getAlias(), REVIEW_TODAY.getDescription());
     }
@@ -54,6 +63,7 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
+        UserInfo userInfo = userInfoService.getUserInfo(user.getId());
 
         if (chat.getId().equals(Long.valueOf(specialChatService.getMentorsChatId()))) {
             writeMentorsCancelButtons(absSender, reviewRequestRepository
@@ -75,7 +85,7 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
                                 .sorted(Comparator.comparing(ReviewRequest::getBookedDateTime))
                                 .map(review ->
                                         "@" + review.getStudentInfo().getUserName() + "\n" +
-                                                review.getBookedDateTime().format(defaultDateTimeFormatter()) + "\n" +
+                                                timezoneService.convertToUserZone(review.getBookedDateTime(), userInfo).format(defaultDateTimeFormatter()) + "\n" +
                                                 review.getTitle() + "\n" +
                                                 "@" + review.getMentorInfo().getUserName() + "\n" +
                                                 mentorRepository.findMentorByMentorInfo(review.getMentorInfo()).getRoomUrl() + "\n")
