@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 @Service
@@ -22,38 +22,32 @@ public class UtmTagsService {
             return null;
         }
 
-        UtmTag tag = Arrays.stream(cookies)
+        return Arrays.stream(cookies)
                 .filter(cookie -> "utm_source".equals(cookie.getName()))
                 .findFirst()
                 .map(cookie -> getTag(cookie.getValue(), UtmTag.PAY_REQUEST))
                 .orElse(null);
+    }
+
+
+    public UtmTag getTag(String source, String section) {
+        UtmTag tag = UtmTag.builder()
+                .section(section)
+                .localDateTime(LocalDateTime.now())
+                .source(source)
+                .build();
+
+        utmTagRepository.save(tag);
+
         return tag;
     }
 
-
-    public UtmTag getTag(String tag, String section) {
-        UtmTag tagEntity = utmTagRepository.getUtmTagsBySourceAndSection(tag, section)
-                .map(existingTag -> {
-                    existingTag.setValueClick(existingTag.getValueClick() + 1);
-                    return existingTag;
-                })
-                .orElseGet(() -> UtmTag.builder()
-                        .source(tag)
-                        .valueClick(1)
-                        .section(section)
-                        .build());
-
-        utmTagRepository.save(tagEntity);
-
-        return tagEntity;
-    }
-
-    public Cookie setCookieByUtmTag(UtmTag utmTag){
-        if(utmTag != null){
+    public Cookie setCookieByUtmTag(UtmTag utmTag) {
+        if (utmTag != null) {
             Cookie sourceCookie = new Cookie("utm_source", utmTag.getSource());
             sourceCookie.setPath("/");
             sourceCookie.setMaxAge(60 * 60 * 24 * 30);
-            return  sourceCookie;
+            return sourceCookie;
         }
         return null;
     }

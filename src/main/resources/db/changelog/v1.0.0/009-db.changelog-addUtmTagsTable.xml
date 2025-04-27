@@ -18,7 +18,7 @@
             <column name="source" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="value_click" type="INT">
+            <column name="local_date_time" type="TIMESTAMP">
                 <constraints nullable="true"/>
             </column>
             <column name="section" type="VARCHAR(255)">
