@@ -3,7 +3,6 @@ package com.nekromant.telegram.service;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -24,6 +23,9 @@ public class ReviewRequestService {
     @Autowired
     private UserInfoService userInfoService;
 
+    @Autowired
+    private TimezoneService timezoneService;
+
     public ReviewRequest findReviewRequestById(Long id) {
         return reviewRequestRepository.findById(id).orElseThrow(InvalidParameterException::new);
     }
@@ -38,10 +40,10 @@ public class ReviewRequestService {
 
     public ReviewRequest getTemporaryReviewRequest(User user, String[] arguments) {
         ReviewRequest reviewRequest = new ReviewRequest();
-
         reviewRequest.setStudentInfo(userInfoService.getUserInfo(user.getId()));
         reviewRequest.setTitle(parseTitle(arguments));
-        reviewRequest.setTimeSlots(parseTimeSlots(arguments));
+        reviewRequest.setTimeSlots(timezoneService.parseTimeSlotsToMoscow(userInfoService.getUserInfo(user.getId()), parseTimeSlots(arguments)));
+
         return reviewRequest;
     }
 
