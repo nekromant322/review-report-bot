@@ -23,7 +23,13 @@ public class LocationService {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
 
-        String timezone = TimezoneService.getTimezone(lat, lon);
+        String timezone;
+        try {
+            timezone = TimezoneService.getTimezone(lat, lon);
+        } catch (Exception e) {
+            log.error("Ошибка при получении временной зоны для пользователя: " + chatId, e);
+            return false;
+        }
 
         return userInfoService.updateTimezone(chatId, timezone);
     }

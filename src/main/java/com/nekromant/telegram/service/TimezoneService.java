@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -21,43 +22,31 @@ public class TimezoneService {
 
     @Value("${timezone.api-key}")
     private static String API_KEY;
+    private static final String API_URL = "http://api.timezonedb.com/v2.1/get-time-zone?key=%s&format=json&by=position&lat=%s&lng=%s";
 
     private final TimeZone timeZoneProject = TimeZone.getTimeZone("Europe/Moscow");
 
-    public static String getTimezone(double latitude, double longitude) {
+    public static String getTimezone(double latitude, double longitude) throws IOException, InterruptedException {
         String lat = Double.toString(latitude);
         String lng = Double.toString(longitude);
 
-        String url = String.format("http://api.timezonedb.com/v2.1/get-time-zone?key=%s&format=json&by=position&lat=%s&lng=%s",
-                API_KEY, lat, lng);
+        String url = String.format(API_URL, API_KEY, lat, lng);
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .build();
-        HttpResponse<String> response;
 
-        try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (Exception e) {
-            log.error("Error occurred while fetching timezone", e);
-            return null;
-        }
-
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String responseBody = response.body();
 
-        try {
-            JSONObject jsonResponse = new JSONObject(responseBody);
-            if (response.statusCode() == 200) {
-                return jsonResponse.getString("zoneName");
-            } else {
-                log.warn("Failed to get timezone. Status: " + jsonResponse.getString("status"));
-                return null;
-            }
-        } catch (Exception e) {
-            log.error("Error parsing the response", e);
-            return null;
+        JSONObject jsonResponse = new JSONObject(responseBody);
+
+        if (response.statusCode() != 200) {
+            throw new IllegalStateException("Failed to get timezone: " + jsonResponse.optString("status", "unknown status"));
         }
+
+        return jsonResponse.getString("zoneName");
     }
 
     public Set<Integer> parseTimeSlotsToMoscow(UserInfo userInfo, Set<Integer> timeSlotsUser) {
