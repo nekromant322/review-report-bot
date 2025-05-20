@@ -54,6 +54,8 @@ public class MessageContants {
     public static final String PERSONAL_CALL_DESCRIPTION = "Оплата за персональный созвон ПО ДОГОВОРУ ПУБЛ ОФЕРТЫ";
 
     public static final String NOTIFICATION_FOR_USERS = "Привет, решил напомнить, что накормить моего хозяина можно командой /pay";
-    public static final String SUCCESS_SET_NOTIFICATION = "Уведомления для пользователей успешно выключены";
-    public static final String FAILED_SET_NOTIFICATION = "Уведомления для пользователей не выключены - произошла ошибка";
+    public static final String SUCCESS_ENABLE_NOTIFICATION = "Уведомления для пользователей успешно включены";
+    public static final String FAILED_ENABLE_NOTIFICATION = "Уведомления для пользователей не включены - произошла ошибка";
+    public static final String SUCCESS_DISABLE_NOTIFICATION = "Уведомления для пользователей успешно выключены";
+    public static final String FAILED_DISABLE_NOTIFICATION = "Уведомления для пользователей не вылючены - произошла ошибка";
 }
