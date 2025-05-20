@@ -7,6 +7,7 @@ import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.*;
 import com.nekromant.telegram.service.SendMessageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class NotificationScheduler {
@@ -33,6 +35,7 @@ public class NotificationScheduler {
 
     @Scheduled(cron = "0 0 13 L * ?")
     private void sendNotificationPay() {
+        log.info("Ежемесячное уведомление пользователей не оплативших подписку");
         init();
     }
 

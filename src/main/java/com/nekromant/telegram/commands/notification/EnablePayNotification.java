@@ -2,11 +2,11 @@ package com.nekromant.telegram.commands.notification;
 
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.MessageContants;
-import com.nekromant.telegram.model.Mentor;
-import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.service.NotificationService;
 import com.nekromant.telegram.utils.ValidationUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -17,13 +17,15 @@ import java.security.InvalidParameterException;
 
 import static com.nekromant.telegram.contants.Command.ENABLE_NOTIFICATION;
 
+@Slf4j
 @Component
 public class EnablePayNotification extends MentoringReviewCommand {
 
     @Autowired
-    private MentorRepository mentorRepository;
-    @Autowired
     private NotificationService notificationService;
+
+    @Value("${owner.userName}")
+    private String ownerUserName;
 
     public EnablePayNotification() {
         super(ENABLE_NOTIFICATION.getAlias(), ENABLE_NOTIFICATION.getDescription());
@@ -31,26 +33,26 @@ public class EnablePayNotification extends MentoringReviewCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
+        log.info("Включение уведомлений об оплате подписки для пользователей");
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
         ValidationUtils.validateArgumentsNumber(strings);
 
         try {
-            Mentor mentor = mentorRepository.findMentorByMentorInfo_ChatId(user.getId());
-            if (mentor == null) {
-                message.setText("Ты не ментор");
+            if (!chat.getUserName().equals(ownerUserName)) {
+                message.setText("Ты не владелец бота");
                 execute(absSender, message, user);
             } else {
                 notificationService.enablePayNotification(strings);
-                message.setText(MessageContants.SUCCESS_SET_NOTIFICATION);
+                message.setText(MessageContants.SUCCESS_ENABLE_NOTIFICATION);
                 execute(absSender, message, user);
             }
         } catch (InvalidParameterException e) {
             message.setText("Укажи аргументы");
             execute(absSender, message, user);
         } catch (Exception e) {
-            message.setText(MessageContants.FAILED_SET_NOTIFICATION);
+            message.setText(MessageContants.FAILED_ENABLE_NOTIFICATION);
             execute(absSender, message, user);
         }
     }
