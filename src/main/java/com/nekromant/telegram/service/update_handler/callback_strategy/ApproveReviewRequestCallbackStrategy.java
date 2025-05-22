@@ -46,7 +46,7 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
         int timeSlot = Integer.parseInt(callbackData.split(" ")[2]);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(callbackData.split(" ")[3], formatter);
 
         ReviewRequest review = reviewRequestService.findReviewRequestById(reviewId);

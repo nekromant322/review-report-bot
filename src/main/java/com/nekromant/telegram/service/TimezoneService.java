@@ -21,12 +21,12 @@ import java.util.TreeSet;
 public class TimezoneService {
 
     @Value("${timezone.api-key}")
-    private static String API_KEY;
+    private String API_KEY;
     private static final String API_URL = "http://api.timezonedb.com/v2.1/get-time-zone?key=%s&format=json&by=position&lat=%s&lng=%s";
 
     private final TimeZone timeZoneProject = TimeZone.getTimeZone("Europe/Moscow");
 
-    public static String getTimezone(double latitude, double longitude) throws IOException, InterruptedException {
+    public String getTimezone(double latitude, double longitude) throws IOException, InterruptedException {
         String lat = Double.toString(latitude);
         String lng = Double.toString(longitude);
 

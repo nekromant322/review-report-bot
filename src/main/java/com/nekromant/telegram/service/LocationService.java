@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 public class LocationService {
 
     private final UserInfoService userInfoService;
+    private final TimezoneService timezoneService;
 
 
     public boolean setLocationUser(Message message) {
@@ -25,7 +26,7 @@ public class LocationService {
 
         String timezone;
         try {
-            timezone = TimezoneService.getTimezone(lat, lon);
+            timezone = timezoneService.getTimezone(lat, lon);
         } catch (Exception e) {
             log.error("Ошибка при получении временной зоны для пользователя: " + chatId, e);
             return false;
