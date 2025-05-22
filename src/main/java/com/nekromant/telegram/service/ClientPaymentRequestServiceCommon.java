@@ -10,6 +10,7 @@ import com.nekromant.telegram.contants.ServiceType;
 import com.nekromant.telegram.model.ClientPaymentRequest;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.Promocode;
+import com.nekromant.telegram.model.UtmTag;
 import com.nekromant.telegram.repository.PaymentDetailsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class ClientPaymentRequestServiceCommon {
     private SendMessageService sendMessageService;
 
 
-    public ResponseEntity save(ServiceType serviceType, ChequeDTO chequeDTO, ClientPaymentRequest paymentRequest, CrudRepository repository, String promocodeId) {
+    public ResponseEntity save(ServiceType serviceType, ChequeDTO chequeDTO, ClientPaymentRequest paymentRequest, CrudRepository repository, String promocodeId, UtmTag utmTag) {
 
         try {
             log.info("Sending request to LifePay: {}", chequeDTO);
@@ -52,6 +53,7 @@ public class ClientPaymentRequestServiceCommon {
                     .number(lifePayResponse.getData().getNumber())
                     .status(PayStatus.UNREDEEMED)
                     .serviceType(serviceType)
+                    .utmTag(utmTag)
                     .build();
             paymentDetailsRepository.save(paymentDetails);
             log.info("Unredeemed payment created: {}", paymentDetails);
