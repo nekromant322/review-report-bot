@@ -5,6 +5,7 @@ import com.nekromant.telegram.contants.ChatType;
 import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.service.ReviewRequestService;
+import com.nekromant.telegram.service.TimezoneService;
 import com.nekromant.telegram.service.UserInfoService;
 import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.DeleteMessageStrategy;
 import com.nekromant.telegram.service.update_handler.callback_strategy.delete_message_strategy.MessagePart;
@@ -13,8 +14,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,6 +34,9 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
     @Autowired
     private UserInfoService userInfoService;
 
+    @Autowired
+    private TimezoneService timezoneService;
+
     @Override
     public void executeCallbackQuery(CallbackQuery callbackQuery, Map<ChatType, SendMessage> messageMap, DeleteMessageStrategy deleteMessageStrategy) {
         SendMessage messageForUser = messageMap.get(ChatType.USER_CHAT);
@@ -40,19 +46,22 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
         Long reviewId = Long.parseLong(callbackData.split(" ")[1]);
         int timeSlot = Integer.parseInt(callbackData.split(" ")[2]);
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(callbackData.split(" ")[3], formatter);
+
         ReviewRequest review = reviewRequestService.findReviewRequestById(reviewId);
         messageForUser.setChatId(review.getStudentInfo().getChatId().toString());
         LocalDateTime timeSlotDateTime;
         if (timeSlot == MIDNIGHT) {
-            timeSlotDateTime = LocalDateTime.of(review.getDate().plusDays(1), LocalTime.of(0, 0));
+            timeSlotDateTime = LocalDateTime.of(date, LocalTime.of(0, 0));
         } else {
-            timeSlotDateTime = LocalDateTime.of(review.getDate(), LocalTime.of(timeSlot, 0));
+            timeSlotDateTime = LocalDateTime.of(date, LocalTime.of(timeSlot, 0));
         }
         UserInfo mentorInfo = userInfoService.getUserInfo(callbackQuery.getFrom().getId());
         if (reviewRequestService.existsByBookedDateTimeAndMentorUserInfo(timeSlotDateTime,
                 mentorInfo)) {
             setMessageTextForMentorsTaken(messageForMentors, timeSlot, mentorInfo.getUserName());
-        } else  {
+        } else {
             bookTimeSlot(callbackQuery, review, timeSlotDateTime);
             review.setTimeSlots(Set.of(timeSlot));
             saveReviewRequest(review);
@@ -90,8 +99,9 @@ public class ApproveReviewRequestCallbackStrategy implements CallbackStrategy {
     }
 
     private void setMessageTextForUserApproved(SendMessage messageForUser, ReviewRequest review) {
+        LocalDateTime dateTime = timezoneService.convertToUserZone(review.getBookedDateTime(), review.getStudentInfo());
         messageForUser.setText(String.format(REVIEW_BOOKED, review.getMentorInfo().getUserName(),
-                review.getBookedDateTime().format(defaultDateTimeFormatter()), review.getTitle()));
+                dateTime.format(defaultDateTimeFormatter()), review.getTitle()));
     }
 
     private void setMessageTextForMentorsApproved(SendMessage messageForMentors, CallbackQuery callbackQuery, ReviewRequest review) {
