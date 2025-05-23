@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="Notification-Pay-entity" author="m004ka">
+
+        <createTable tableName="notification_pay">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="chat_id" type="BIGINT">
+                <constraints nullable="false" unique="true" foreignKeyName="fk_notification_pay_userinfo"
+                             referencedTableName="user_info" referencedColumnNames="chat_id"/>
+            </column>
+
+            <column name="enable" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+</databaseChangeLog>
