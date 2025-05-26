@@ -1,6 +1,8 @@
 package com.nekromant.telegram.service;
 
 import com.nekromant.telegram.model.UserInfo;
+import com.nekromant.telegram.repository.UserInfoRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +20,7 @@ import java.util.TreeSet;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TimezoneService {
 
     @Value("${timezone.api-key}")
@@ -25,6 +28,7 @@ public class TimezoneService {
     private static final String API_URL = "http://api.timezonedb.com/v2.1/get-time-zone?key=%s&format=json&by=position&lat=%s&lng=%s";
 
     private final TimeZone timeZoneProject = TimeZone.getTimeZone("Europe/Moscow");
+    private final UserInfoRepository userInfoRepository;
 
     public String getTimezone(double latitude, double longitude) throws IOException, InterruptedException {
         String lat = Double.toString(latitude);
@@ -51,10 +55,13 @@ public class TimezoneService {
 
     public Set<Integer> parseTimeSlotsToMoscow(UserInfo userInfo, Set<Integer> timeSlotsUser) {
         Set<Integer> moscowTimeSlots = new TreeSet<>();
-        TimeZone timeZoneUser = TimeZone.getTimeZone(userInfo.getTimezone());
         if (userInfo.getTimezone() == null || userInfo.getTimezone().equals("Europe/Moscow")) {
+            userInfo.setTimezone("Europe/Moscow");
+            log.info("Обновление таймзоны пользователя - " + userInfo.getUserName());
+            userInfoRepository.save(userInfo);
             return timeSlotsUser;
         } else {
+            TimeZone timeZoneUser = TimeZone.getTimeZone(userInfo.getTimezone());
             int timeSlot;
             int diffTimeZone = getHoursDifference(timeZoneProject, timeZoneUser);
             for (int slot : timeSlotsUser) {
