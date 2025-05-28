@@ -1,6 +1,7 @@
 package com.nekromant.telegram.sheduler;
 
 import com.nekromant.telegram.contants.MessageContants;
+import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.model.NotificationPay;
 import com.nekromant.telegram.model.PaymentDetails;
 import com.nekromant.telegram.model.UserInfo;
@@ -29,17 +30,21 @@ public class NotificationScheduler {
     private final PaymentDetailsRepository paymentDetailsRepository;
     private final ContractRepository contractRepository;
     private final SendMessageService sendMessageService;
+    private final UserInfoRepository userInfoRepository;
 
     @Value("${price.mentoring-subscription}")
     private String valueSubscription;
+    @Value("${owner.userName}")
+    private String ownerUserName;
 
     @Scheduled(cron = "0 0 13 L * ?")
     private void sendNotificationPay() {
         log.info("Ежемесячное уведомление пользователей не оплативших подписку");
-        init();
+        initSendNotification();
     }
 
-    private void init() {
+
+    private void initSendNotification() {
         List<NotificationPay> notificationPayList = notificationPayRepository.getNotificationPayByEnable(true);
         List<UserInfo> userList = new ArrayList<>();
 
@@ -48,18 +53,33 @@ public class NotificationScheduler {
         }
 
         List<PaymentDetails> paymentList = getPaymentsForCurrentMonth();
-        for (PaymentDetails pay : paymentList) {
-            if (hasContractNumber(pay.getDescription()) && Objects.equals(pay.getAmount(), valueSubscription)) {
-                userList.remove(contractRepository.findContractByContractId(getContractId(pay)).orElseThrow(() -> new RuntimeException("Contract not found")).getStudentInfo());
-            }
-        }
+        paymentList.stream()
+                .filter(pay -> hasContractNumber(pay.getDescription()) && Objects.equals(pay.getAmount(), valueSubscription))
+                .map(pay -> contractRepository.findContractByContractId(getContractId(pay))
+                        .orElseThrow(() -> new RuntimeException("Contract not found")))
+                .map(Contract::getStudentInfo)
+                .forEach(userList::remove);
+
 
         sendNotification(userList);
+        sendNotificationOwner(userList);
     }
 
     private void sendNotification(List<UserInfo> userInfoList) {
         for (UserInfo user : userInfoList) {
             sendMessageService.sendMessage(user.getChatId().toString(), MessageContants.NOTIFICATION_FOR_USERS);
+        }
+    }
+
+    private void sendNotificationOwner(List<UserInfo> userInfoList) {
+        if (!userInfoList.isEmpty()) {
+            StringBuilder textForMentor = new StringBuilder();
+            textForMentor.append("Пользователи которые не оплатили подписку: \n");
+            for (UserInfo user : userInfoList) {
+                textForMentor.append("@" + user.getUserName() + "\n");
+            }
+            Long ownerChatId = userInfoRepository.findUserInfoByUserName(ownerUserName).getChatId();
+            sendMessageService.sendMessage(ownerChatId.toString(), textForMentor.toString());
         }
     }
 
