@@ -27,7 +27,9 @@ public enum Command {
     PAY("pay", "Оплатить чек"),
     GET_CONTRACTS("get_contracts", "Посмотреть все контракты"),
     DAILY("daily", "Назначить ежедневное уведомление"),
-    DAILY_DELETE("daily_delete", "Удалить ежедневное уведомление");
+    DAILY_DELETE("daily_delete", "Удалить ежедневное уведомление"),
+    ENABLE_NOTIFICATION("/add_reminder", "Включить уведеомленя о платежах для пользователей"),
+    DISABLE_NOTIFICATION("/remove_reminder", "Выключить уведеомленя о платежах для пользователей");
 
     private String alias;
     private String description;
