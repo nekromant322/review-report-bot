@@ -37,17 +37,18 @@ public class DisablePayNotification extends MentoringReviewCommand {
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
-        ValidationUtils.validateArgumentsNumber(strings);
+
+        if (!chat.getUserName().equals(ownerUserName)) {
+            message.setText("Ты не владелец бота");
+            execute(absSender, message, user);
+            return;
+        }
 
         try {
-            if (!chat.getUserName().equals(ownerUserName)) {
-                message.setText("Ты не владелец бота");
-                execute(absSender, message, user);
-            } else {
-                notificationService.disablePayNotification(strings);
-                message.setText(MessageContants.SUCCESS_DISABLE_NOTIFICATION);
-                execute(absSender, message, user);
-            }
+            ValidationUtils.validateArgumentsNumber(strings);
+            notificationService.disablePayNotification(strings);
+            message.setText(MessageContants.SUCCESS_DISABLE_NOTIFICATION);
+            execute(absSender, message, user);
         } catch (InvalidParameterException e) {
             message.setText("Укажи аргументы");
             execute(absSender, message, user);
