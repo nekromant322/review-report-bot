@@ -17,7 +17,6 @@ import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +31,6 @@ public class NotificationScheduler {
     private final SendMessageService sendMessageService;
     private final UserInfoRepository userInfoRepository;
 
-    @Value("${price.mentoring-subscription}")
-    private String valueSubscription;
     @Value("${owner.userName}")
     private String ownerUserName;
 
@@ -49,12 +46,14 @@ public class NotificationScheduler {
         List<UserInfo> userList = new ArrayList<>();
 
         for (NotificationPay notification : notificationPayList) {
-            userList.add(notification.getUserInfo());
+            if(notification.isEnable()){
+                userList.add(notification.getUserInfo());
+            }
         }
 
         List<PaymentDetails> paymentList = getPaymentsForCurrentMonth();
         paymentList.stream()
-                .filter(pay -> hasContractNumber(pay.getDescription()) && Objects.equals(pay.getAmount(), valueSubscription))
+                .filter(pay -> hasContractNumber(pay.getDescription()))
                 .map(pay -> contractRepository.findContractByContractId(getContractId(pay))
                         .orElseThrow(() -> new RuntimeException("Contract not found")))
                 .map(Contract::getStudentInfo)
