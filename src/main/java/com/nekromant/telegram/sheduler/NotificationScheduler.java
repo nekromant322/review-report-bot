@@ -1,6 +1,7 @@
 package com.nekromant.telegram.sheduler;
 
 import com.nekromant.telegram.contants.MessageContants;
+import com.nekromant.telegram.contants.PayStatus;
 import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.model.NotificationPay;
 import com.nekromant.telegram.model.PaymentDetails;
@@ -54,6 +55,7 @@ public class NotificationScheduler {
         List<PaymentDetails> paymentList = getPaymentsForCurrentMonth();
         paymentList.stream()
                 .filter(pay -> hasContractNumber(pay.getDescription()))
+                .filter(pay -> pay.getStatus() == PayStatus.SUCCESS)
                 .map(pay -> contractRepository.findContractByContractId(getContractId(pay))
                         .orElseThrow(() -> new RuntimeException("Contract not found")))
                 .map(Contract::getStudentInfo)
