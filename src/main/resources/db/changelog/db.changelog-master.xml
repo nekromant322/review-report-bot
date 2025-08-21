@@ -15,5 +15,5 @@
     <include file="/db/changelog/v1.0.0/009-db.changelog-addUtmTagsTable.xml"/>
     <include file="/db/changelog/v1.0.0/010-db.changelog-addColumnUtmTagInPaymentDetails.xml"/>
     <include file="/db/changelog/v1.0.0/011-db.changelog-addUserInfoColumnTimezone.xml"/>
-    <include file="/db/changelog/v1.0.0/013-db.changelog-new-Entity-NotificationReport.xml"/>
+    <include file="/db/changelog/v1.0.0/012-db.changelog-new-Entity-NotificationReport.xml"/>
 </databaseChangeLog>
