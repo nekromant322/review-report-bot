@@ -29,7 +29,9 @@ public enum Command {
     DAILY("daily", "Назначить ежедневное уведомление"),
     DAILY_DELETE("daily_delete", "Удалить ежедневное уведомление"),
     ENABLE_NOTIFICATION("/add_reminder", "Включить уведеомленя о платежах для пользователей"),
-    DISABLE_NOTIFICATION("/remove_reminder", "Выключить уведеомленя о платежах для пользователей");
+    DISABLE_NOTIFICATION("/remove_reminder", "Выключить уведеомленя о платежах для пользователей"),
+    NOTIFY_REPORT_ON("/report_reminder_on", "Включить уведеомленя о пользователях, ненаписавших отчет"),
+    NOTIFY_REPORT_OFF("/report_reminder_off", "Выключить уведеомленя о платежах для пользователей");
 
     private String alias;
     private String description;

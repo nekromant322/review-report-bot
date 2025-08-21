@@ -4,6 +4,7 @@ import com.nekromant.telegram.contants.UserType;
 import com.nekromant.telegram.model.Report;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.ReportRepository;
+import com.nekromant.telegram.service.NotificationReportService;
 import com.nekromant.telegram.service.SendMessageService;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.service.UserInfoService;
@@ -44,6 +45,8 @@ public class ReportReminderScheduler {
     private UserInfoService userInfoService;
     @Autowired
     private SendMessageService sendMessageService;
+    @Autowired
+    private NotificationReportService notificationReportService;
 
     @Scheduled(cron = "0 0 19 * * *")
     public void everyOneRemindAboutReports() {
@@ -73,7 +76,6 @@ public class ReportReminderScheduler {
 
     @Scheduled(cron = "0 0 8 * * *")
     public void reminderAboutStudentsWithoutReports() {
-
         Set<UserInfo> allStudents = reportRepository.findAll()
                 .stream()
                 .map(Report::getUserInfo)
@@ -111,7 +113,7 @@ public class ReportReminderScheduler {
 
 
         }
-        if (!badStudentsUsernames.isEmpty()) {
+        if (notificationReportService.isEnabled() && !badStudentsUsernames.isEmpty()) {
             sendMessageService.sendMessage(specialChatService.getMentorsChatId(),
                     String.format(MENTORS_REMINDER_STUDENT_WITHOUT_REPORTS, maxDaysWithoutReport) +
                             badStudentsUsernames.stream().map(studentName -> "@" + studentName).collect(Collectors.joining(",\n")));
