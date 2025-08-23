@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import javax.management.InstanceNotFoundException;
+
 import static com.nekromant.telegram.contants.Command.PAY;
 
 @Component
@@ -66,7 +67,7 @@ public class PayCommand extends MentoringReviewCommand {
 
             message.enableMarkdownV2(true);
             message.setText("Отправлено SMS\\-сообщение со счетом на номер " + chequeDTO.getCustomerPhone()
-                    + " на сумму " + chequeDTO.getAmount() + "\n[Ссылка на оплату](" + paymentUrl + ")");
+                    + " на сумму " + parseAmount(arguments).replace(".", "\\.") + "\n[Ссылка на оплату](" + paymentUrl + ")");
 
         } catch (InstanceNotFoundException e) {
             message.setText("У вас нет контракта, обратитесь к @Marandyuk_Anatolii");
@@ -87,6 +88,7 @@ public class PayCommand extends MentoringReviewCommand {
                 contract.getDate() + " за консультации по разработке ПО";
     }
 
+
     public String parseCustomerPhone(String[] arguments){
         return validateCustomerPhone(arguments[0]);
     }
@@ -104,15 +106,22 @@ public class PayCommand extends MentoringReviewCommand {
         }
     }
 
-    public String parseAmount(String[] arguments){
+    public String parseAmount(String[] arguments) {
         return validateAmount(arguments[1]);
     }
 
     private String validateAmount(String argument) {
         try {
-            Double.parseDouble(argument);
-            return argument;
-        } catch (ClassCastException e) {
+            argument = argument.replace(',', '.');
+            if (!argument.matches("\\d+(\\.\\d+)?")) {
+                throw new RuntimeException("Недопустимый формат суммы");
+            }
+            double amount = Double.parseDouble(argument);
+            if (amount < 0) {
+                throw new RuntimeException("Сумма не может быть отрицательной");
+            }
+            return Double.toString(amount);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
