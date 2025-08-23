@@ -1,10 +1,10 @@
 package com.nekromant.telegram.commands.notification;
 
-import com.nekromant.telegram.commands.MentoringReviewCommand;
+import com.nekromant.telegram.commands.OwnerCommand;
 import com.nekromant.telegram.service.NotificationReportService;
+import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -15,30 +15,20 @@ import static com.nekromant.telegram.contants.Command.NOTIFY_REPORT_OFF;
 
 @Slf4j
 @Component
-public class DisableReportNotification extends MentoringReviewCommand {
-
+public class DisableReportNotification extends OwnerCommand {
     @Autowired
     private NotificationReportService notificationReportService;
-
-    @Value("${owner.userName}")
-    private String ownerUserName;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
 
     public DisableReportNotification() {
         super(NOTIFY_REPORT_OFF.getAlias(), NOTIFY_REPORT_OFF.getDescription());
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+    public void executeOwner(AbsSender absSender, User user, Chat chat, String[] arguments) {
         log.info("Выключение уведомлений о пользователях, ненаписавших отчет");
-        SendMessage message = new SendMessage();
-        String chatId = chat.getId().toString();
-        message.setChatId(chatId);
-
-        if (!user.getUserName().equals(ownerUserName)) {
-            message.setText("Ты не владелец бота");
-            execute(absSender, message, user);
-            return;
-        }
+        SendMessage message = sendMessageFactory.create(chat);
 
         try {
             notificationReportService.disableReportNotification();
