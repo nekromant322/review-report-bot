@@ -91,7 +91,7 @@ public class PayCommand extends MentoringReviewCommand {
         return validateCustomerPhone(arguments[0]);
     }
 
-    public String validateCustomerPhone(String phone) {
+    private String validateCustomerPhone(String phone) {
         phone = phone.replaceAll("[^0-9+]", "");
         if (phone.startsWith("7") && phone.length() == 11){
             return phone;
