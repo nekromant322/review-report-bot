@@ -4,6 +4,7 @@ import com.nekromant.telegram.model.Contract;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.service.ContractService;
 import com.nekromant.telegram.service.UserInfoService;
+import com.nekromant.telegram.utils.SendMessageFactory;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,46 +18,37 @@ import javax.management.InstanceNotFoundException;
 import java.time.LocalDate;
 
 import static com.nekromant.telegram.contants.Command.SET_CONTRACT;
-import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 @Component
-public class SetContractCommand extends MentoringReviewCommand {
-
-    @Value("${owner.userName}")
-    private String ownerUserName;
-    @Value("${bot.name}")
-    private String botName;
-
+public class SetContractCommand extends OwnerCommand {
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
     @Autowired
     private ContractService contractService;
     @Autowired
     private UserInfoService userInfoService;
+
+    @Value("${bot.name}")
+    private String botName;
 
     public SetContractCommand() {
         super(SET_CONTRACT.getAlias(), SET_CONTRACT.getDescription());
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        SendMessage message = new SendMessage();
-        String chatId = chat.getId().toString();
+    public void executeOwner(AbsSender absSender, User user, Chat chat, String[] arguments) {
+        SendMessage message = sendMessageFactory.create(chat);
         String studentUserName;
         String contractId;
         LocalDate date;
-        message.setChatId(chatId);
-        if (!user.getUserName().equals(ownerUserName)) {
-            message.setText(NOT_OWNER_ERROR);
-            execute(absSender, message, user);
-            return;
-        }
         try {
             ValidationUtils.validateArgumentsNumber(arguments);
             studentUserName = arguments[0].replaceAll("@", "");
             contractId = arguments[1];
             date = LocalDate.parse(arguments[2], defaultDateFormatter());
 
-        }  catch (Exception e) {
+        } catch (Exception e) {
             message.setText("Пример: \n" +
                     "/set_contract @kyomexd 1234567890 05.05.2023\n\n"
                     + e.getMessage());

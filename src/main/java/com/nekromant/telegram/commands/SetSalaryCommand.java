@@ -4,9 +4,9 @@ package com.nekromant.telegram.commands;
 import com.nekromant.telegram.model.Salary;
 import com.nekromant.telegram.repository.SalaryRepository;
 import com.nekromant.telegram.service.UserInfoService;
+import com.nekromant.telegram.utils.SendMessageFactory;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -16,15 +16,12 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import java.time.LocalDate;
 
 import static com.nekromant.telegram.contants.Command.SET_SALARY;
-import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
 
 @Component
-public class SetSalaryCommand extends MentoringReviewCommand {
-
-    @Value("${owner.userName}")
-    private String ownerUserName;
-
+public class SetSalaryCommand extends OwnerCommand {
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
     @Autowired
     private SalaryRepository salaryRepository;
     @Autowired
@@ -36,17 +33,9 @@ public class SetSalaryCommand extends MentoringReviewCommand {
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+    public void executeOwner(AbsSender absSender, User user, Chat chat, String[] arguments) {
         userInfoService.initializeUserInfo(chat, user);
-
-        SendMessage message = new SendMessage();
-        String chatId = chat.getId().toString();
-        message.setChatId(chatId);
-        if (!user.getUserName().equals(ownerUserName)) {
-            message.setText(NOT_OWNER_ERROR);
-            execute(absSender, message, user);
-            return;
-        }
+        SendMessage message = sendMessageFactory.create(chat);
         try {
             ValidationUtils.validateArgumentsNumber(arguments);
 

@@ -1,8 +1,9 @@
 package com.nekromant.telegram.commands.daily;
 
-import com.nekromant.telegram.commands.MentoringReviewCommand;
+import com.nekromant.telegram.commands.OwnerCommand;
 import com.nekromant.telegram.model.Daily;
 import com.nekromant.telegram.service.DailyService;
+import com.nekromant.telegram.utils.SendMessageFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,30 +23,23 @@ import static com.nekromant.telegram.utils.ValidationUtils.validateArgumentsNumb
 
 @Slf4j
 @Component
-public class DailyCommand extends MentoringReviewCommand {
-    @Value("${owner.userName}")
-    private String ownerUserName;
+public class DailyCommand extends OwnerCommand {
     @Autowired
     private DailyService dailyService;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
 
     public DailyCommand() {
         super(DAILY.getAlias(), DAILY.getDescription());
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
+    public void executeOwner(AbsSender absSender, User user, Chat chat, String[] strings) {
         try {
-            SendMessage message = new SendMessage();
-            String chatId = chat.getId().toString();
-            message.setChatId(chatId);
-            if (!user.getUserName().equals(ownerUserName)) {
-                message.setText(NOT_OWNER_ERROR);
-                execute(absSender, message, user);
-                return;
-            }
+            SendMessage message = sendMessageFactory.create(chat);
             validateArgumentsNumber(strings);
             Daily daily = new Daily();
-            daily.setChatId(chatId);
+            daily.setChatId(chat.getId().toString());
             daily.setTime(LocalTime.parse(strings[0]));
             daily.setMessage(parseMessage(strings));
             dailyService.saveDaily(daily);

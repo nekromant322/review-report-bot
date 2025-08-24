@@ -5,6 +5,7 @@ import com.nekromant.telegram.service.SpecialChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 @Component
@@ -14,6 +15,12 @@ public class SendMessageFactory {
 
     public SendMessage create(String chatId, String text) {
         return new SendMessage(chatId, text);
+    }
+
+    public SendMessage create(Chat chat) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chat.getId().toString());
+        return message;
     }
 
     public SendMessage createFromCallbackQuery(Message callbackMessage, ChatType chatType) {

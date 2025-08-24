@@ -1,12 +1,12 @@
 package com.nekromant.telegram.commands.mentors;
 
 
-import com.nekromant.telegram.commands.MentoringReviewCommand;
+import com.nekromant.telegram.commands.OwnerCommand;
 import com.nekromant.telegram.service.MentorService;
 import com.nekromant.telegram.service.UserInfoService;
+import com.nekromant.telegram.utils.SendMessageFactory;
 import com.nekromant.telegram.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -15,18 +15,15 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import static com.nekromant.telegram.contants.Command.ADD_MENTOR;
 import static com.nekromant.telegram.contants.MessageContants.MENTORS_LIST_CHANGED;
-import static com.nekromant.telegram.contants.MessageContants.NOT_OWNER_ERROR;
 
 @Component
-public class AddMentorCommand extends MentoringReviewCommand {
-
-    @Value("${owner.userName}")
-    private String ownerUserName;
-
+public class AddMentorCommand extends OwnerCommand {
     @Autowired
     private UserInfoService userInfoService;
     @Autowired
     private MentorService mentorService;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
 
     @Autowired
     public AddMentorCommand() {
@@ -34,15 +31,8 @@ public class AddMentorCommand extends MentoringReviewCommand {
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        SendMessage message = new SendMessage();
-        String chatId = chat.getId().toString();
-        message.setChatId(chatId);
-        if (!user.getUserName().equals(ownerUserName)) {
-            message.setText(NOT_OWNER_ERROR);
-            execute(absSender, message, user);
-            return;
-        }
+    public void executeOwner(AbsSender absSender, User user, Chat chat, String[] arguments) {
+        SendMessage message = sendMessageFactory.create(chat);
         try {
             ValidationUtils.validateArgumentsNumber(arguments);
             String newMentorUserName = arguments[0].replaceAll("@", "");
