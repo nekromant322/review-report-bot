@@ -5,22 +5,33 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
+    <property name="schema.name" value="public" dbms="postgresql"/>
+    <property name="table.owner" value="report321" dbms="postgresql"/>
 
     <!-- Active mentors -->
     <changeSet id="001-create-active-mentors" author="init">
-        <createTable tableName="active_mentors" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="active_mentors" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="active_mentors" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="mentors" type="VARCHAR(255)"/>
         </createTable>
-        <sql>ALTER TABLE public.active_mentors OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.active_mentors OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Daily -->
     <changeSet id="002-create-daily" author="init">
-        <createTable tableName="daily" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="daily" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="daily" schemaName="${schema.name}">
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -28,13 +39,17 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
             <column name="message" type="VARCHAR(255)"/>
             <column name="time" type="TIME"/>
         </createTable>
-        <sql>ALTER TABLE public.daily OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.daily OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Mentoring subscription request -->
     <changeSet id="003-create-mentoring-subscription-request" author="init">
-        <createTable tableName="mentoring_subscription_request" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="mentoring_subscription_request" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="mentoring_subscription_request" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -42,13 +57,17 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
             <column name="life_pay_transaction_number" type="VARCHAR(255)"/>
             <column name="tg_name" type="VARCHAR(255)"/>
         </createTable>
-        <sql>ALTER TABLE public.mentoring_subscription_request OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.mentoring_subscription_request OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Promocode -->
     <changeSet id="004-create-promocode" author="init">
-        <createTable tableName="promocode" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="promocode" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="promocode" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -68,13 +87,17 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
             <column name="promocode_text" type="VARCHAR(255)"/>
             <column name="service_type" type="INTEGER"/>
         </createTable>
-        <sql>ALTER TABLE public.promocode OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.promocode OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Resume analysis request -->
     <changeSet id="005-create-resume-analysis-request" author="init">
-        <createTable tableName="resume_analysis_request" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="resume_analysis_request" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="resume_analysis_request" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -85,37 +108,51 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
             <column name="customer_phone" type="VARCHAR(255)"/>
             <column name="life_pay_transaction_number" type="VARCHAR(255)"/>
         </createTable>
-        <sql>ALTER TABLE public.resume_analysis_request OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.resume_analysis_request OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Schedule period -->
     <changeSet id="006-create-schedule-period" author="init">
-        <createTable tableName="schedule_period" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="schedule_period" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="schedule_period" schemaName="${schema.name}">
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="end_time" type="BIGINT"/>
             <column name="start_time" type="BIGINT"/>
         </createTable>
-        <sql>ALTER TABLE public.schedule_period OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.schedule_period OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Special chats -->
     <changeSet id="007-create-special-chats" author="init">
-        <createTable tableName="special_chats" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="special_chats" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="special_chats" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="mentors_chat_id" type="VARCHAR(255)"/>
             <column name="report_chat_id" type="VARCHAR(255)"/>
         </createTable>
-        <sql>ALTER TABLE public.special_chats OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.special_chats OWNER TO ${table.owner};</sql>
     </changeSet>
+
     <!-- User contract details -->
     <changeSet id="008-create-user-contract-details" author="init">
-        <createTable tableName="user_contract_details" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user_contract_details" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_contract_details" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -134,13 +171,17 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <sql>ALTER TABLE public.user_contract_details OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.user_contract_details OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- User info -->
     <changeSet id="009-create-user-info" author="init">
-        <createTable tableName="user_info" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_info" schemaName="${schema.name}">
             <column name="user_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -151,13 +192,20 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
             <column name="notify_about_reports" type="BOOLEAN"/>
             <column name="timezone" type="VARCHAR(255)"/>
         </createTable>
-        <sql>ALTER TABLE public.user_info OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.user_info OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Contract -->
     <changeSet id="010-create-contract" author="init">
-        <createTable tableName="contract" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="contract" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="contract" schemaName="${schema.name}">
             <column name="username" type="VARCHAR(255)"/>
             <column name="contract_id" type="VARCHAR(255)"/>
             <column name="date" type="DATE"/>
@@ -168,13 +216,20 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="contract" baseColumnNames="student_info_chat_id"
                                  referencedTableName="user_info" referencedColumnNames="chat_id"
                                  constraintName="fk_contract_user_info"/>
-        <sql>ALTER TABLE public.contract OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.contract OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Mentor -->
     <changeSet id="011-create-mentor" author="init">
-        <createTable tableName="mentor" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="mentor" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="mentor" schemaName="${schema.name}">
             <column name="user_name" type="VARCHAR(255)"/>
             <column name="is_active" type="BOOLEAN"/>
             <column name="room_url" type="VARCHAR(255)"/>
@@ -185,13 +240,20 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="mentor" baseColumnNames="mentor_info_chat_id"
                                  referencedTableName="user_info" referencedColumnNames="chat_id"
                                  constraintName="fk_mentor_user_info"/>
-        <sql>ALTER TABLE public.mentor OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.mentor OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Report -->
     <changeSet id="012-create-report" author="init">
-        <createTable tableName="report" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="report" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="report" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -204,12 +266,20 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="report" baseColumnNames="user_info_chat_id"
                                  referencedTableName="user_info" referencedColumnNames="chat_id"
                                  constraintName="fk_report_user_info"/>
-        <sql>ALTER TABLE public.report OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.report OWNER TO ${table.owner};</sql>
     </changeSet>
 
     <!-- Review request -->
     <changeSet id="013-create-review-request" author="init">
-        <createTable tableName="review_request" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="review_request" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="review_request" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -230,13 +300,20 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="review_request" baseColumnNames="mentor_info_chat_id"
                                  referencedTableName="user_info" referencedColumnNames="chat_id"
                                  constraintName="fk_review_request_mentor_user_info"/>
-        <sql>ALTER TABLE public.review_request OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.review_request OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Salary -->
     <changeSet id="014-create-salary" author="init">
-        <createTable tableName="salary" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="salary" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="salary" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -248,13 +325,20 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="salary" baseColumnNames="user_info_chat_id"
                                  referencedTableName="user_info" referencedColumnNames="chat_id"
                                  constraintName="fk_salary_user_info"/>
-        <sql>ALTER TABLE public.salary OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.salary OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Step passed -->
     <changeSet id="015-create-step-passed" author="init">
-        <createTable tableName="step_passed" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="step_passed" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="step_passed" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -266,13 +350,17 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="step_passed" baseColumnNames="student_info_chat_id"
                                  referencedTableName="user_info" referencedColumnNames="chat_id"
                                  constraintName="fk_step_passed_user_info"/>
-        <sql>ALTER TABLE public.step_passed OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.step_passed OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Personal call request -->
     <changeSet id="016-create-personal-call-request" author="init">
-        <createTable tableName="personal_call_request" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="personal_call_request" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="personal_call_request" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -280,13 +368,20 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
             <column name="life_pay_transaction_number" type="VARCHAR(255)"/>
             <column name="tg_name" type="VARCHAR(255)"/>
         </createTable>
-        <sql>ALTER TABLE public.personal_call_request OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.personal_call_request OWNER TO ${table.owner};</sql>
     </changeSet>
-
 
     <!-- Chat message -->
     <changeSet id="017-create-chat-message" author="init">
-        <createTable tableName="chat_message" schemaName="public">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="chat_message" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="report" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="chat_message" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -298,60 +393,17 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="chat_message" baseColumnNames="report_id"
                                  referencedTableName="report" referencedColumnNames="id"
                                  constraintName="fk_chat_message_report"/>
-        <sql>ALTER TABLE public.chat_message OWNER TO report321;</sql>
-    </changeSet>
-
-    <!-- Databasechangelog -->
-    <changeSet id="018-create-databasechangelog" author="init">
-        <createTable tableName="databasechangelog" schemaName="public">
-            <column name="id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="author" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="filename" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="dateexecuted" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column name="orderexecuted" type="INTEGER">
-                <constraints nullable="false"/>
-            </column>
-            <column name="exectype" type="VARCHAR(10)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="md5sum" type="VARCHAR(35)"/>
-            <column name="description" type="VARCHAR(255)"/>
-            <column name="comments" type="VARCHAR(255)"/>
-            <column name="tag" type="VARCHAR(255)"/>
-            <column name="liquibase" type="VARCHAR(20)"/>
-            <column name="contexts" type="VARCHAR(255)"/>
-            <column name="labels" type="VARCHAR(255)"/>
-            <column name="deployment_id" type="VARCHAR(10)"/>
-        </createTable>
-        <sql>ALTER TABLE public.databasechangelog OWNER TO report321;</sql>
-    </changeSet>
-
-    <!-- Databasechangeloglock -->
-    <changeSet id="019-create-databasechangeloglock" author="init">
-        <createTable tableName="databasechangeloglock" schemaName="public">
-            <column name="id" type="INTEGER">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="locked" type="BOOLEAN">
-                <constraints nullable="false"/>
-            </column>
-            <column name="lockgranted" type="TIMESTAMP"/>
-            <column name="lockedby" type="VARCHAR(255)"/>
-        </createTable>
-        <sql>ALTER TABLE public.databasechangeloglock OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.chat_message OWNER TO ${table.owner};</sql>
     </changeSet>
 
     <!-- UTM tag -->
-    <changeSet id="020-create-utm-tag" author="init">
-        <createTable tableName="utm_tag" schemaName="public">
+    <changeSet id="018-create-utm-tag" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="utm_tag" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="utm_tag" schemaName="${schema.name}">
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -359,12 +411,20 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
             <column name="local_date_time" type="TIMESTAMP"/>
             <column name="section" type="VARCHAR(255)"/>
         </createTable>
-        <sql>ALTER TABLE public.utm_tag OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.utm_tag OWNER TO ${table.owner};</sql>
     </changeSet>
 
     <!-- Payment details -->
-    <changeSet id="021-create-payment-details" author="init">
-        <createTable tableName="payment_details" schemaName="public">
+    <changeSet id="019-create-payment-details" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="payment_details" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="utm_tag" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="payment_details" schemaName="${schema.name}">
             <column name="number" type="VARCHAR(255)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -396,12 +456,21 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="payment_details" baseColumnNames="utm_tag_id"
                                  referencedTableName="utm_tag" referencedColumnNames="id"
                                  constraintName="fk_payment_details_utm_tag"/>
-        <sql>ALTER TABLE public.payment_details OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.payment_details OWNER TO ${table.owner};</sql>
     </changeSet>
 
     <!-- Promocode payment details set -->
-    <changeSet id="022-create-promocode-payment-details-set" author="init">
-        <createTable tableName="promocode_payment_details_set" schemaName="public">
+    <changeSet id="020-create-promocode-payment-details-set" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="promocode_payment_details_set" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="promocode" schemaName="${schema.name}"/>
+                <tableExists tableName="payment_details" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="promocode_payment_details_set" schemaName="${schema.name}">
             <column name="promocode_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -416,12 +485,20 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="promocode_payment_details_set" baseColumnNames="payment_details_set_number"
                                  referencedTableName="payment_details" referencedColumnNames="number"
                                  constraintName="fk_promocode_payment_details_set_payment_details"/>
-        <sql>ALTER TABLE public.promocode_payment_details_set OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.promocode_payment_details_set OWNER TO ${table.owner};</sql>
     </changeSet>
 
     <!-- Notification pay -->
-    <changeSet id="023-create-notification-pay" author="init">
-        <createTable tableName="notification_pay" schemaName="public">
+    <changeSet id="021-create-notification-pay" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="notification_pay" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="notification_pay" schemaName="${schema.name}">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -433,12 +510,17 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <addForeignKeyConstraint baseTableName="notification_pay" baseColumnNames="chat_id"
                                  referencedTableName="user_info" referencedColumnNames="chat_id"
                                  constraintName="fk_notification_pay_user_info"/>
-        <sql>ALTER TABLE public.notification_pay OWNER TO report321;</sql>
+        <sql>ALTER TABLE ${schema.name}.notification_pay OWNER TO ${table.owner};</sql>
     </changeSet>
 
     <!-- Notification report -->
-    <changeSet id="024-notification-Report-entity" author="init">
-        <createTable tableName="notification_report">
+    <changeSet id="022-create-notification-report" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="notification_report" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="notification_report" schemaName="${schema.name}">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -450,5 +532,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
             <column name="id" valueNumeric="1"/>
             <column name="enable" valueBoolean="false"/>
         </insert>
+        <sql>ALTER TABLE ${schema.name}.notification_report OWNER TO ${table.owner};</sql>
     </changeSet>
+
 </databaseChangeLog>
