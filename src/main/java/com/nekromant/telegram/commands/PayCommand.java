@@ -75,7 +75,7 @@ public class PayCommand extends MentoringReviewCommand {
             return;
         } catch (Exception e) {
             message.setText("Пример: \n" +
-                    "/pay <ваш номер в формате 79xxxxxxxxx> <сумма услуги в формате 5000.00>");
+                    "/pay <ваш номер> <сумма услуги>");
             execute(absSender, message, user);
             return;
         }
@@ -88,8 +88,22 @@ public class PayCommand extends MentoringReviewCommand {
                 contract.getDate() + " за консультации по разработке ПО";
     }
 
-    public String parseCustomerPhone(String[] arguments) {
-        return arguments[0];
+
+    public String parseCustomerPhone(String[] arguments){
+        return validateCustomerPhone(arguments[0]);
+    }
+
+    private String validateCustomerPhone(String phone) {
+        phone = phone.replaceAll("[^0-9+]", "");
+        if (phone.startsWith("7") && phone.length() == 11){
+            return phone;
+        } else if (phone.startsWith("+7") && phone.length() == 12) {
+            return "7" + phone.substring(2);
+        } else if (phone.startsWith("8") && phone.length() == 11) {
+            return "7" + phone.substring(1);
+        } else {
+            throw new RuntimeException("Некорректный формат номера");
+        }
     }
 
     public String parseAmount(String[] arguments) {
