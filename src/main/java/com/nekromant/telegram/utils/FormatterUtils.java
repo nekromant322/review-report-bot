@@ -11,4 +11,7 @@ public class FormatterUtils {
     public static DateTimeFormatter defaultDateTimeFormatter() {
         return DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     }
+    public static DateTimeFormatter defaultTimeFormatter(){
+        return DateTimeFormatter.ofPattern("HH:mm");
+    }
 }
