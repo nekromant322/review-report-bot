@@ -31,7 +31,8 @@ public enum Command {
     ENABLE_NOTIFICATION("/add_reminder", "Включить уведеомленя о платежах для пользователей"),
     DISABLE_NOTIFICATION("/remove_reminder", "Выключить уведеомленя о платежах для пользователей"),
     NOTIFY_REPORT_ON("/report_reminder_on", "Включить уведеомленя о пользователях, ненаписавших отчет"),
-    NOTIFY_REPORT_OFF("/report_reminder_off", "Выключить уведеомленя о платежах для пользователей");
+    NOTIFY_REPORT_OFF("/report_reminder_off", "Выключить уведеомленя о платежах для пользователей"),
+    SCHEDULE_REVIEW("/schedule", "Расписание всех ревью");
 
     private String alias;
     private String description;

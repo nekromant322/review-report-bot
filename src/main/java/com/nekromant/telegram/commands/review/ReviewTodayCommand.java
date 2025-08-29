@@ -4,9 +4,9 @@ package com.nekromant.telegram.commands.review;
 import com.nekromant.telegram.commands.MentoringReviewCommand;
 import com.nekromant.telegram.contants.CallBack;
 import com.nekromant.telegram.model.ReviewRequest;
-import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
+import com.nekromant.telegram.service.ReviewScheduleService;
 import com.nekromant.telegram.service.SpecialChatService;
 import com.nekromant.telegram.service.TimezoneService;
 import com.nekromant.telegram.service.UserInfoService;
@@ -25,33 +25,22 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.nekromant.telegram.contants.Command.REVIEW_TODAY;
-import static com.nekromant.telegram.contants.MessageContants.NO_REVIEW_TODAY;
 import static com.nekromant.telegram.utils.FormatterUtils.defaultDateTimeFormatter;
 
 @Slf4j
 @Component
 public class ReviewTodayCommand extends MentoringReviewCommand {
-
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
-
-    @Autowired
-
-    private MentorRepository mentorRepository;
-
     @Autowired
     private SpecialChatService specialChatService;
-
-    @Autowired
-    private TimezoneService timezoneService;
-
     @Autowired
     private UserInfoService userInfoService;
+    @Autowired
+    private ReviewScheduleService reviewScheduleService;
 
     @Autowired
     public ReviewTodayCommand() {
@@ -63,8 +52,6 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
         SendMessage message = new SendMessage();
         String chatId = chat.getId().toString();
         message.setChatId(chatId);
-        UserInfo userInfo = userInfoService.getUserInfo(user.getId());
-
         if (chat.getId().equals(Long.valueOf(specialChatService.getMentorsChatId()))) {
             writeMentorsCancelButtons(absSender, reviewRequestRepository
                     .findAllByBookedDateTimeBetween(
@@ -72,26 +59,7 @@ public class ReviewTodayCommand extends MentoringReviewCommand {
                             LocalDate.now(ZoneId.of("Europe/Moscow")).plusDays(3).atStartOfDay()
                     ));
         } else {
-            List<ReviewRequest> reviewsToday = reviewRequestRepository
-                    .findAllByBookedDateTimeBetween(
-                            LocalDate.now(ZoneId.of("Europe/Moscow")).atStartOfDay(),
-                            LocalDate.now(ZoneId.of("Europe/Moscow")).plusDays(1).atStartOfDay()
-                    );
-            if (reviewsToday.isEmpty()) {
-                message.setText(NO_REVIEW_TODAY);
-            } else {
-                String messageWithReviewsToday = "Расписание ревью на сегодня\n\n" +
-                        reviewsToday.stream()
-                                .sorted(Comparator.comparing(ReviewRequest::getBookedDateTime))
-                                .map(review ->
-                                        "@" + review.getStudentInfo().getUserName() + "\n" +
-                                                timezoneService.convertToUserZone(review.getBookedDateTime(), userInfo).format(defaultDateTimeFormatter()) + "\n" +
-                                                review.getTitle() + "\n" +
-                                                "@" + review.getMentorInfo().getUserName() + "\n" +
-                                                mentorRepository.findMentorByMentorInfo(review.getMentorInfo()).getRoomUrl() + "\n")
-                                .collect(Collectors.joining("\n"));
-                message.setText(messageWithReviewsToday);
-            }
+            message.setText(reviewScheduleService.getScheduleToday(userInfoService.getUserInfo(user.getId())));
             message.disableWebPagePreview();
             execute(absSender, message, user);
         }
