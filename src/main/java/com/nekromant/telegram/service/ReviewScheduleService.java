@@ -24,8 +24,6 @@ public class ReviewScheduleService {
     private MentorRepository mentorRepository;
     @Autowired
     private ReviewRequestRepository reviewRequestRepository;
-    @Autowired
-    private TimezoneService timezoneService;
 
     public String getSchedule(UserInfo user) {
         LocalDateTime todayDate = LocalDate.now(ZoneId.of("Europe/Moscow")).atStartOfDay();
@@ -38,7 +36,11 @@ public class ReviewScheduleService {
     }
 
     public String getSchedule(UserInfo user, LocalDateTime fromDate, LocalDateTime toDate) {
-        return formatHeader(fromDate, toDate) + scheduleContentFormatter(user, fromDate, toDate);
+        if (fromDate.isBefore(toDate)){
+            return formatHeader(fromDate, toDate) + scheduleContentFormatter(user, fromDate, toDate);
+        } else {
+            return formatHeader(fromDate, fromDate) + scheduleContentFormatter(user, fromDate, fromDate);
+        }
     }
 
     public String getScheduleToday(UserInfo user) {
@@ -46,6 +48,7 @@ public class ReviewScheduleService {
                 LocalDate.now(ZoneId.of("Europe/Moscow")).atStartOfDay());
     }
 
+    // Если нужно будет добавить таймзоны пользователей, то оставлен userInfo
     private String scheduleContentFormatter(UserInfo userInfo, LocalDateTime fromDate, LocalDateTime toDate) {
         List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByBookedDateTimeBetween(
                 fromDate.toLocalDate().atStartOfDay(), toDate.toLocalDate().plusDays(1).atStartOfDay());
