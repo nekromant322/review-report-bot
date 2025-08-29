@@ -62,17 +62,18 @@ public class ReviewScheduleService {
 
         for (LocalDate date : allDates) {
             result.append(date.format(defaultDateFormatter()) + "\n");
-            reviewRequests.stream()
+            result.append(reviewRequests.stream()
                     .filter(reviewRequest -> reviewRequest.getBookedDateTime().toLocalDate().equals(date))
-                    .forEach(review -> result.append("\n" +
+                    .map(review ->
                             "@" + review.getStudentInfo().getUserName() + "\n" +
-                            timezoneService.convertToUserZone(review.getBookedDateTime(), userInfo).format(defaultTimeFormatter()) + "\n" +
-                            review.getTitle() + "\n" +
-                            "@" + review.getMentorInfo().getUserName() + "\n" +
-                            mentorRepository.findMentorByMentorInfo(review.getMentorInfo()).getRoomUrl() + "\n"));
+                                    "\u23F1" + review.getBookedDateTime().format(defaultTimeFormatter()) + "\n" +
+                                    review.getTitle() + "\n" +
+                                    "@" + review.getMentorInfo().getUserName() + "\n" +
+                                    mentorRepository.findMentorByMentorInfo(review.getMentorInfo()).getRoomUrl())
+                    .collect(Collectors.joining("\n\n")));
 
             if (!date.equals(allDates.get(allDates.size() - 1))) {
-                result.append("<----------------------->\n");
+                result.append("\n<----------------------->\n");
             }
         }
         return result.toString();
