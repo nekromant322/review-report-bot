@@ -5,12 +5,8 @@ import com.nekromant.telegram.model.ReviewRequest;
 import com.nekromant.telegram.model.UserInfo;
 import com.nekromant.telegram.repository.MentorRepository;
 import com.nekromant.telegram.repository.ReviewRequestRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,8 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
+import static com.nekromant.telegram.contants.MessageContants.NO_REVIEW_TODAY;
+import static com.nekromant.telegram.utils.FormatterUtils.defaultDateFormatter;
+import static com.nekromant.telegram.utils.FormatterUtils.defaultTimeFormatter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -31,14 +29,49 @@ public class ReviewScheduleServiceTest {
     @Mock
     private ReviewRequestRepository reviewRequestRepository;
     @Mock
-    private UserInfoService userInfoService;
-    @Mock
     private MentorRepository mentorRepository;
 
-    @ParameterizedTest
-    @MethodSource("provideDateListArguments")
-    void getSchedule_AnyDates_returnCorrectSchedule(LocalDateTime fromDate, LocalDateTime toDate) {
+    @Test
+    void getSchedule_OneDay_returnCorrectSchedule() {
         //Arrange
+        LocalDateTime date = LocalDateTime.of(2025, 12, 12, 12, 12);
+        String formattedDate = date.format(defaultDateFormatter());
+        ReviewRequest reviewRequest = createMockReviewRequest(date);
+        Mentor mentor = new Mentor();
+        mentor.setRoomUrl("test_url");
+        when(mentorRepository.findMentorByMentorInfo(any())).thenReturn(mentor);
+        when(reviewRequestRepository.findAllByBookedDateTimeBetween(any(), any()))
+                .thenReturn(new ArrayList<>(List.of(reviewRequest)));
+        //Act
+        String result = reviewScheduleService.getSchedule(new UserInfo(), date, date);
+        //Assert
+        assertThat(result).contains(String.format("Расписание всех ревью с %s по %s:\n", formattedDate, formattedDate));
+        assertThat(result).contains("@test_user");
+        assertThat(result).contains("@test_mentor");
+        assertThat(result).contains(reviewRequest.getBookedDateTime().format(defaultTimeFormatter()));
+
+    }
+
+    @Test
+    void getSchedule_NoReview_returnNoReviewSchedule() {
+        //Arrange
+        LocalDateTime date = LocalDateTime.of(2025, 12, 12, 12, 12);
+        String formattedDate = date.format(defaultDateFormatter());
+        when(reviewRequestRepository.findAllByBookedDateTimeBetween(any(), any()))
+                .thenReturn(new ArrayList<>()); // empty reviewlist
+        //Act
+        String result = reviewScheduleService.getSchedule(new UserInfo(), date, date);
+        //Assert
+        assertThat(result).contains(String.format("Расписание всех ревью с %s по %s:\n", formattedDate, formattedDate));
+        assertThat(result).contains(NO_REVIEW_TODAY);
+    }
+
+    @Test
+    void getSchedule_ToDateBeforeFromDate_returnTodaySchedule(){
+        //Arrange
+        LocalDateTime fromDate = LocalDateTime.of(2025, 12, 12, 12, 12);
+        LocalDateTime toDate = LocalDateTime.of(2024, 11, 11, 11, 11);
+        String formattedDate = fromDate.format(defaultDateFormatter());
         ReviewRequest reviewRequest = createMockReviewRequest(fromDate);
         Mentor mentor = new Mentor();
         mentor.setRoomUrl("test_url");
@@ -46,10 +79,13 @@ public class ReviewScheduleServiceTest {
         when(reviewRequestRepository.findAllByBookedDateTimeBetween(any(), any()))
                 .thenReturn(new ArrayList<>(List.of(reviewRequest)));
         //Act
+        String result = reviewScheduleService.getSchedule(new UserInfo(), fromDate, toDate);
         //Assert
-        Assertions.assertDoesNotThrow(() -> reviewScheduleService.getSchedule(new UserInfo(), fromDate, toDate));
+        assertThat(result).contains(String.format("Расписание всех ревью с %s по %s:\n", formattedDate, formattedDate));
+        assertThat(result).contains("@test_user");
+        assertThat(result).contains("@test_mentor");
+        assertThat(result).contains(reviewRequest.getBookedDateTime().format(defaultTimeFormatter()));
     }
-
     @Test
     void getScheduleToday_AnyDates_returnTodaySchedule() {
         //Arrange
@@ -69,15 +105,6 @@ public class ReviewScheduleServiceTest {
         assertThat(result).contains("@test_user");
         assertThat(result).contains("@test_mentor");
         assertThat(result).contains("12:12");
-    }
-
-
-    private static Stream<Arguments> provideDateListArguments() {
-        return Stream.of(
-                Arguments.of(LocalDateTime.of(2025, 12, 12, 12, 12), LocalDateTime.of(2026, 11, 11, 11, 11)),
-                Arguments.of(LocalDateTime.of(2025, 12, 12, 12, 12), LocalDateTime.of(2025, 12, 12, 12, 12)),
-                Arguments.of(LocalDateTime.of(2026, 11, 11, 11, 11), LocalDateTime.of(2025, 12, 12, 12, 12))
-        );
     }
 
     private ReviewRequest createMockReviewRequest(LocalDateTime date) {
