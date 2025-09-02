@@ -48,4 +48,14 @@ public class SendMessageService {
             log.error("Ошибка при отправке сообщения (chat id: {}) {}", chatId, e.getMessage(), e);
         }
     }
+    public void sendMessage(String chatId, String text, String parseMode){
+        SendMessage sendMessage = sendMessageFactory.create(chatId, text);
+        sendMessage.disableWebPagePreview();
+        sendMessage.setParseMode(parseMode);
+        try {
+            mentoringReviewBot.execute(sendMessage);
+        } catch (Exception e) {
+            log.error("Ошибка при отправке сообщения (chat id: {}) {}", chatId, e.getMessage(), e);
+        }
+    }
 }
