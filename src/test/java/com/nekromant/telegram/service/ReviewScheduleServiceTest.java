@@ -33,7 +33,7 @@ public class ReviewScheduleServiceTest {
 
     @Test
     void getSchedule_OneDay_returnCorrectSchedule() {
-        //Arrange
+
         LocalDateTime date = LocalDateTime.of(2025, 12, 12, 12, 12);
         String formattedDate = date.format(defaultDateFormatter());
         ReviewRequest reviewRequest = createMockReviewRequest(date);
@@ -42,9 +42,9 @@ public class ReviewScheduleServiceTest {
         when(mentorRepository.findMentorByMentorInfo(any())).thenReturn(mentor);
         when(reviewRequestRepository.findAllByBookedDateTimeBetween(any(), any()))
                 .thenReturn(new ArrayList<>(List.of(reviewRequest)));
-        //Act
+
         String result = reviewScheduleService.getSchedule(new UserInfo(), date, date);
-        //Assert
+
         assertThat(result).contains(String.format("Расписание всех ревью с %s по %s:\n", formattedDate, formattedDate));
         assertThat(result).contains("@test_user");
         assertThat(result).contains("@test_mentor");
@@ -54,21 +54,21 @@ public class ReviewScheduleServiceTest {
 
     @Test
     void getSchedule_NoReview_returnNoReviewSchedule() {
-        //Arrange
+
         LocalDateTime date = LocalDateTime.of(2025, 12, 12, 12, 12);
         String formattedDate = date.format(defaultDateFormatter());
         when(reviewRequestRepository.findAllByBookedDateTimeBetween(any(), any()))
-                .thenReturn(new ArrayList<>()); // empty reviewlist
-        //Act
+                .thenReturn(new ArrayList<>());
+
         String result = reviewScheduleService.getSchedule(new UserInfo(), date, date);
-        //Assert
+
         assertThat(result).contains(String.format("Расписание всех ревью с %s по %s:\n", formattedDate, formattedDate));
         assertThat(result).contains(NO_REVIEW_TODAY);
     }
 
     @Test
     void getSchedule_ToDateBeforeFromDate_returnTodaySchedule(){
-        //Arrange
+
         LocalDateTime fromDate = LocalDateTime.of(2025, 12, 12, 12, 12);
         LocalDateTime toDate = LocalDateTime.of(2024, 11, 11, 11, 11);
         String formattedDate = fromDate.format(defaultDateFormatter());
@@ -78,9 +78,9 @@ public class ReviewScheduleServiceTest {
         when(mentorRepository.findMentorByMentorInfo(any())).thenReturn(mentor);
         when(reviewRequestRepository.findAllByBookedDateTimeBetween(any(), any()))
                 .thenReturn(new ArrayList<>(List.of(reviewRequest)));
-        //Act
+
         String result = reviewScheduleService.getSchedule(new UserInfo(), fromDate, toDate);
-        //Assert
+
         assertThat(result).contains(String.format("Расписание всех ревью с %s по %s:\n", formattedDate, formattedDate));
         assertThat(result).contains("@test_user");
         assertThat(result).contains("@test_mentor");
@@ -88,7 +88,7 @@ public class ReviewScheduleServiceTest {
     }
     @Test
     void getScheduleToday_AnyDates_returnTodaySchedule() {
-        //Arrange
+
         LocalDateTime fromDate = LocalDateTime.of(2025, 12, 12, 12, 12);
         ReviewRequest reviewRequest = createMockReviewRequest(fromDate);
         Mentor mentor = new Mentor();
@@ -97,10 +97,10 @@ public class ReviewScheduleServiceTest {
         when(reviewRequestRepository.findAllByBookedDateTimeBetween(any(), any()))
                 .thenReturn(new ArrayList<>(List.of(reviewRequest)));
 
-        //Act
+
         String result = reviewScheduleService.getScheduleToday(new UserInfo());
 
-        //Assert
+
         assertThat(result).contains("Расписание ревью на сегодня:");
         assertThat(result).contains("@test_user");
         assertThat(result).contains("@test_mentor");
