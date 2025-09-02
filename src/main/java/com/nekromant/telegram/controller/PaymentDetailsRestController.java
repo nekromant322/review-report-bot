@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nekromant.telegram.commands.dto.PaymentDetailsDTO;
 import com.nekromant.telegram.contants.PayStatus;
-import com.nekromant.telegram.repository.MentoringSubscriptionRequestRepository;
 import com.nekromant.telegram.service.*;
 import com.nekromant.telegram.model.PaymentDetails;
 import lombok.extern.slf4j.Slf4j;
@@ -33,15 +32,13 @@ public class PaymentDetailsRestController {
     private ObjectMapper objectMapper;
     @Autowired
     ClientPaymentRequestServiceProvider paymentRequestServiceProvider;
-    @Autowired
-    private MentoringSubscriptionRequestRepository mentoringSubscriptionRequestRepository;
+
     private ClientPaymentRequestService clientPaymentRequestService;
     @Autowired
     private SendMessageService sendMessageService;
 
-    private final String PARSE_MODE = "MarkdownV2";
-
     @PostMapping(value = "/paymentCallback")
+
     public void paymentCallback(@RequestParam("data") String json) throws JsonProcessingException {
         Converter<String, PayStatus> stringPayStatusConverter = new AbstractConverter<String, PayStatus>() {
             @Override
@@ -73,10 +70,6 @@ public class PaymentDetailsRestController {
     public void sendMessage(PaymentDetails paymentDetails) {
         String messageText = createMessageText(paymentDetails);
         sendMessageService.sendMessage(userInfoService.getUserInfo(ownerUserName).getChatId().toString(), messageText);
-        String tgName = "@" + mentoringSubscriptionRequestRepository.findByLifePayTransactionNumber(paymentDetails.getNumber()).getTgName();
-        String amount = "```" + paymentDetails.getAmount() + "```";
-        messageText = String.format("Проценты за менторинг %s от %s", amount, tgName);
-        sendMessageService.sendMessage(userInfoService.getUserInfo(ownerUserName).getChatId().toString(), messageText, PARSE_MODE);
     }
 
     private String createMessageText(PaymentDetails paymentDetails) {
