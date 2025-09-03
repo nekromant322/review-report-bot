@@ -50,6 +50,7 @@ public class MessageContants {
     public static final String DAILY_DELETED = "Ежедневные уведомления в данном чате удалены";
     public static final String RESPONSE_FOR_RESUME_PROJARKA = "Зарегистрирован и оплачен заказ %s на разбор резюме: \nтелефон: %s \nTelegram nickname: %s";
     public static final String RESPONSE_FOR_MENTORING_SUBSCRIPTION = "Зарегистрирован и оплачен заказ %s на подписку на менторинг: \nтелефон: %s \nTelegram nickname: %s";
+    public static final String RESPONSE_FOR_MENTORING = "Проценты за менторинг по заказу %s: \nтелефон: %s \nTelegram nickname: %s";
     public static final String MENTORING_OFFER_DESCRIPTION = "Оплата за подписку на менторинг по договору публичной оферты";
     public static final String RESUME_OFFER_DESCRIPTION = "Оплата за разбор резюме по договору публичной оферты";
 
