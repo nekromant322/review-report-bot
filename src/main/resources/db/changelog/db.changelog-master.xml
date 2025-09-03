@@ -4,17 +4,17 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
-<!--    <include file="/db/changelog/v1.0.0/001-db.changelog-deleteDuplicatesFromUserInfo.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/002-db.changelog-setChatIdAsPKForUserInfo.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/003-db.changelog-addUserInfoFKColumnToReport.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/004-db.changelog-addUserInfoFKColumnsToReviewRequest.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/005-db.changelog-addUserInfoFKColumnToMentorAndSetItAsPK.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/006-db.changelog-addUserInfoFKColumnToStepPassed.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/007-db.changelog-addUserInfoFKColumnToSalary.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/008-db.changelog-addUserInfoFKColumnToContract.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/009-db.changelog-addUtmTagsTable.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/010-db.changelog-addColumnUtmTagInPaymentDetails.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/011-db.changelog-addUserInfoColumnTimezone.xml"/>-->
-<!--    <include file="/db/changelog/v1.0.0/012-db.changelog-new-Entity-NotificationReport.xml"/>-->
+    <include file="/db/changelog/v1.0.0/001-db.changelog-deleteDuplicatesFromUserInfo.xml"/>
+    <include file="/db/changelog/v1.0.0/002-db.changelog-setChatIdAsPKForUserInfo.xml"/>
+    <include file="/db/changelog/v1.0.0/003-db.changelog-addUserInfoFKColumnToReport.xml"/>
+    <include file="/db/changelog/v1.0.0/004-db.changelog-addUserInfoFKColumnsToReviewRequest.xml"/>
+    <include file="/db/changelog/v1.0.0/005-db.changelog-addUserInfoFKColumnToMentorAndSetItAsPK.xml"/>
+    <include file="/db/changelog/v1.0.0/006-db.changelog-addUserInfoFKColumnToStepPassed.xml"/>
+    <include file="/db/changelog/v1.0.0/007-db.changelog-addUserInfoFKColumnToSalary.xml"/>
+    <include file="/db/changelog/v1.0.0/008-db.changelog-addUserInfoFKColumnToContract.xml"/>
+    <include file="/db/changelog/v1.0.0/009-db.changelog-addUtmTagsTable.xml"/>
+    <include file="/db/changelog/v1.0.0/010-db.changelog-addColumnUtmTagInPaymentDetails.xml"/>
+    <include file="/db/changelog/v1.0.0/011-db.changelog-addUserInfoColumnTimezone.xml"/>
+    <include file="/db/changelog/v1.0.0/012-db.changelog-new-Entity-NotificationReport.xml"/>
     <include file="/db/changelog/v1.0.0/013-db.changelog-addMentoringPayRequestTable.xml"/>
 </databaseChangeLog>
