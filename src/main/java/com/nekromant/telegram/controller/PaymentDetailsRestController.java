@@ -51,8 +51,10 @@ public class PaymentDetailsRestController {
         PaymentDetailsDTO paymentDetailsDTO = objectMapper.readValue(json, PaymentDetailsDTO.class);
         PaymentDetails paymentDetails = modelMapper.map(paymentDetailsDTO, PaymentDetails.class);
         sendMessage(paymentDetails);
+        log.info("PaymentDetailsRestController: send message to owner with transaction -> " + paymentDetails);
 
         PaymentDetails pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
+        log.info("PaymentDetailsRestController: find pendingPay -> " + pendingPay);
         if (pendingPay != null && pendingPay.getStatus() != PayStatus.SUCCESS) {
             paymentDetails.setServiceType(pendingPay.getServiceType());
             clientPaymentRequestService = paymentRequestServiceProvider.getClientPaymentRequestService(pendingPay.getServiceType());
