@@ -1,14 +1,18 @@
 package com.nekromant.telegram.commands;
 
-import com.nekromant.telegram.commands.feign.LifePayFeign;
 import com.nekromant.telegram.commands.dto.ChequeDTO;
 import com.nekromant.telegram.model.Contract;
+import com.nekromant.telegram.model.MentoringPayRequest;
 import com.nekromant.telegram.service.ContractService;
+import com.nekromant.telegram.service.MentoringPayService;
 import com.nekromant.telegram.service.UserInfoService;
+import com.nekromant.telegram.utils.SendMessageFactory;
 import com.nekromant.telegram.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -31,10 +35,12 @@ public class PayCommand extends MentoringReviewCommand {
     @Autowired
     private ContractService contractService;
     @Autowired
-    private LifePayFeign lifePayFeign;
-    @Autowired
     private UserInfoService userInfoService;
-
+    @Lazy
+    @Autowired
+    private MentoringPayService mentoringPayService;
+    @Autowired
+    private SendMessageFactory sendMessageFactory;
 
     public PayCommand() {
         super(PAY.getAlias(), PAY.getDescription());
@@ -43,10 +49,7 @@ public class PayCommand extends MentoringReviewCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
         userInfoService.initializeUserInfo(chat, user);
-
-        SendMessage message = new SendMessage();
-        String studentChatId = chat.getId().toString();
-        message.setChatId(studentChatId);
+        SendMessage message = sendMessageFactory.create(chat);
 
         try {
             ValidationUtils.validateArgumentsNumber(arguments);
@@ -59,10 +62,13 @@ public class PayCommand extends MentoringReviewCommand {
                     method);
 
             log.info(String.valueOf(chequeDTO));
+            MentoringPayRequest mentoringPayRequest = MentoringPayRequest.builder()
+                    .tgName(user.getUserName())
+                    .customerPhone(parseCustomerPhone(arguments))
+                    .build();
             log.info("Sending request to LifePay");
-            String lifePayResponse = lifePayFeign.payCheque(chequeDTO).getBody();
-            log.info("LifePay response: " + lifePayResponse);
-            String paymentUrl = parseUrl(lifePayResponse);
+            ResponseEntity<String> lifePayResponse = mentoringPayService.save(mentoringPayRequest, chequeDTO);
+            String paymentUrl = lifePayResponse.getBody();
             log.info("PaymentURL: " + paymentUrl);
 
             message.enableMarkdownV2(true);
@@ -89,13 +95,13 @@ public class PayCommand extends MentoringReviewCommand {
     }
 
 
-    public String parseCustomerPhone(String[] arguments){
+    public String parseCustomerPhone(String[] arguments) {
         return validateCustomerPhone(arguments[0]);
     }
 
     private String validateCustomerPhone(String phone) {
         phone = phone.replaceAll("[^0-9+]", "");
-        if (phone.startsWith("7") && phone.length() == 11){
+        if (phone.startsWith("7") && phone.length() == 11) {
             return phone;
         } else if (phone.startsWith("+7") && phone.length() == 12) {
             return "7" + phone.substring(2);

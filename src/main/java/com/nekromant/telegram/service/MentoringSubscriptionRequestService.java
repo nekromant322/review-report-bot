@@ -41,7 +41,7 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
                 mentoringData.get("PHONE").toString(),
                 lifePayProperties.getMethod());
 
-        return save(ServiceType.MENTORING, chequeDTO, mentoringSubscriptionRequest, mentoringSubscriptionRequestRepository, promocodeId, tag);
+        return save(ServiceType.MENTORING_SUBSCRIBE, chequeDTO, mentoringSubscriptionRequest, mentoringSubscriptionRequestRepository, promocodeId, tag);
     }
 
     public void notifyMentor(PaymentDetails paymentDetails) {
@@ -52,6 +52,6 @@ public class MentoringSubscriptionRequestService extends ClientPaymentRequestSer
     }
 
     public ServiceType getType() {
-        return ServiceType.MENTORING;
+        return ServiceType.MENTORING_SUBSCRIBE;
     }
 }
