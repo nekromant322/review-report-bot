@@ -41,6 +41,7 @@ public class ClientPaymentRequestServiceCommon {
     @Autowired
     private SendMessageService sendMessageService;
 
+    private final String PARSE_MODE = "MarkdownV2";
 
     public ResponseEntity save(ServiceType serviceType, ChequeDTO chequeDTO, ClientPaymentRequest paymentRequest, CrudRepository repository, String promocodeId, UtmTag utmTag) {
 
@@ -85,7 +86,7 @@ public class ClientPaymentRequestServiceCommon {
         paymentDetailsService.save(paymentDetails);
         log.info("Payment details have been redeemed: {}", paymentDetails);
         String receiverId = userInfoService.getUserInfo(ownerUserName).getChatId().toString();
-        sendMessageService.sendMessage(receiverId, text);
+        sendMessageService.sendMessage(receiverId, text, PARSE_MODE);
         log.info(text);
     }
 
@@ -103,6 +104,7 @@ public class ClientPaymentRequestServiceCommon {
     public String generateTextForMentoringBotNotification(PaymentDetails paymentDetails, String response, String tgName) {
         return String.format(response,
                 paymentDetails.getNumber(),
+                paymentDetails.getAmount(),
                 paymentDetails.getPhone(),
                 tgName);
     }
