@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <property name="schema.name" value="public" dbms="postgresql"/>
+    <property name="table.owner" value="report321" dbms="postgresql"/>
+
+    <!-- Active mentors -->
+    <changeSet id="001-create-active-mentors" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="active_mentors" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="active_mentors" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="mentors" type="VARCHAR(255)"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.active_mentors OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Daily -->
+    <changeSet id="002-create-daily" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="daily" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="daily" schemaName="${schema.name}">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="chat_id" type="VARCHAR(255)"/>
+            <column name="message" type="VARCHAR(255)"/>
+            <column name="time" type="TIME"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.daily OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Mentoring subscription request -->
+    <changeSet id="003-create-mentoring-subscription-request" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="mentoring_subscription_request" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="mentoring_subscription_request" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_phone" type="VARCHAR(255)"/>
+            <column name="life_pay_transaction_number" type="VARCHAR(255)"/>
+            <column name="tg_name" type="VARCHAR(255)"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.mentoring_subscription_request OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Promocode -->
+    <changeSet id="004-create-promocode" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="promocode" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="promocode" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="counter_used" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created" type="TIMESTAMP"/>
+            <column name="discount_percent" type="DOUBLE PRECISION">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_uses_number" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="promocode_text" type="VARCHAR(255)"/>
+            <column name="service_type" type="INTEGER"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.promocode OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Resume analysis request -->
+    <changeSet id="005-create-resume-analysis-request" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="resume_analysis_request" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="resume_analysis_request" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="cv_pdf" type="OID"/>
+            <column name="tg_name" type="VARCHAR(255)"/>
+            <column name="life_pay_number" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(255)"/>
+            <column name="customer_phone" type="VARCHAR(255)"/>
+            <column name="life_pay_transaction_number" type="VARCHAR(255)"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.resume_analysis_request OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Schedule period -->
+    <changeSet id="006-create-schedule-period" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="schedule_period" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="schedule_period" schemaName="${schema.name}">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="end_time" type="BIGINT"/>
+            <column name="start_time" type="BIGINT"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.schedule_period OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Special chats -->
+    <changeSet id="007-create-special-chats" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="special_chats" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="special_chats" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="mentors_chat_id" type="VARCHAR(255)"/>
+            <column name="report_chat_id" type="VARCHAR(255)"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.special_chats OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- User contract details -->
+    <changeSet id="008-create-user-contract-details" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user_contract_details" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_contract_details" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="birth_date" type="DATE"/>
+            <column name="contract_number" type="VARCHAR(255)"/>
+            <column name="date" type="DATE"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="full_name" type="VARCHAR(255)"/>
+            <column name="issue_date" type="DATE"/>
+            <column name="passport_issued" type="DATE"/>
+            <column name="passport_number" type="VARCHAR(255)"/>
+            <column name="passport_series" type="VARCHAR(255)"/>
+            <column name="phone_number" type="VARCHAR(255)"/>
+            <column name="registration" type="VARCHAR(255)"/>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.user_contract_details OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- User info -->
+    <changeSet id="009-create-user-info" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_info" schemaName="${schema.name}">
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chat_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_type" type="VARCHAR(255)"/>
+            <column name="notify_about_reports" type="BOOLEAN"/>
+            <column name="timezone" type="VARCHAR(255)"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.user_info OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Contract -->
+    <changeSet id="010-create-contract" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="contract" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="contract" schemaName="${schema.name}">
+            <column name="username" type="VARCHAR(255)"/>
+            <column name="contract_id" type="VARCHAR(255)"/>
+            <column name="date" type="DATE"/>
+            <column name="student_info_chat_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="contract" baseColumnNames="student_info_chat_id"
+                                 referencedTableName="user_info" referencedColumnNames="chat_id"
+                                 constraintName="fk_contract_user_info"/>
+        <sql>ALTER TABLE ${schema.name}.contract OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Mentor -->
+    <changeSet id="011-create-mentor" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="mentor" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="mentor" schemaName="${schema.name}">
+            <column name="user_name" type="VARCHAR(255)"/>
+            <column name="is_active" type="BOOLEAN"/>
+            <column name="room_url" type="VARCHAR(255)"/>
+            <column name="mentor_info_chat_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="mentor" baseColumnNames="mentor_info_chat_id"
+                                 referencedTableName="user_info" referencedColumnNames="chat_id"
+                                 constraintName="fk_mentor_user_info"/>
+        <sql>ALTER TABLE ${schema.name}.mentor OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Report -->
+    <changeSet id="012-create-report" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="report" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="report" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="date" type="DATE"/>
+            <column name="hours" type="INTEGER"/>
+            <column name="student_user_name" type="VARCHAR(255)"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="user_info_chat_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="report" baseColumnNames="user_info_chat_id"
+                                 referencedTableName="user_info" referencedColumnNames="chat_id"
+                                 constraintName="fk_report_user_info"/>
+        <sql>ALTER TABLE ${schema.name}.report OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Review request -->
+    <changeSet id="013-create-review-request" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="review_request" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="review_request" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="booked_date_time" type="TIMESTAMP"/>
+            <column name="date" type="DATE"/>
+            <column name="mentor_user_name" type="VARCHAR(255)"/>
+            <column name="student_chat_id" type="VARCHAR(255)"/>
+            <column name="student_user_name" type="VARCHAR(255)"/>
+            <column name="time_slots" type="VARCHAR(255)"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="poll_message_id" type="INTEGER"/>
+            <column name="student_info_chat_id" type="BIGINT"/>
+            <column name="mentor_info_chat_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="review_request" baseColumnNames="student_info_chat_id"
+                                 referencedTableName="user_info" referencedColumnNames="chat_id"
+                                 constraintName="fk_review_request_student_user_info"/>
+        <addForeignKeyConstraint baseTableName="review_request" baseColumnNames="mentor_info_chat_id"
+                                 referencedTableName="user_info" referencedColumnNames="chat_id"
+                                 constraintName="fk_review_request_mentor_user_info"/>
+        <sql>ALTER TABLE ${schema.name}.review_request OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Salary -->
+    <changeSet id="014-create-salary" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="salary" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="salary" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="date" type="DATE"/>
+            <column name="salary" type="INTEGER"/>
+            <column name="user_name" type="VARCHAR(255)"/>
+            <column name="user_info_chat_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="salary" baseColumnNames="user_info_chat_id"
+                                 referencedTableName="user_info" referencedColumnNames="chat_id"
+                                 constraintName="fk_salary_user_info"/>
+        <sql>ALTER TABLE ${schema.name}.salary OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Step passed -->
+    <changeSet id="015-create-step-passed" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="step_passed" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="step_passed" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="date" type="DATE"/>
+            <column name="step" type="VARCHAR(255)"/>
+            <column name="student_user_name" type="VARCHAR(255)"/>
+            <column name="student_info_chat_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="step_passed" baseColumnNames="student_info_chat_id"
+                                 referencedTableName="user_info" referencedColumnNames="chat_id"
+                                 constraintName="fk_step_passed_user_info"/>
+        <sql>ALTER TABLE ${schema.name}.step_passed OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Personal call request -->
+    <changeSet id="016-create-personal-call-request" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="personal_call_request" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="personal_call_request" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_phone" type="VARCHAR(255)"/>
+            <column name="life_pay_transaction_number" type="VARCHAR(255)"/>
+            <column name="tg_name" type="VARCHAR(255)"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.personal_call_request OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Chat message -->
+    <changeSet id="017-create-chat-message" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="chat_message" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="report" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="chat_message" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="report_chat_bot_message_id" type="INTEGER"/>
+            <column name="user_chat_bot_message_id" type="INTEGER"/>
+            <column name="user_message_id" type="INTEGER"/>
+            <column name="report_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="chat_message" baseColumnNames="report_id"
+                                 referencedTableName="report" referencedColumnNames="id"
+                                 constraintName="fk_chat_message_report"/>
+        <sql>ALTER TABLE ${schema.name}.chat_message OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- UTM tag -->
+    <changeSet id="018-create-utm-tag" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="utm_tag" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="utm_tag" schemaName="${schema.name}">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="source" type="VARCHAR(255)"/>
+            <column name="local_date_time" type="TIMESTAMP"/>
+            <column name="section" type="VARCHAR(255)"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.utm_tag OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Payment details -->
+    <changeSet id="019-create-payment-details" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="payment_details" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="utm_tag" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="payment_details" schemaName="${schema.name}">
+            <column name="number" type="VARCHAR(255)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="amount" type="VARCHAR(255)"/>
+            <column name="card_holder" type="VARCHAR(255)"/>
+            <column name="created" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="discount_amount" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="lat" type="DOUBLE PRECISION"/>
+            <column name="lng" type="DOUBLE PRECISION"/>
+            <column name="method" type="VARCHAR(255)"/>
+            <column name="operator_login" type="VARCHAR(255)"/>
+            <column name="operator_name" type="VARCHAR(255)"/>
+            <column name="td_order" type="JSON"/>
+            <column name="original_number" type="VARCHAR(255)"/>
+            <column name="pan" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(255)"/>
+            <column name="purchase" type="JSONB"/>
+            <column name="recipient_inn" type="VARCHAR(255)"/>
+            <column name="rrn" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(255)"/>
+            <column name="terminal_serial" type="VARCHAR(255)"/>
+            <column name="tip_amount" type="VARCHAR(255)"/>
+            <column name="td_type" type="VARCHAR(255)"/>
+            <column name="service_type" type="INTEGER"/>
+            <column name="utm_tag_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="payment_details" baseColumnNames="utm_tag_id"
+                                 referencedTableName="utm_tag" referencedColumnNames="id"
+                                 constraintName="fk_payment_details_utm_tag"/>
+        <sql>ALTER TABLE ${schema.name}.payment_details OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Promocode payment details set -->
+    <changeSet id="020-create-promocode-payment-details-set" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="promocode_payment_details_set" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="promocode" schemaName="${schema.name}"/>
+                <tableExists tableName="payment_details" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="promocode_payment_details_set" schemaName="${schema.name}">
+            <column name="promocode_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_details_set_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="promocode_payment_details_set" columnNames="promocode_id, payment_details_set_number"/>
+        <addForeignKeyConstraint baseTableName="promocode_payment_details_set" baseColumnNames="promocode_id"
+                                 referencedTableName="promocode" referencedColumnNames="id"
+                                 constraintName="fk_promocode_payment_details_set_promocode"/>
+        <addForeignKeyConstraint baseTableName="promocode_payment_details_set" baseColumnNames="payment_details_set_number"
+                                 referencedTableName="payment_details" referencedColumnNames="number"
+                                 constraintName="fk_promocode_payment_details_set_payment_details"/>
+        <sql>ALTER TABLE ${schema.name}.promocode_payment_details_set OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Notification pay -->
+    <changeSet id="021-create-notification-pay" author="init">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <tableExists tableName="notification_pay" schemaName="${schema.name}"/>
+                </not>
+                <tableExists tableName="user_info" schemaName="${schema.name}"/>
+            </and>
+        </preConditions>
+        <createTable tableName="notification_pay" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="enable" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chat_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="notification_pay" baseColumnNames="chat_id"
+                                 referencedTableName="user_info" referencedColumnNames="chat_id"
+                                 constraintName="fk_notification_pay_user_info"/>
+        <sql>ALTER TABLE ${schema.name}.notification_pay OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Notification report -->
+    <changeSet id="022-create-notification-report" author="init">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="notification_report" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="notification_report" schemaName="${schema.name}">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="enable" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <insert tableName="notification_report">
+            <column name="id" valueNumeric="1"/>
+            <column name="enable" valueBoolean="false"/>
+        </insert>
+        <sql>ALTER TABLE ${schema.name}.notification_report OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+    <!-- Mentoring pay request -->
+    <changeSet id="023-create-mentoring-pay-request" author="ninelive">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="mentoring_pay_request" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="mentoring_pay_request" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_phone" type="VARCHAR(255)"/>
+            <column name="life_pay_transaction_number" type="VARCHAR(255)"/>
+            <column name="tg_name" type="VARCHAR(255)"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.personal_call_request OWNER TO ${table.owner};</sql>
+    </changeSet>
+
+</databaseChangeLog>
