@@ -535,4 +535,22 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
         <sql>ALTER TABLE ${schema.name}.notification_report OWNER TO ${table.owner};</sql>
     </changeSet>
 
+    <!-- Mentoring pay request -->
+    <changeSet id="023-create-mentoring-pay-request" author="ninelive">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="mentoring_pay_request" schemaName="${schema.name}"/>
+            </not>
+        </preConditions>
+        <createTable tableName="mentoring_pay_request" schemaName="${schema.name}">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_phone" type="VARCHAR(255)"/>
+            <column name="life_pay_transaction_number" type="VARCHAR(255)"/>
+            <column name="tg_name" type="VARCHAR(255)"/>
+        </createTable>
+        <sql>ALTER TABLE ${schema.name}.personal_call_request OWNER TO ${table.owner};</sql>
+    </changeSet>
+
 </databaseChangeLog>
