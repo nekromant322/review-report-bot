@@ -102,6 +102,8 @@ public class ClientPaymentRequestServiceCommon {
     }
 
     public String generateTextForMentoringBotNotification(PaymentDetails paymentDetails, String response, String tgName) {
+        //Экранировать только с включенной MarkDown разметкой
+        tgName = (tgName.contains("_")) ? tgName.replace("_", "\\_") : tgName;
         return String.format(response,
                 paymentDetails.getNumber(),
                 paymentDetails.getAmount(),
