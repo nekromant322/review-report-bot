@@ -402,7 +402,7 @@ async function mentoringPromocodePricing() {
         return;
     }
 
-    if (!await checkPromocodeCompatibility("MENTORING", mentoring_promocode.id)) {
+    if (!await checkPromocodeCompatibility("MENTORING_SUBSCRIBE", mentoring_promocode.id)) {
         alert('Промокод не соответствует желаемой услуге!');
         return;
     }
