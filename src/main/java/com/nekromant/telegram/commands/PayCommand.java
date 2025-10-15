@@ -48,43 +48,46 @@ public class PayCommand extends MentoringReviewCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        userInfoService.initializeUserInfo(chat, user);
         SendMessage message = sendMessageFactory.create(chat);
+        message.setText("Команда временно недоступна, обратись к @Marandyuk_Anatolii");
 
-        try {
-            ValidationUtils.validateArgumentsNumber(arguments);
-            ChequeDTO chequeDTO = new ChequeDTO(
-                    login,
-                    apikey,
-                    parseAmount(arguments),
-                    createDescription(user),
-                    parseCustomerPhone(arguments),
-                    method);
-
-            log.info(String.valueOf(chequeDTO));
-            MentoringPayRequest mentoringPayRequest = MentoringPayRequest.builder()
-                    .tgName(user.getUserName())
-                    .customerPhone(parseCustomerPhone(arguments))
-                    .build();
-            log.info("Sending request to LifePay");
-            ResponseEntity<String> lifePayResponse = mentoringPayService.save(mentoringPayRequest, chequeDTO);
-            String paymentUrl = lifePayResponse.getBody();
-            log.info("PaymentURL: " + paymentUrl);
-
-            message.enableMarkdownV2(true);
-            message.setText("Отправлено SMS\\-сообщение со счетом на номер " + chequeDTO.getCustomerPhone()
-                    + " на сумму " + parseAmount(arguments).replace(".", "\\.") + "\n[Ссылка на оплату](" + paymentUrl + ")");
-
-        } catch (InstanceNotFoundException e) {
-            message.setText("У вас нет контракта, обратитесь к @Marandyuk_Anatolii");
-            execute(absSender, message, user);
-            return;
-        } catch (Exception e) {
-            message.setText("Пример: \n" +
-                    "/pay <ваш номер> <сумма услуги>");
-            execute(absSender, message, user);
-            return;
-        }
+//        userInfoService.initializeUserInfo(chat, user);
+//        SendMessage message = sendMessageFactory.create(chat);
+//
+//        try {
+//            ValidationUtils.validateArgumentsNumber(arguments);
+//            ChequeDTO chequeDTO = new ChequeDTO(
+//                    login,
+//                    apikey,
+//                    parseAmount(arguments),
+//                    createDescription(user),
+//                    parseCustomerPhone(arguments),
+//                    method);
+//
+//            log.info(String.valueOf(chequeDTO));
+//            MentoringPayRequest mentoringPayRequest = MentoringPayRequest.builder()
+//                    .tgName(user.getUserName())
+//                    .customerPhone(parseCustomerPhone(arguments))
+//                    .build();
+//            log.info("Sending request to LifePay");
+//            ResponseEntity<String> lifePayResponse = mentoringPayService.save(mentoringPayRequest, chequeDTO);
+//            String paymentUrl = lifePayResponse.getBody();
+//            log.info("PaymentURL: " + paymentUrl);
+//
+//            message.enableMarkdownV2(true);
+//            message.setText("Отправлено SMS\\-сообщение со счетом на номер " + chequeDTO.getCustomerPhone()
+//                    + " на сумму " + parseAmount(arguments).replace(".", "\\.") + "\n[Ссылка на оплату](" + paymentUrl + ")");
+//
+//        } catch (InstanceNotFoundException e) {
+//            message.setText("У вас нет контракта, обратитесь к @Marandyuk_Anatolii");
+//            execute(absSender, message, user);
+//            return;
+//        } catch (Exception e) {
+//            message.setText("Пример: \n" +
+//                    "/pay <ваш номер> <сумма услуги>");
+//            execute(absSender, message, user);
+//            return;
+//        }
         execute(absSender, message, user);
     }
 
