@@ -6,7 +6,7 @@ const pdfInput = document.getElementById('pdf'),
     linksClose = document.getElementById('links-close'),
     resumeButton = document.getElementById('resume-button'),
     resume = document.getElementById('resume'),
-    // mentoringButton = document.getElementById('mentoring-button'),
+    mentoringButton = document.getElementById('mentoring-button'),
     mentoring = document.getElementById('mentoring'),
     callButton = document.getElementById('call-button'),
     call = document.getElementById('call'),
@@ -82,17 +82,17 @@ showCallButton.addEventListener('click', async () => {
     document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${call_price}  р.`;
 });
 
-showMentoringButton.addEventListener('click', async () => {
-    popup.classList.remove('popup_hidden');
-    popupTitle.innerText = MENTORING_TITLE;
-    pdfField.style.display = 'none';
-    pdfInput.required = false;
-    contractLink.href = './others/mentoring_subscription_pferta.pdf';
+// showMentoringButton.addEventListener('click', async () => {
+//     popup.classList.remove('popup_hidden');
+//     popupTitle.innerText = MENTORING_TITLE;
+//     pdfField.style.display = 'none';
+//     pdfInput.required = false;
+//     contractLink.href = './others/mentoring_subscription_pferta.pdf';
 
-    let response = await fetch("./pricing/mentoring/price");
-    let mentoring_price = await response.text();
-    document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${mentoring_price}  р.`;
-});
+//     let response = await fetch("./pricing/mentoring/price");
+//     let mentoring_price = await response.text();
+//     document.getElementById("pay-button").innerHTML = `К ОПЛАТЕ ${mentoring_price}  р.`;
+// });
 
 popupClose.addEventListener('click', () => {
     popup.classList.add('popup_hidden');
