@@ -48,8 +48,6 @@ public class PayCommand extends MentoringReviewCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        SendMessage message = sendMessageFactory.create(chat);
-        
        userInfoService.initializeUserInfo(chat, user);
        SendMessage message = sendMessageFactory.create(chat);
 
