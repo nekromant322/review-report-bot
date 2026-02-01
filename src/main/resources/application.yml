@@ -19,7 +19,7 @@ pay-info:
   apikey: ${LIFE_PAY_KEY:root}
   method: sbp
 price:
-  resume-review: ${REVIEW_PRICE:5000}
+  resume-review: ${REVIEW_PRICE:6000}
   mentoring-subscription: ${MENTORING_PRICE:50000}
   personal-call: ${CALL_PRICE:10000}
 
