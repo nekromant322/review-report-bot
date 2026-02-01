@@ -72,4 +72,4 @@ jobs:
             sudo -S docker compose -f docker-compose.yml --env-file=review-bot-env.txt up -d
             sudo -S docker ps -a  
             
-            # rm review-bot-env.txt
+            rm review-bot-env.txt
