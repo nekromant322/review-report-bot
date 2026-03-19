@@ -50,7 +50,8 @@ public class PaymentDetailsRestController {
 
         PaymentDetailsDTO paymentDetailsDTO = objectMapper.readValue(json, PaymentDetailsDTO.class);
         PaymentDetails paymentDetails = modelMapper.map(paymentDetailsDTO, PaymentDetails.class);
-        sendMessage(paymentDetails);
+        //TODO пофиксить многократную повторную отправку (возможно дело в lifepay, возможно в нас, но спам уведомлениями жесточайший
+        //sendMessage(paymentDetails);
         log.info("PaymentDetailsRestController: send message to owner with transaction -> " + paymentDetails);
 
         PaymentDetails pendingPay = paymentDetailsService.findByNumber(paymentDetails.getNumber());
