@@ -21,9 +21,9 @@ services:
     container_name: review-bot
     restart: unless-stopped
     environment:
-      POSTGRES_HOST: review-bot-db
+      POSTGRES_HOST: localhost
       POSTGRES_DB: review_bot
-      TELEGRAM_BOT_DB_PORT: 5432
+      TELEGRAM_BOT_DB_PORT: 5436
       POSTGRES_USER: ${REVIEW_BOT_DB_USER:-postgres}
       POSTGRES_PASSWORD: ${REVIEW_BOT_DB_PASSWORD:-postgres}
       TELEGRAM_BOT_NAME: ${TELEGRAM_BOT_NAME:-MentoringReviewBot}
