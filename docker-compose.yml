@@ -37,8 +37,7 @@ services:
       TIMEZONE_API_KEY: ${TIMEZONE_API_KEY}
     ports:
       - "9100:8080"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    network_mode: host
     logging:
       driver: "json-file" 
       options:
