@@ -33,7 +33,7 @@ body {
 
 html {
     overflow: auto;
-    font-size: 0.069vw;
+    font-size: min(0.069vw, 1.325px); /* caps at ~1920px wide */
 }
 
 html:has(.popup:not(.popup_hidden)) {
@@ -367,7 +367,7 @@ a {
     max-height: 90vh;
     overflow-y: auto;
     border: 2px solid rgba(255, 255, 255, 0.04);
-    border-radius: 5px;
+    border-radius: 16px;
     background-color: var(--popup-background);
     display: flex;
     flex-direction: column;
@@ -679,6 +679,10 @@ a {
     margin-top: 10px;
 }
 
+.form__footer__note_hidden {
+    display: none;
+}
+
 /* ─── TABLET BREAKPOINT (432px – 1200px) ──────────────────────── */
 
 @media (min-width: 432px) and (max-width: 1200px) {
@@ -929,6 +933,7 @@ a {
         max-height: 100%;
         border-radius: 0;
         overflow-y: auto;
+        border: none;
     }
 
     .form {

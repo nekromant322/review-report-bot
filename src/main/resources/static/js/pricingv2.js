@@ -441,3 +441,9 @@ async function getCallPrice() {
 getMentoringPrice();
 getRoastingPrice();
 getCallPrice();
+
+// Show Safari popup warning only in Safari
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+if (isSafari) {
+    document.getElementById('safari-note').classList.remove('form__footer__note_hidden');
+}
