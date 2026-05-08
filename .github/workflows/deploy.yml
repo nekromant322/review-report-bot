@@ -16,7 +16,7 @@ jobs:
         with:
           host: "194.87.96.29"
           username: "github-review-bot"
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_ZURICH }}
           port: 22
           source: "docker-compose.yml"
           target: "/home/github-review-bot"
