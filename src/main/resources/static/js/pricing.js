@@ -346,14 +346,13 @@ async function getCallPrice() {
 async function roastingPromocodePricing() {
     let promocodeInput = document.getElementById("promo").value;
     if (promocodeInput.length === 0) {
-        alert('Что-то надо ввести');
         return;
     }
 
     let response = await fetch("./promocodes?text=" + promocodeInput);
 
     if (response.status == 404) {
-        alert("Промокода с таким текстом не существует!");
+        alert("Такого промокода не существует");
         return;
     }
     let cv_promocode = await response.json();
@@ -386,14 +385,13 @@ async function roastingPromocodePricing() {
 async function mentoringPromocodePricing() {
     let promocodeInput = document.getElementById("promo").value;
     if (promocodeInput.length === 0) {
-        alert('Что-то надо ввести');
         return;
     }
 
     let response = await fetch("./promocodes?text=" + promocodeInput);
 
     if (response.status == 404) {
-        alert("Промокода с таким текстом не существует!");
+        alert("Такого промокода не существует");
         return;
     }
     let mentoring_promocode = await response.json();
@@ -426,14 +424,13 @@ async function mentoringPromocodePricing() {
 async function callPromocodePricing() {
     let promocodeInput = document.getElementById("promo").value;
     if (promocodeInput.length === 0) {
-        alert('Что-то надо ввести');
         return;
     }
 
     let response = await fetch("./promocodes?text=" + promocodeInput);
 
     if (response.status == 404) {
-        alert("Промокода с таким текстом не существует!");
+        alert("Такого промокода не существует");
         return;
     }
     let call_promocode = await response.json();
