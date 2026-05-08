@@ -28,6 +28,15 @@ public class PricingController {
         }
         return "pricing";
     }
+    @GetMapping("/pricingv2")
+    public String getPricingPagev2(@RequestParam(required = false) String source,
+                                 HttpServletResponse response) {
+        if (source != null) {
+            UtmTag tag = utmTagsService.getTag(source, UtmTag.PRICE_SECTION);
+            response.addCookie(utmTagsService.setCookieByUtmTag(tag));
+        }
+        return "pricingv2";
+    }
 
     @GetMapping("/pricingv1")
     public String getResumeAnalysisRequestPage() {

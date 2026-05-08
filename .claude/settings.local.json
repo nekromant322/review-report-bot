@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\override\\\\IdeaProjects\\\\review-report-bot\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "PowerShell(head *)"
+    ]
+  }
+}
