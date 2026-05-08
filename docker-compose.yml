@@ -21,7 +21,7 @@ services:
     container_name: review-bot
     restart: unless-stopped
     environment:
-      DB_HOST: ${DB_HOST:-localhost}
+      DB_HOST: ${DB_HOST:-host.docker.internal}
       POSTGRES_DB: review_bot
       DB_PORT: ${DB_PORT:-5436}
       POSTGRES_USER: ${REVIEW_BOT_DB_USER:-postgres}

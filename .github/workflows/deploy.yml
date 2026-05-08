@@ -53,7 +53,8 @@ jobs:
           username: "github-review-bot"
           key: ${{ secrets.SSH_PRIVATE_KEY_ZURICH }}
           script: |
-            echo DB_HOST = 195.133.147.161 >> review-bot-env.txt
+#                    old db
+#            echo DB_HOST = 195.133.147.161 >> review-bot-env.txt
             echo DB_PORT = 5436 >> review-bot-env.txt
             echo REVIEW_BOT_DB_USER = ${{ secrets.REVIEW_BOT_DB_USER }} >> review-bot-env.txt
             echo REVIEW_BOT_DB_PASSWORD = ${{ secrets.REVIEW_BOT_DB_PASSWORD }} >> review-bot-env.txt
